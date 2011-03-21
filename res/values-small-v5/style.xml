@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Workaround: problem with background image in WorkspaceView -->
+  <style name="body">
+    <item name="android:background">#222222</item>
+    <item name="android:paddingBottom">4dip</item>
+  </style>
+
+  <style name="spacer">
+    <item name="android:layout_width">64dip</item>
+    <item name="android:layout_height">10dip</item>
+  </style>
+  <style name="button">
+    <item name="android:layout_width">75dip</item>
+    <item name="android:layout_height">58dip</item>
+    <item name="android:background">@drawable/btn_remote</item>
+    <item name="android:textColor">@android:color/white</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:scaleType">center</item>
+    <item name="android:onClick">onButtonClick</item>
+    <item name="android:longClickable">true</item>
+  </style>
+  <style name="buttonSquare" parent="@style/button">
+    <item name="android:layout_width">64dip</item>
+    <item name="android:layout_height">64dip</item>
+  </style>
+</resources>

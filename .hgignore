@@ -1,0 +1,5 @@
+
+syntax: regexp
+^lib/.*$
+syntax: regexp
+^bin/.*$

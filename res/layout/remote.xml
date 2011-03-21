@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/remote"
+	android:orientation="vertical"
+	android:paddingTop="10dip" 
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent" >
+	<ScrollView android:id="@+id/scrolltab"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" >
+		<RelativeLayout 
+			xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/widget206"
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:measureAllChildren="true" >
+			
+			<ImageButton 
+				android:layout_x="0px"
+				android:layout_y="1dip" 
+				android:layout_height="66dip"
+				android:layout_width="62dip" 
+				android:src="@drawable/ic_power_on"
+				android:id="@+id/T_power_on" 
+				android:tag="on" 
+				android:layout_marginLeft="1dip" >
+			</ImageButton>
+			<Button 
+				android:text="Kanal" 
+				android:layout_height="66dip"
+				android:layout_width="62dip" 
+				android:layout_marginLeft="62dip"
+				android:textSize="12sp" 
+				android:tag="kanal" 
+				android:id="@+id/Tkanal"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:text="Timer"
+				android:layout_height="66dip" 
+				android:layout_marginTop="0dip" 
+				android:layout_marginLeft="124dip"
+				android:layout_width="64dip" 
+				android:textSize="12sp" 
+				android:id="@+id/TTimer"
+				android:tag="timer"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:text="Prog." 
+				android:layout_marginTop="0dip"
+				android:layout_marginLeft="186dip" 
+				android:textSize="12sp"
+				android:layout_height="66dip" 
+				android:layout_width="62dip"
+				android:tag="programm" 
+				android:id="@+id/TProgramm"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<ImageButton 
+				android:layout_height="66dip"
+				android:layout_width="62dip" 
+				android:src="@drawable/ic_power"
+				android:layout_marginLeft="258dip" 
+				android:id="@+id/T_power_off"
+				android:tag="off"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+
+			<Button 
+				android:text="1" 
+				android:layout_height="66dip"
+				android:layout_width="62dip" 
+				android:layout_marginTop="106dip"
+				android:tag="1" 
+				android:id="@+id/T1"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:text="2" 
+				android:layout_marginLeft="62dip"
+				android:layout_height="66dip" 
+				android:layout_width="62dip"
+				android:layout_marginTop="106dip" 
+				android:tag="2" 
+				android:id="@+id/T2"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:text="3" 
+				android:layout_width="62dip"
+				android:layout_height="66dip" 
+				android:layout_marginLeft="124dip"
+				android:layout_marginTop="106dip" 
+				android:tag="3" 
+				android:id="@+id/T3"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<ImageButton 
+				android:layout_marginTop="106dip" 
+				android:layout_height="66dip"
+				android:layout_width="62dip" 
+				android:layout_marginLeft="186dip"
+				android:src="@drawable/ic_menu_back" 
+				android:paddingLeft="5dip"
+				android:paddingTop="5dip" 
+				android:tag="back" 
+				android:id="@+id/Tback"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+			<ImageButton 
+				android:src="@drawable/ic_menu_50x50"
+				android:paddingTop="2dip" 
+				android:layout_height="66dip"
+				android:layout_width="70dip" 
+				android:layout_marginTop="106dip"
+				android:layout_marginLeft="250dip" 
+				android:tag="menu" 
+				android:id="@+id/TMenu"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+			
+			<ImageButton 
+				android:layout_height="60dip"
+				android:layout_marginLeft="232dip" 
+				android:layout_width="44dip"
+				android:src="@drawable/pfeil_o_30x30" 
+				android:paddingLeft="7dip"
+				android:layout_marginTop="178dip" 
+				android:id="@+id/Tup"
+				android:tag="up"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+			<Button 
+				android:layout_height="60dip" 
+				android:text="ok"
+				android:layout_width="44dip" 
+				android:textSize="11sp"
+				android:layout_marginTop="241dip" 
+				android:layout_marginLeft="232dip"
+				android:tag="ok" 
+				android:id="@+id/Tok"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<ImageButton 
+				android:layout_height="60dip"
+				android:visibility="visible" 
+				android:layout_width="44dip"
+				android:layout_marginLeft="232dip" 
+				android:src="@drawable/pfeil_u_30x30"
+				android:paddingTop="14dip" 
+				android:paddingLeft="6dip"
+				android:layout_marginTop="304dip" 
+				android:id="@+id/Tdown"
+				android:tag="down"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+			<ImageButton 
+				android:layout_height="60dip"
+				android:layout_marginLeft="276dip" 
+				android:layout_width="44dip"
+				android:src="@drawable/pfeil_r_30x30" 
+				android:paddingLeft="7dip"
+				android:layout_marginTop="241dip" 
+				android:id="@+id/Trechts"
+				android:tag="right"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+			<ImageButton 
+				android:layout_height="60dip"
+				android:layout_marginLeft="188dip" 
+				android:layout_width="44dip"
+				android:src="@drawable/pfeil_l_30x30" 
+				android:paddingLeft="7dip"
+				android:layout_marginTop="241dip" 
+				android:id="@+id/Tlinks"
+				android:tag="left"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+			<Button 
+				android:text="4" 
+				android:layout_height="66dip"
+				android:layout_marginTop="172dip" 
+				android:layout_width="62dip"
+				android:tag="4" android:id="@+id/T4"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:text="5" 
+				android:layout_height="66dip"
+				android:layout_marginTop="172dip" 
+				android:layout_width="62dip"
+				android:layout_marginLeft="62dip" 
+				android:tag="5" 
+				android:id="@+id/T5"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:text="6" 
+				android:layout_marginTop="172dip"
+				android:layout_height="66dip" 
+				android:layout_marginLeft="124dip"
+				android:layout_width="62dip" 
+				android:tag="6" 
+				android:id="@+id/T6"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:text="7" 
+				android:layout_marginTop="238dip"
+				android:layout_height="66dip" 
+				android:layout_width="62dip"
+				android:tag="7" 
+				android:id="@+id/T7"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:layout_x="72dip" 
+				android:layout_y="232dip"
+				android:text="8" 
+				android:layout_marginTop="238dip"
+				android:layout_height="66dip" 
+				android:layout_width="62dip"
+				android:layout_marginLeft="62dip" 
+				android:tag="8" 
+				android:id="@+id/T8"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:text="9" 
+				android:layout_height="66dip"
+				android:layout_marginTop="238dip"
+				android:layout_marginLeft="124dip"
+				android:layout_width="62dip" 
+				android:tag="9" 
+				android:id="@+id/T9"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<Button 
+				android:layout_marginTop="304dip"
+				android:layout_height="66dip" 
+				android:layout_width="62dip"
+				android:layout_marginLeft="62dip" 
+				android:text="0" 
+				android:tag="0"
+				android:id="@+id/T0"
+				android:onClick = "onButtonClick" >
+			</Button>
+			<ImageButton 
+				android:layout_height="50dip" 
+				android:src="@drawable/rot"
+				android:layout_marginLeft="0dip" 
+				android:layout_marginTop="400dip"
+				android:layout_width="80dip" 
+				android:tag="red" 
+				android:id="@+id/Trot"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+			<ImageButton 
+				android:layout_height="50dip" 
+				android:src="@drawable/gruen"
+				android:layout_marginTop="400dip" 
+				android:layout_marginLeft="80dip"
+				android:layout_width="80dip" 
+				android:tag="green" 
+				android:id="@+id/Tgruen"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+			<ImageButton 
+				android:layout_height="50dip" 
+				android:src="@drawable/gelb"
+				android:layout_marginTop="400dip" 
+				android:layout_marginLeft="160dip"
+				android:layout_width="80dip" 
+				android:tag="yellow" 
+				android:id="@+id/Tgelb"
+				android:onClick = "onButtonClick" >
+			</ImageButton>
+			<ImageButton 
+				android:src="@drawable/blau"
+				android:layout_marginTop="400dip" 
+				android:layout_width="80dip"
+				android:layout_marginLeft="240dip" 
+				android:layout_height="50dip"
+				android:tag="blue" 
+				android:id="@+id/Tblau"
+				android:onClick = "onButtonClick" >
+			</ImageButton>			
+		</RelativeLayout>
+	</ScrollView>
+</TableLayout>

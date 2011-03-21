@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="spacer">
+    <item name="android:layout_width">62dip</item>
+    <item name="android:layout_height">10dip</item>
+  </style>
+  <style name="button">
+    <item name="android:layout_width">75dip</item>
+    <item name="android:layout_height">50dip</item>
+    <item name="android:background">@drawable/btn_remote</item>
+    <item name="android:textColor">@android:color/white</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:scaleType">center</item>
+    <item name="android:onClick">onButtonClick</item>
+    <item name="android:longClickable">true</item>
+  </style>
+</resources>
