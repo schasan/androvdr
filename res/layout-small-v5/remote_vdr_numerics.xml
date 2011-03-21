@@ -11,20 +11,20 @@
     android:layout_height="wrap_content">
     <TableRow>
       <ImageButton
-        style="@style/buttonPowerOn"
+        style="?buttonPowerOn"
         android:tag="VDR.wol|VDR.wolinternet" />
       <Button
-        style="@style/button"
+        style="?button"
         android:layout_weight="1"
         android:text="@string/remote_mute"
         android:tag="VDR.mute" />
       <Button
-        style="@style/button"
+        style="?button"
         android:layout_weight="1"
         android:text="@string/remote_record"
         android:tag="VDR.record" />
       <ImageButton
-        style="@style/buttonPowerOff"
+        style="?buttonPowerOff"
         android:tag="VDR.power" />
     </TableRow>
   </TableLayout>
@@ -37,22 +37,22 @@
     android:layout_width="fill_parent">
     <TableRow>
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="@string/remote_menu"
         android:tag="VDR.menu" />
       <TextView
         style="?spacer"
         android:layout_weight="1" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="1"
         android:tag="VDR.1" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="2"
         android:tag="VDR.2" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="3"
         android:tag="VDR.3" />
     </TableRow>
@@ -63,36 +63,36 @@
         style="?spacer"
         android:layout_weight="1" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="4"
         android:tag="VDR.4" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="5"
         android:tag="VDR.5" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="6"
         android:tag="VDR.6" />
     </TableRow>
     <TableRow>
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="@string/remote_back"
         android:tag="VDR.back" />
       <TextView
         style="?spacer"
         android:layout_weight="1" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="7"
         android:tag="VDR.7" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="8"
         android:tag="VDR.8" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="9"
         android:tag="VDR.9" />
     </TableRow>
@@ -105,7 +105,7 @@
       <TextView
         style="?spacer" />
       <Button
-        style="@style/buttonSquare"
+        style="?buttonSquare"
         android:text="0"
         android:tag="VDR.0" />
       <TextView

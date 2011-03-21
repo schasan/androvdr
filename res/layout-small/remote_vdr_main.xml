@@ -42,63 +42,51 @@
     <TableRow>
       <Button
         style="?buttonSquare"
-        android:layout_weight="1"
         android:text="@string/remote_menu"
         android:tag="VDR.menu" />
       <TextView
         style="?spacer"
         android:layout_weight="1" />
       <TextView
-        style="?spacer"
-        android:layout_weight="1" />
+        style="?spacer" />
       <ImageButton
         style="?buttonUp"
-        android:layout_weight="1"
         android:tag="VDR.up" />
       <TextView
-        style="?spacer"
-        android:layout_weight="1" />
+        style="?spacer" />
     </TableRow>
     <TableRow>
       <TextView
-        style="?spacer"
-        android:layout_weight="1" />
+        style="?spacer" />
       <TextView
         style="?spacer"
         android:layout_weight="1" />
       <ImageButton
         style="?buttonLeft"
-        android:layout_weight="1"
         android:tag="VDR.left" />
       <Button
         style="?buttonSquare"
-        android:layout_weight="1"
         android:text="OK"
         android:tag="VDR.ok" />
       <ImageButton
         style="?buttonRight"
-        android:layout_weight="1"
         android:tag="VDR.right" />
     </TableRow>
     <TableRow>
       <Button
         style="?buttonSquare"
-        android:layout_weight="1"
         android:text="@string/remote_back"
         android:tag="VDR.back" />
       <TextView
         style="?spacer"
         android:layout_weight="1" />
       <TextView
-        style="?spacer"
-        android:layout_weight="1" />
+        style="?spacer" />
       <ImageButton
         style="?buttonDown"
-        android:layout_weight="1"
         android:tag="VDR.down" />
       <TextView
-        style="?spacer"
-        android:layout_weight="1" />
+        style="?spacer" />
     </TableRow>
   </TableLayout>
   <LinearLayout
