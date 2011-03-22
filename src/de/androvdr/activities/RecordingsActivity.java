@@ -23,6 +23,7 @@ package de.androvdr.activities;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -31,11 +32,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.controllers.RecordingController;
 
 public class RecordingsActivity extends AbstractListActivity {
+	private static final int HEADER_TEXT_SIZE = 15;
+	
 	private RecordingController mController;
 	private ListView mListView;
 	
@@ -43,6 +48,10 @@ public class RecordingsActivity extends AbstractListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.recordings);
+
+		TextView tv = (TextView) findViewById(R.id.recheader);
+		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
+		
 		mListView = (ListView) findViewById(android.R.id.list);
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null)

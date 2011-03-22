@@ -154,7 +154,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		View root = inflater.inflate(R.layout.usertab, null);
 		RelativeLayout v = (RelativeLayout)root.findViewById(R.id.root);
 		if (!Preferences.alternateLayout)
-			v.setBackgroundColor(Color.TRANSPARENT);
+			v.setBackgroundColor(Color.BLACK);
 		UsertabParser p = new UsertabParser(usertabFile);
 		ArrayList<UsertabParser.UserButton> bList = p.getButtons();
 		LayoutParams l;
@@ -208,11 +208,32 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    boolean screenSmall = ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_SMALL) == Configuration.SCREENLAYOUT_SIZE_SMALL);
 	    boolean screenNormal = ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_NORMAL) == Configuration.SCREENLAYOUT_SIZE_NORMAL);
 	    boolean screenLong = ((conf.screenLayout & Configuration.SCREENLAYOUT_LONG_YES) == Configuration.SCREENLAYOUT_LONG_YES);
+	    boolean screenLarge = ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_LARGE) == Configuration.SCREENLAYOUT_SIZE_LARGE);
+	    boolean screenXLarge = ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
+
 	    MyLog.v(TAG, "Screen Small: " + screenSmall);
 	    MyLog.v(TAG, "Screen Normal: " + screenNormal);
 	    MyLog.v(TAG, "Screen Long: " + screenLong);
-	    
-		if (Build.VERSION.SDK_INT >= 5) {
+	    MyLog.v(TAG, "Screen Large: " + screenLarge);
+	    MyLog.v(TAG, "Screen XLarge: " + screenXLarge);
+
+	    /*
+	     * device dependant layout initilization
+	     */
+		if (!usertabFile.exists() && Preferences.alternateLayout && (screenLarge || screenXLarge)) {
+			
+			/*
+			 * tablets with large screen and no usertab
+			 */
+			
+			setContentView(R.layout.remote_vdr_main);
+			
+		} else 	if (Build.VERSION.SDK_INT > 4) {
+
+			/*
+			 * devices with Android > 1.6
+			 */
+			
 			mWorkspace = new WorkspaceView(this, null);
 			mWorkspace.setTouchSlop(32);
 			mWorkspace.setOnLoadListener(this);
@@ -222,11 +243,15 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 
 			int[] screens;
 			if (Preferences.alternateLayout) {
-				if (screenSmall)
+				if (screenLarge || screenXLarge) {
+					screens = new int[] { R.layout.remote_vdr_main };
+				} else if (screenNormal)
+					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics };
+				else if (screenSmall)
 					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics, R.layout.remote_vdr_play };
 				else
 					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics };
-					
+	
 				mWorkspace.setDefaultScreen(0);
 			} else {
 				screens = new int[] { R.layout.tab1, R.layout.tab2,
@@ -246,7 +271,13 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			}
 
 			setContentView(mWorkspace);
+			
 		} else {
+
+			/*
+			 * devices with Android 1.6
+			 */
+			
 			setContentView(R.layout.main);
 		    MyTabContentFactory tab = new MyTabContentFactory(this);
 		    TabHost mTabHost = (TabHost) findViewById(R.id.tabhost);

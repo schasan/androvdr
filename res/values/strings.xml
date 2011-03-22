@@ -145,6 +145,14 @@
     <string name="remote_user1">User 1</string>
     <string name="remote_user2">User 2</string>
     <string name="remote_user3">User 3</string>
+    <string name="remote_user4">User 4</string>
     <string name="remote_play">Play</string>
     <string name="remote_cut">Cut</string>
+    <string name="remote_audio">Audio</string>
+    <string name="remote_commands">Commands</string>
+    <string name="remote_vol_up">Vol+</string>
+    <string name="remote_vol_down">Vol-</string>
+    <string name="remote_chan_up">Ch+</string>
+    <string name="remote_chan_down">Ch-</string>
+    <string name="remote_chan_last">Last</string>
 </resources>

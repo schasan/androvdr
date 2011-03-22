@@ -23,19 +23,23 @@ package de.androvdr.activities;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import de.androvdr.MyLog;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.controllers.TimerController;
 
 public class TimersActivity extends AbstractListActivity {
 	private static final String TAG = "TimersActivity";
+	private static final int HEADER_TEXT_SIZE = 15;
 	
 	private TimerController mController;
 	private ListView mListView;
@@ -44,6 +48,10 @@ public class TimersActivity extends AbstractListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.timers);
+		
+		TextView tv = (TextView) findViewById(R.id.timers_header);
+		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
+		
 		MyLog.v(TAG, "onCreate");
 	    mListView = (ListView) findViewById(android.R.id.list);
 	    mController = new TimerController(this, handler, mListView);

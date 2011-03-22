@@ -113,6 +113,9 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			mListView.setCacheColorHint(Color.WHITE);
 		}
 		
+		TextView tv = (TextView) view.findViewById(R.id.epgsheader);
+		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	epgdefaultSize + Preferences.textSizeOffset);
+		
 		mChannelNumber = channelNumber;
 		mMaxEpgdata = max;
 		mIsMultiChannelView = (channelNumber == EPG_NOW);

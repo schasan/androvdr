@@ -104,7 +104,7 @@ public class RecordingInfoController extends AbstractController implements Runna
 		TextView tv = (TextView) mView.findViewById(R.id.reci_header);
 		if (tv != null){
 			tv.setText(recordingInfo.title);
-			// tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
+			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 		}
 		tv = (TextView) mView.findViewById(R.id.reci_channel);
 		if (tv != null){

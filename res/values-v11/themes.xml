@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <style name="Theme" parent="android:Theme">
+  <style name="Theme" parent="android:Theme.Holo">
     <item name="header">@style/header</item>
     <item name="body">@style/body</item>
     <item name="button">@style/button</item>
@@ -23,7 +23,7 @@
     <item name="buttonPowerOffSquare">@style/buttonPowerOffSquare</item>
     <item name="spacer">@style/spacer</item>
   </style>
-  <style name="Theme.Original" parent="android:Theme">
+  <style name="Theme.Original" parent="android:Theme.Holo">
     <item name="header">@style/header</item>
     <item name="body">@style/body.Original</item>
     <item name="button">@style/button.Original</item>

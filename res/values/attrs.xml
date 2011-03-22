@@ -4,6 +4,7 @@
   <attr name="header" format="reference" />
   <attr name="button" format="reference" />
   <attr name="buttonSquare" format="reference" />
+  <attr name="buttonSquareHeight" format="reference" />
   <attr name="buttonUp" format="reference" />
   <attr name="buttonDown" format="reference" />
   <attr name="buttonLeft" format="reference" />

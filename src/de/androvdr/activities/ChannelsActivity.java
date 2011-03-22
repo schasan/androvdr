@@ -23,20 +23,24 @@ package de.androvdr.activities;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import de.androvdr.Messages;
 import de.androvdr.MyLog;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.controllers.ChannelController;
 
 public class ChannelsActivity extends AbstractListActivity {
 	private static final String TAG = "ChannelsActivity";
+	private static final int HEADER_TEXT_SIZE = 15;
 	
 	private ChannelController mController;
 	private ListView mListView;
@@ -65,8 +69,11 @@ public class ChannelsActivity extends AbstractListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.extendedchannels);
-		MyLog.v(TAG, "onCreate");
-	    mListView = (ListView) findViewById(android.R.id.list);
+
+		TextView tv = (TextView) findViewById(R.id.channels_header);
+		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
+	    
+		mListView = (ListView) findViewById(android.R.id.list);
 	    mController = new ChannelController(this, mHandler, mListView);
 	}
 	

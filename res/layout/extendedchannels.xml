@@ -6,6 +6,7 @@
   android:orientation="vertical">
   <TextView
     style="?header"
+    android:id="@+id/channels_header"
     android:text="@string/channels" />
   <ListView
     android:id="@android:id/list"

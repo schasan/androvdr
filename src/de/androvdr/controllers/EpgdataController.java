@@ -110,7 +110,7 @@ public class EpgdataController extends AbstractController {
 			TextView tv = (TextView) mView.findViewById(R.id.pgi_header);
 			if (tv != null){
 				tv.setText(epg.titel);
-				// tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
+				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
 			}
 			tv = (TextView) mView.findViewById(R.id.pgi_title);
 			if (tv != null){
