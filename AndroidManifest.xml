@@ -12,19 +12,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GesturesFind" android:screenOrientation="portrait"></activity>
-        <activity android:name=".GesturesCreate" android:screenOrientation="portrait"></activity>
-        <activity android:name=".GesturesBuilder" android:screenOrientation="portrait"></activity>
-		<activity android:name=".activities.AboutActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activities.ChannelsActivity" android:screenOrientation="portrait"></activity>
-		<activity android:name=".activities.EpgsdataActivity" android:screenOrientation="portrait"></activity>
-		<activity android:name=".activities.EpgdataActivity" android:screenOrientation="portrait"></activity>
-		<activity android:name=".activities.TimersActivity" android:screenOrientation="portrait"></activity>
-		<activity android:name=".activities.RecordingsActivity" android:screenOrientation="portrait"></activity>
-		<activity android:name=".activities.RecordingInfoActivity" android:screenOrientation="portrait"></activity>
-		<activity android:name=".activities.PreferencesActivity" android:screenOrientation="portrait"></activity>
-		<activity android:name=".activities.DevicesActivity" android:screenOrientation="portrait"></activity>
-		<activity android:name=".activities.DevicePreferencesActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".GesturesFind"></activity>
+        <activity android:name=".GesturesCreate"></activity>
+        <activity android:name=".GesturesBuilder"></activity>
+		<activity android:name=".activities.AboutActivity"></activity>
+        <activity android:name=".activities.ChannelsActivity"></activity>
+		<activity android:name=".activities.EpgsdataActivity"></activity>
+		<activity android:name=".activities.EpgdataActivity"></activity>
+		<activity android:name=".activities.TimersActivity"></activity>
+		<activity android:name=".activities.RecordingsActivity"></activity>
+		<activity android:name=".activities.RecordingInfoActivity"></activity>
+		<activity android:name=".activities.PreferencesActivity"></activity>
+		<activity android:name=".activities.DevicesActivity"></activity>
+		<activity android:name=".activities.DevicePreferencesActivity"></activity>
 	</application>
 	<supports-screens 
 		android:smallScreens="true"
