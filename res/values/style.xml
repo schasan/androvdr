@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <!-- Theme / Layout FvK -->
-  <style name="header">
+  <style name="header" parent="@android:style/TextAppearance.WindowTitle">
     <item name="android:layout_height">wrap_content</item>
     <item name="android:layout_width">fill_parent</item>
-    <item name="android:padding">4dip</item>
     <item name="android:gravity">center</item>
-    <item name="android:textStyle">bold</item>
-    <item name="android:textColor">#fff</item>
-    <item name="android:background">@android:color/darker_gray</item>
-  </style>
+    <item name="android:background">@android:drawable/title_bar</item>
+   </style>
   <style name="body">
     <item name="android:background">@drawable/keyboard_background</item>
     <item name="android:paddingBottom">4dip</item>
