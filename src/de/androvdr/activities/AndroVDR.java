@@ -44,6 +44,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -202,8 +203,15 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		else
 			setTheme(R.style.Theme_Original);
 		
+		MyLog.v(TAG, "Model: " + Build.MODEL);
 		MyLog.v(TAG, "SDK Version: " + Build.VERSION.SDK_INT);
 
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		MyLog.v(TAG, "Width: " + metrics.widthPixels);
+		MyLog.v(TAG, "Height: " + metrics.heightPixels);
+		MyLog.v(TAG, "Density: " + metrics.densityDpi);
+		
 	    Configuration conf = getResources().getConfiguration();
 	    boolean screenSmall = ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_SMALL) == Configuration.SCREENLAYOUT_SIZE_SMALL);
 	    boolean screenNormal = ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_NORMAL) == Configuration.SCREENLAYOUT_SIZE_NORMAL);
@@ -228,7 +236,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			
 			setContentView(R.layout.remote_vdr_main);
 			
-		} else 	if (Build.VERSION.SDK_INT > 4) {
+		} else if (Build.VERSION.SDK_INT > 4) {
 
 			/*
 			 * devices with Android > 1.6
