@@ -262,9 +262,6 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	       				epgdefaultSize + Preferences.textSizeOffset);
 
 				row.setTag(vh);
-				
-				if (Preferences.blackOnWhite && row instanceof ViewGroup)
-					setTextColor((ViewGroup) row);
 			} else {
 				row = convertView;
 			}

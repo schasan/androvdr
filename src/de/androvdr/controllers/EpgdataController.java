@@ -31,7 +31,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.Handler;
 import android.util.TypedValue;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -191,9 +190,6 @@ public class EpgdataController extends AbstractController {
 				if (si != null)
 					tb.addView(tableRow(mActivity.getString(R.string.audioformat), si));
 			}
-			
-			if (Preferences.blackOnWhite)
-				setTextColor((ViewGroup) mView.findViewById(R.id.pgi_layout_content));
 		}
 	}
 

@@ -325,9 +325,6 @@ public class RecordingController extends AbstractController implements Runnable 
 				vh.title.setTextSize(TypedValue.COMPLEX_UNIT_DIP,recordingtitelSize + Preferences.textSizeOffset);
 				
 				row.setTag(vh);
-				
-				if (Preferences.blackOnWhite && row instanceof ViewGroup)
-					setTextColor((ViewGroup)row);
 			} else {
 				row = convertView;
 			}

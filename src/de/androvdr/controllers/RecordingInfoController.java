@@ -31,7 +31,6 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.TypedValue;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -185,9 +184,6 @@ public class RecordingInfoController extends AbstractController implements Runna
 				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 			}
 		}
-		
-		if (Preferences.blackOnWhite)
-			setTextColor((ViewGroup) mView.findViewById(R.id.reci_layout_content));
 	}
 
 	private TableRow tableRow(String title, String value) {

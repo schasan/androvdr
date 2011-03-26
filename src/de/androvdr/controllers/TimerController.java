@@ -377,9 +377,6 @@ public class TimerController extends AbstractController implements Runnable {
 				vh.title.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
 						timer_titleSize + Preferences.textSizeOffset);
 				row.setTag(vh);
-				
-				if (Preferences.blackOnWhite && (row instanceof ViewGroup))
-					setTextColor((ViewGroup) row);
 			} else {
 				row = convertView;
 			}

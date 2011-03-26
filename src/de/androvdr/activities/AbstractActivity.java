@@ -31,6 +31,7 @@ import android.view.KeyEvent;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
 import de.androvdr.MyLog;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 
 public class AbstractActivity extends Activity {
@@ -78,6 +79,10 @@ public class AbstractActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		if (Preferences.blackOnWhite)
+			setTheme(R.style.Theme_Light);
+		
 		mConfigurationManager = ConfigurationManager.getInstance(this);
 	}
 	

@@ -293,10 +293,7 @@ public class ChannelController extends AbstractController implements Runnable {
 				vh.nextPlaying.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
 						channelnowplayingSize + Preferences.textSizeOffset);
 			
-				row.setTag(vh);
-				
-				if (Preferences.blackOnWhite && row instanceof ViewGroup)
-					setTextColor((ViewGroup) row);
+				row.setTag(vh);				
 			} else {
 				row = convertView;
 			}

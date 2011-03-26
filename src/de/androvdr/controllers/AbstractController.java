@@ -21,10 +21,7 @@
 package de.androvdr.controllers;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Handler;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 public abstract class AbstractController {
 	protected Activity mActivity;
@@ -33,17 +30,5 @@ public abstract class AbstractController {
 	public void onCreate(Activity activity, Handler handler) {
 		mActivity = activity;
 		mHandler = handler;
-	}
-	
-	protected void setTextColor(ViewGroup v) {
-		for (int j = 0; j < v.getChildCount(); j++)
-			if (v.getChildAt(j).getClass() == TextView.class) {
-				TextView tv = (TextView) v.getChildAt(j);
-				tv.setTextColor(Color.BLACK);
-			}
-			else {
-				if (v.getChildAt(j) instanceof ViewGroup)
-					setTextColor((ViewGroup) v.getChildAt(j));
-			}
 	}
 }

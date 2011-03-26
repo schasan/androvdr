@@ -32,6 +32,7 @@ import android.view.Window;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
 import de.androvdr.MyLog;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.SimpleGestureFilter;
 import de.androvdr.SimpleGestureFilter.SimpleGestureListener;
@@ -99,6 +100,10 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		if (Preferences.blackOnWhite)
+			setTheme(R.style.Theme_Light);
+		
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		mDetector = new SimpleGestureFilter(this, this);
 		mDetector.setMode(SimpleGestureFilter.MODE_TRANSPARENT);
