@@ -120,7 +120,11 @@ public class Channel {
 				zusatz = "";
 			}
 		}
-		nr = Integer.valueOf(snr);
+		try {
+			nr = Integer.valueOf(snr);
+		} catch (NumberFormatException e) {
+			MyLog.v(TAG, e.toString());
+		}
 	}
 	
 	public void updateEpg(boolean next) throws IOException {
