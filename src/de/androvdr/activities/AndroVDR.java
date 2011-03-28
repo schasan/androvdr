@@ -235,6 +235,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			 */
 			
 			setContentView(R.layout.remote_vdr_main);
+			addLongClickListener(findViewById(R.id.remote_vdr_main_id));
 			
 		} else if (Build.VERSION.SDK_INT > 4) {
 
@@ -543,14 +544,17 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     		
     		if(tag.equals("tab_rc1")){
     			root = inflater.inflate(R.layout.tab1, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.tab1);
     		}
     		if(tag.equals("tab_rc2")){
     			root = inflater.inflate(R.layout.tab2, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.tab2);
     		}
     		if(tag.equals("tab_rc3")){
     			root = inflater.inflate(R.layout.tab3, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.tab3);
     		}
     		if(tag.equals("tab_rc5")){
@@ -558,14 +562,17 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     		}
     		if(tag.equals("tab_main")){
     			root = inflater.inflate(R.layout.remote_vdr_main, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.remote_vdr_main_id);
     		}
     		if(tag.equals("tab_numerics")){
     			root = inflater.inflate(R.layout.remote_vdr_numerics, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.remote_vdr_numerics_id);
     		}
     		if(tag.equals("tab_play")){
     			root = inflater.inflate(R.layout.remote_vdr_play, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.remote_vdr_play_id);
     		}
     		return null;
