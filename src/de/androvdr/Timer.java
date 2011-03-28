@@ -115,7 +115,7 @@ public class Timer {
 			for (int i = 0; i < tsa.length - 1; i++)
 				folders.add(tsa[i]);
 			title = tsa[tsa.length - 1].replace('|', ':');
-		} catch (NumberFormatException e) {
+		} catch (Exception e) {
 			throw new ParseException(e.toString(), 0);
 		}
 	}

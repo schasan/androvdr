@@ -120,7 +120,7 @@ public class Channels {
 					} else { // einzelne Kanaele
 						addChannel(Integer.valueOf(channelList[i]), connection);
 					}
-				} catch (NumberFormatException e) {
+				} catch (Exception e) {
 					MyLog.v(TAG, "ERROR invalid channellist: " + mDefaults);
 					continue;
 				}
