@@ -140,6 +140,10 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 		mActivity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 	}
 	
+	public void onDestroy() {
+		enableKeyguard();
+	}
+	
     public boolean onKeyDown(int keyCode, KeyEvent event) {
     	if (!mUseVolumeVDR) {
     		return false;
@@ -157,8 +161,6 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
     }
     
 	public void onPause() {
-		enableKeyguard();
-
 		if (mWakeLock != null)
 			mWakeLock.release();
 		
