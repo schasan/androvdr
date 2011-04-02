@@ -61,7 +61,12 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 	    mDisableKeyguard = sp.getBoolean("keyguard", false);
 	    mDisableStandby = sp.getBoolean("standbyNo", false);
 	    mUseSwipeToFinish = sp.getBoolean("swipeToFinish", false);
-	    mUseVolumeVDR = Devices.getInstance().volumeControl();
+	    
+	    Devices devices = Devices.getInstance();
+	    if (devices == null)
+	    	devices = Devices.getInstance(activity);
+	    mUseVolumeVDR = devices.volumeControl();
+	    
 	    mUseVibrator = sp.getBoolean("hapticFeedback", false);
 	    
 	    if (mDisableStandby)
