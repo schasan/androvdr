@@ -62,10 +62,8 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 	    mDisableStandby = sp.getBoolean("standbyNo", false);
 	    mUseSwipeToFinish = sp.getBoolean("swipeToFinish", false);
 	    
-	    Devices devices = Devices.getInstance();
-	    if (devices == null)
-	    	devices = Devices.getInstance(activity);
-	    mUseVolumeVDR = devices.volumeControl();
+	    mDevices = Devices.getInstance(activity);
+	    mUseVolumeVDR = mDevices.volumeControl();
 	    
 	    mUseVibrator = sp.getBoolean("hapticFeedback", false);
 	    
@@ -75,8 +73,6 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 	    	enableVibrator();
 	    if (mUseVolumeVDR)
 			enableVolumeControl();
-
-	    mDevices = Devices.getInstance();
 	}
 	
 	public static ConfigurationManager getInstance(Activity activity) {
@@ -169,7 +165,7 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 		if (mWakeLock != null)
 			mWakeLock.release();
 		
-		Devices.getInstance().onPause();
+		mDevices.onPause();
 	}
 	
 	public void onResume() {

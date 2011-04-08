@@ -74,7 +74,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		pref = new CursorPreferenceHack(mId);
 		pref.registerOnSharedPreferenceChangeListener(this);
 
-		IDevice device = Devices.getInstance().getDevice(mId);
+		IDevice device = Devices.getInstance(this).getDevice(mId);
 		if (device instanceof OnSharedPreferenceChangeListener)
 			pref.registerOnSharedPreferenceChangeListener((OnSharedPreferenceChangeListener) device);
 		

@@ -352,18 +352,17 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         Preferences.init(sp);
 
-	    Devices devices = Devices.getInstance(this);
 	    mConfigurationManager = ConfigurationManager.getInstance(this);
 
-	    sp.registerOnSharedPreferenceChangeListener(devices);
 	    sp.registerOnSharedPreferenceChangeListener(this);
 	    
         mTitle = getTitle();
         
-		mDevices = Devices.getInstance();
+		mDevices = Devices.getInstance(this);
 		mDevices.setParentActivity(this);
 		mDevices.setResultHandler(mResultHandler);
 		mDevices.setOnDeviceConfigurationChangedListener(this);
+	    sp.registerOnSharedPreferenceChangeListener(mDevices);
 
 		initWorkspaceView();
     }
@@ -373,8 +372,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		Dialog dialog = null;
 		switch (id) {
 		case SWITCH_DIALOG_ID:
-			final Devices devices = Devices.getInstance();
-			final ArrayList<VdrDevice> vdrs = devices.getVdrs();
+			final ArrayList<VdrDevice> vdrs = mDevices.getVdrs();
 			final ArrayList<String> items = new ArrayList<String>();
 			
 			Comparator<VdrDevice> comparator = new Comparator<VdrDevice>() {
@@ -403,7 +401,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			})
 			.setSingleChoiceItems(items.toArray(new CharSequence[items.size()]), (int) current, new DialogInterface.OnClickListener() {
 			    public void onClick(DialogInterface dialog, int item) {
-			        IActuator ac = devices.getVdr(vdrs.get(item).getId());
+			        IActuator ac = mDevices.getVdr(vdrs.get(item).getId());
 		        	Preferences.setVdr(ac.getId());
 			        dialog.dismiss();
 			    }

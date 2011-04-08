@@ -54,7 +54,7 @@ public class DevicesActivity extends ListActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		Devices.getInstance().initDevices();
+		mDevices.initDevices();
 	}
 	
 	public void onButtonClick(View view) {
@@ -107,12 +107,12 @@ public class DevicesActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.devices);
-		if (!Devices.getInstance().hasPlugins()) {
+		mDevices = Devices.getInstance(this);
+		if (! mDevices.hasPlugins()) {
 			Button b = (Button) findViewById(R.id.devices_add_device);
 			b.setVisibility(View.GONE);
 		}
 		
-		mDevices = Devices.getInstance();
 		show();
 	}
 

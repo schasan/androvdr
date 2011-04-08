@@ -55,7 +55,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 
-		Devices devices = Devices.getInstance();
+		Devices devices = Devices.getInstance(this);
 		if (!devices.hasPlugins()) {
 			PreferenceGroup volumeCategory = (PreferenceGroup) findPreference("category_volume");
 			for (CharSequence prefName : Devices.volumePrefNames) {
