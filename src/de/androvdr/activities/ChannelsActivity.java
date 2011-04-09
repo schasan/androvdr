@@ -20,6 +20,7 @@
 
 package de.androvdr.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -74,6 +75,13 @@ public class ChannelsActivity extends AbstractListActivity {
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
 	    
 		mListView = (ListView) findViewById(android.R.id.list);
+
+		/*
+		 * setTheme doesn't change background color :(
+		 */
+		if (Preferences.blackOnWhite)
+			mListView.setBackgroundColor(Color.WHITE);
+		
 	    mController = new ChannelController(this, mHandler, mListView);
 	}
 	

@@ -229,9 +229,9 @@
         android:tag="VDR.prev_chan" />
       <TextView
         style="?spacer" />
-      <Button
+      <ImageButton
         style="?buttonSquare"
-        android:text="@string/remote_mute"
+        android:src="@drawable/ic_lock_ringer_off"
         android:tag="VDR.mute" />
     </TableRow>
     <TableRow>
@@ -277,7 +277,8 @@
       <Button
         style="?button"
         android:layout_weight="1"
-        android:text="Record"
+        android:text="Rec"
+        android:textColor="#f00"
         android:tag="VDR.record" />
       <ImageButton
         style="?buttonSkipBackward"

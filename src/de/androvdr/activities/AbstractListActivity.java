@@ -148,6 +148,7 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 				finish();
 			}
 		});
-		alert.show();
+		if (! isFinishing())
+			alert.show();
 	}
 }

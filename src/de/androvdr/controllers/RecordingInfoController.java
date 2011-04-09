@@ -27,7 +27,6 @@ import java.util.Formatter;
 import java.util.GregorianCalendar;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.TypedValue;
@@ -79,9 +78,6 @@ public class RecordingInfoController extends AbstractController implements Runna
 			LinearLayout view, int recordingNumber) {
 		super.onCreate(activity, handler);
 		mView = view;
-		if (Preferences.blackOnWhite) {
-			mView.setBackgroundColor(Color.WHITE);
-		}
 		mRecordingNumber = recordingNumber;
 		mActivity.registerForContextMenu(mView.findViewById(R.id.reci_layout_content));
 		

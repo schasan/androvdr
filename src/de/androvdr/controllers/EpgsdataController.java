@@ -28,7 +28,6 @@ import java.util.GregorianCalendar;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.TypedValue;
@@ -108,10 +107,6 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		
 		mMainView = view;
 		mListView = (ListView) view.findViewById(android.R.id.list);
-		if (Preferences.blackOnWhite) {
-			mListView.setBackgroundColor(Color.WHITE);
-			mListView.setCacheColorHint(Color.WHITE);
-		}
 		
 		TextView tv = (TextView) view.findViewById(R.id.epgsheader);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	epgdefaultSize + Preferences.textSizeOffset);
@@ -178,6 +173,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	}
 	
 	public void run() {
+		Connection connection = null;
 		try {
 			if (mChannelNumber == EPG_NOW) {
 				mEpgdata = new ArrayList<Epg>();
@@ -190,9 +186,8 @@ public class EpgsdataController extends AbstractController implements Runnable {
 				}
 			} else {
 				if (mChannelNumber == 0) {
-					Connection connection = new Connection();
+					connection = new Connection();
 					Channel c = new Channels(Preferences.getVdr().channellist).addChannel(-1, connection);
-					connection.closeDelayed();
 					mChannelNumber = c.nr;
 				}
 				if (mMaxEpgdata == EPG_ALL)
@@ -205,6 +200,9 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			MyLog.v(TAG, "ERROR: new Channels() " + e.toString());
 			lastError = e.toString();
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+		} finally {
+			if (connection != null)
+				connection.closeDelayed();
 		}
 	}
 

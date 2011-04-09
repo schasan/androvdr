@@ -21,11 +21,14 @@
 package de.androvdr.activities;
 
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.view.View;
 import android.widget.TextView;
 import de.androvdr.MyLog;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 
 public class AboutActivity extends AbstractActivity {
@@ -35,6 +38,14 @@ public class AboutActivity extends AbstractActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.about);
+
+		/*
+		 * setTheme doesn't change background color :(
+		 */
+		if (Preferences.blackOnWhite) {
+			View view = findViewById(R.id.aboutid);
+			view.setBackgroundColor(Color.WHITE);
+		}
 
 		try {
 			String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;

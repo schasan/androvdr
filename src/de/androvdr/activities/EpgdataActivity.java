@@ -20,6 +20,7 @@
 
 package de.androvdr.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
@@ -27,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.LinearLayout;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.controllers.EpgdataController;
 
@@ -39,6 +41,12 @@ public class EpgdataActivity extends AbstractGestureActivity {
 		setContentView(R.layout.epgdata);
 
 		LinearLayout view = (LinearLayout) findViewById(R.id.pgi);
+		
+		/*
+		 * setTheme doesn't change background color :(
+		 */
+		if (Preferences.blackOnWhite)
+			view.setBackgroundColor(Color.WHITE);
 		
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null) {

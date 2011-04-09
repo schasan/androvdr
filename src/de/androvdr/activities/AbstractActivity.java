@@ -119,6 +119,7 @@ public class AbstractActivity extends Activity {
 				finish();
 			}
 		});
-		alert.show();
+		if (! isFinishing())
+			alert.show();
 	}
 }

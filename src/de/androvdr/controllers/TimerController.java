@@ -31,7 +31,6 @@ import java.util.GregorianCalendar;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -100,10 +99,6 @@ public class TimerController extends AbstractController implements Runnable {
 	public TimerController(Activity activity, Handler handler, ListView listView) {
 		super.onCreate(activity, handler);
 		mListView = listView;
-		if (Preferences.blackOnWhite) {
-			mListView.setBackgroundColor(Color.WHITE);
-			mListView.setCacheColorHint(Color.WHITE);
-		}
 		dateformatter = new SimpleDateFormat(Preferences.dateformat);
 		timeformatter = new SimpleDateFormat(Preferences.timeformat);
 		weekdays = mActivity.getResources().getStringArray(R.array.weekday);

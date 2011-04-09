@@ -85,6 +85,8 @@ public class TcpClient {
     	String s = "";
 		try {
 			s = br.readLine();
+			if (s == null)
+				throw new IOException("no data received");
 			MyLog.v("TcpClient","Lese Daten aus Socket:"+s);
 		} catch (SocketTimeoutException e) {
 			// wenn keine Daten mehr anliegen kommt ein Timeout
@@ -101,20 +103,21 @@ public class TcpClient {
 			//MyLog.v("TcpClient", "lese Daten aus Tcp-Verbindung");
 			while (true) {
 				String s = br.readLine();
+				if (s == null)
+					throw new IOException("invalid data received");
 				MyLog.v(TAG, "lese Daten aus socket:" + s);
 				sb.append(s);
-				if (sb.length() > 4) {
-					sb.append("\n");
-					// Abruch mit 250 Angeforderte Aktion okay, beendet oder mit 221
-					// VDR-Service schlie�t Sende-Kanal nach QUIT Befehl ansonsten mit Timeout
-					if ((s.regionMatches(0, "250 ", 0, 4))
-							|| (s.regionMatches(0, "221", 0, 3))
-							|| (s.regionMatches(0, "220 ", 0, 4))
-							|| (s.regionMatches(0, "215 ", 0, 4))
-							|| (s.regionMatches(0, "501 ", 0, 4))
-							|| (s.regionMatches(0, "550 ", 0, 4)))
-						break;
-				}
+				sb.append("\n");
+				// Abruch mit 250 Angeforderte Aktion okay, beendet oder mit 221
+				// VDR-Service schlie�t Sende-Kanal nach QUIT Befehl ansonsten mit Timeout
+				if ((s.length() >= 3)
+						&& (s.regionMatches(0, "221", 0, 3)
+								|| s.regionMatches(0, "250 ", 0, 4)
+								|| s.regionMatches(0, "220 ", 0, 4)
+								|| s.regionMatches(0, "215 ", 0, 4)
+								|| s.regionMatches(0, "501 ", 0, 4) 
+								|| s.regionMatches(0, "550 ", 0, 4)))
+					break;
 			}
 		} catch (SocketTimeoutException e) {
 			// wenn keine Daten mehr anliegen kommt ein Timeout

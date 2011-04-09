@@ -32,6 +32,7 @@ import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -39,6 +40,7 @@ import android.preference.PreferenceActivity;
 import de.androvdr.DevicesTable;
 import de.androvdr.ListPreferenceValueHolder;
 import de.androvdr.MyLog;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.devices.Devices;
 import de.androvdr.devices.IDevice;
@@ -69,12 +71,18 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		if (Preferences.blackOnWhite) {
+			setTheme(R.style.Theme_Light);
+			getListView().setCacheColorHint(Color.TRANSPARENT);
+			getWindow().setBackgroundDrawable(getResources().getDrawable(android.R.drawable.screen_background_light));
+		}
+		
 		mId = getIntent().getExtras().getInt("deviceid", -1);
 		
 		pref = new CursorPreferenceHack(mId);
 		pref.registerOnSharedPreferenceChangeListener(this);
 
-		IDevice device = Devices.getInstance().getDevice(mId);
+		IDevice device = Devices.getInstance(this).getDevice(mId);
 		if (device instanceof OnSharedPreferenceChangeListener)
 			pref.registerOnSharedPreferenceChangeListener((OnSharedPreferenceChangeListener) device);
 		

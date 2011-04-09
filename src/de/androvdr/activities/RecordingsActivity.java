@@ -22,6 +22,7 @@ package de.androvdr.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -53,6 +54,13 @@ public class RecordingsActivity extends AbstractListActivity {
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
 		
 		mListView = (ListView) findViewById(android.R.id.list);
+
+		/*
+		 * setTheme doesn't change background color :(
+		 */
+		if (Preferences.blackOnWhite)
+			mListView.setBackgroundColor(Color.WHITE);
+		
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null)
 			mController = new RecordingController(this, handler, mListView, bundle.getParcelableArray("recordings"));

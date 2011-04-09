@@ -35,6 +35,7 @@ import java.util.zip.ZipEntry;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
@@ -76,11 +77,11 @@ public class Devices implements OnSharedPreferenceChangeListener {
 	public static String macroConfig = Preferences.getMacroFileName();
 	public static String pluginDir = Preferences.getPluginDirName();
 	
-	private Devices(Activity activity) {
-		mDBHelper = new DBHelper(activity);
+	private Devices(Context context) {
+		mDBHelper = new DBHelper(context);
 		
 		init();
-		initVolumeCommands(PreferenceManager.getDefaultSharedPreferences(activity));
+		initVolumeCommands(PreferenceManager.getDefaultSharedPreferences(context));
 
 		mSendThread = new DeviceSendThread();
 		mSendThread.start();
@@ -166,9 +167,9 @@ public class Devices implements OnSharedPreferenceChangeListener {
 		return sDevices;
 	}
 	
-	public static Devices getInstance(Activity activity) {
+	public static Devices getInstance(Context context) {
 		if (sDevices == null) {
-			sDevices = new Devices(activity);
+			sDevices = new Devices(context);
 		}
 		return sDevices;
 	}
