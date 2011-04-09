@@ -29,7 +29,6 @@ import java.util.Stack;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -116,10 +115,6 @@ public class RecordingController extends AbstractController implements Runnable 
 	public RecordingController(AbstractListActivity activity, Handler handler, ListView listView, Parcelable[] recordings) {
 		super.onCreate(activity, handler);
 		mListView = listView;
-		if (Preferences.blackOnWhite) {
-			mListView.setBackgroundColor(Color.WHITE);
-			mListView.setCacheColorHint(Color.WHITE);
-		}
 		datetimeformatter = new SimpleDateFormat(Preferences.dateformatLong);
 		calendar = new GregorianCalendar();
 		db = new DBHelper(mActivity);

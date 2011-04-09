@@ -22,6 +22,7 @@ package de.androvdr.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -54,7 +55,14 @@ public class TimersActivity extends AbstractListActivity {
 		
 		MyLog.v(TAG, "onCreate");
 	    mListView = (ListView) findViewById(android.R.id.list);
-	    mController = new TimerController(this, handler, mListView);
+
+		/*
+		 * setTheme doesn't change background color :(
+		 */
+		if (Preferences.blackOnWhite)
+			mListView.setBackgroundColor(Color.WHITE);
+		
+		mController = new TimerController(this, handler, mListView);
 	}
 	
 	@Override

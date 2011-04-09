@@ -27,9 +27,9 @@
 
 package de.androvdr;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
@@ -64,17 +64,17 @@ public class PortForwarding implements Runnable {
 	
 		
 	// der Context der aufrufenden Klasse
-	private static Context c;
+	private static Activity sActivity;
 	
 	
 	@SuppressWarnings("static-access")
-	public PortForwarding(Handler h,Context c){
+	public PortForwarding(Handler h,Activity activity){
 		Preferences.useInternet = false;
 		session = null;
 		guiFlag = false;
 		positiveButton = false;
 		this.handler = h;
-		this.c = c;
+		this.sActivity = activity;
 		handler.sendEmptyMessage(START_PROGRESS_DIALOG);
 		Thread thread = new Thread(this);
 		thread.start();
@@ -109,7 +109,7 @@ public class PortForwarding implements Runnable {
 	    }
 	    catch(Exception e){
 	      MyLog.v(TAG,e.toString());
-	      guiMessage = c.getString(R.string.portforwarding_fails)+e.toString();
+	      guiMessage = sActivity.getString(R.string.portforwarding_fails)+e.toString();
 	      guiFlag = false;
 	      positiveButton = false;
 	      // rufe GUI-Dialog promptMessage() auf
@@ -137,13 +137,13 @@ public class PortForwarding implements Runnable {
 
     	switch(msg.what){
     	case PROMPT_PASSWORD:
-    		promptPassword(c);
+    		promptPassword(sActivity);
     		break;
     	case PROMPT_YES_NO:
-    		promptYesNo(c);
+    		promptYesNo(sActivity);
     		break;
     	case PROMPT_MESSAGE:// Fehler beim Aktivieren von PortForwarding (Aufruf im Portforwarding-Thread)
-    		promptMessage(c);
+    		promptMessage(sActivity);
     		Preferences.useInternet = false;
       		//break; Kein break,hier. ProgressDialog auch beenden
     	case STOP_PROGRESS_DIALOG:// ProgressDialog beenden, Portforwarding ist aktiviert !
@@ -153,9 +153,9 @@ public class PortForwarding implements Runnable {
     	case START_PROGRESS_DIALOG:
     		//progressDialog = ProgressDialog.show(c, "", c.getString(R.string.starte_portforwarding),true,false);
     		
-    		progressDialog = new ProgressDialog(c);
+    		progressDialog = new ProgressDialog(sActivity);
     		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    		progressDialog.setMessage(c.getString(R.string.start_portforwarding));
+    		progressDialog.setMessage(sActivity.getString(R.string.start_portforwarding));
     		progressDialog.setCancelable(true);
     		progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "Abbrechen", progressAbbruchListener);
     		progressDialog.show();
@@ -274,11 +274,11 @@ public class PortForwarding implements Runnable {
 	
 	private static ProgressDialog progressDialog;
 	
-	static void promptPassword(Context c){
-		AlertDialog.Builder alert = new AlertDialog.Builder(c);  
-		alert.setTitle(c.getString(R.string.pw_titel));  
-		alert.setMessage(c.getString(R.string.pw_msg));  
-		final EditText input = new EditText(c);  
+	static void promptPassword(Activity activity){
+		AlertDialog.Builder alert = new AlertDialog.Builder(activity);  
+		alert.setTitle(activity.getString(R.string.pw_titel));  
+		alert.setMessage(activity.getString(R.string.pw_msg));  
+		final EditText input = new EditText(activity);  
 		alert.setView(input);  
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
  		   public void onClick(DialogInterface dialog, int whichButton) {  
@@ -288,49 +288,52 @@ public class PortForwarding implements Runnable {
  			   guiFlag = true;
   		   }  
  	   });  
- 	   alert.setNegativeButton(c.getString(R.string.break_msg), new DialogInterface.OnClickListener() {  
+ 	   alert.setNegativeButton(activity.getString(R.string.break_msg), new DialogInterface.OnClickListener() {  
  		   public void onClick(DialogInterface dialog, int whichButton) {  
  			   // Canceled. 
  			   // setze Flag auf true, damit der Portforwarding-Thread weitermachen kann
  			   guiFlag = true;
  		   }  
  	   });  
- 	   alert.show();  
+ 	   if (! activity.isFinishing())
+ 		   alert.show();  
 	}
 	
-	static void promptYesNo(Context c){
-		AlertDialog.Builder alert = new AlertDialog.Builder(c);
-		alert.setTitle(c.getString(R.string.warning));  
+	static void promptYesNo(Activity activity){
+		AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+		alert.setTitle(activity.getString(R.string.warning));  
 		alert.setMessage(guiMessage);  
-		alert.setPositiveButton(c.getString(R.string.yes), new DialogInterface.OnClickListener() {  
+		alert.setPositiveButton(activity.getString(R.string.yes), new DialogInterface.OnClickListener() {  
  		   public void onClick(DialogInterface dialog, int whichButton) {  
  			   positiveButton = true; // Flag zum feststellen, welcher Button gedrueckt wurde
  			   // setze Flag auf true, damit der Portforwarding-Thread weitermachen kann
  			   guiFlag = true;
   		   }  
  	   });  
- 	   alert.setNegativeButton(c.getString(R.string.no), new DialogInterface.OnClickListener() {  
+ 	   alert.setNegativeButton(activity.getString(R.string.no), new DialogInterface.OnClickListener() {  
  		   public void onClick(DialogInterface dialog, int whichButton) {  
  			   // Canceled. 
  			   // setze Flag auf true, damit der Portforwarding-Thread weitermachen kann
  			   guiFlag = true;
  		   }  
  	   });  
- 	   alert.show();  
+ 	   if (! activity.isFinishing())
+ 		   alert.show();  
 	}
 	
-	static void promptMessage(Context c){
-		AlertDialog.Builder alert = new AlertDialog.Builder(c);
-		alert.setTitle(c.getString(R.string.message));  
+	static void promptMessage(Activity activity){
+		AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+		alert.setTitle(activity.getString(R.string.message));  
 		alert.setMessage(guiMessage);  
-		alert.setPositiveButton(c.getString(R.string.yes), new DialogInterface.OnClickListener() {  
+		alert.setPositiveButton(activity.getString(R.string.yes), new DialogInterface.OnClickListener() {  
  		   public void onClick(DialogInterface dialog, int whichButton) {  
  			  positiveButton = true; // Flag zum feststellen, welcher Button gedrueckt wurde
  			   // setze Flag auf true, damit der Portforwarding-Thread weitermachen kann
  			   guiFlag = true;
   		   }  
- 	   });  
- 	   alert.show();  
+ 	   }); 
+	   if (! activity.isFinishing())
+		   alert.show();  
 	}
 	
 	

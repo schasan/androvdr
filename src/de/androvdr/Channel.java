@@ -105,25 +105,33 @@ public class Channel {
 		return image;
 	}
 	
-	private void parse(String vdrchannelinfo) {
+	private void parse(String vdrchannelinfo) throws IOException {
 		int idx1 = vdrchannelinfo.indexOf(' ');
-		String snr = vdrchannelinfo.substring(0, idx1);
-		String[] ss = vdrchannelinfo.substring(idx1 + 1).split(":");
-		if (ss.length > 0) {
-			String eintrag = ss[0].split(",")[0];
-			String[] sss = eintrag.split(";");
-			if (sss.length > 1) {
-				name = sss[0];
-				zusatz = sss[1];
-			} else {
-				name = eintrag;
-				zusatz = "";
+		String snr;
+		if (idx1 == -1) {
+			snr = vdrchannelinfo;
+			name = "";
+			zusatz = "";
+		} else {
+			snr = vdrchannelinfo.substring(0, idx1);
+			String[] ss = vdrchannelinfo.substring(idx1 + 1).split(":");
+			if (ss.length > 0) {
+				String eintrag = ss[0].split(",")[0];
+				String[] sss = eintrag.split(";");
+				if (sss.length > 1) {
+					name = sss[0];
+					zusatz = sss[1];
+				} else {
+					name = eintrag;
+					zusatz = "";
+				}
 			}
 		}
 		try {
 			nr = Integer.valueOf(snr);
 		} catch (NumberFormatException e) {
-			MyLog.v(TAG, e.toString());
+			MyLog.v(TAG, "ERROR parsing channelinfo: " + e.toString());
+			throw new IOException("invalid channelinfo");
 		}
 	}
 	

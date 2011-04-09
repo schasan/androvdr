@@ -28,7 +28,6 @@ import java.util.Formatter;
 import java.util.GregorianCalendar;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Handler;
 import android.util.TypedValue;
 import android.widget.LinearLayout;
@@ -64,8 +63,6 @@ public class EpgdataController extends AbstractController {
 			LinearLayout view, int channelNumber) {
 		super.onCreate(activity, handler);
 		mView = view;
-		if (Preferences.blackOnWhite)
-			mView.setBackgroundColor(Color.WHITE);
 		
 		mChannelNumber = channelNumber;
 		mActivity.registerForContextMenu(mView.findViewById(R.id.pgi_layout_content));

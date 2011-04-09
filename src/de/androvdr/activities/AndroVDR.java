@@ -235,6 +235,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			 */
 			
 			setContentView(R.layout.remote_vdr_main);
+			addLongClickListener(findViewById(R.id.remote_vdr_main_id));
 			
 		} else if (Build.VERSION.SDK_INT > 4) {
 
@@ -351,18 +352,17 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         Preferences.init(sp);
 
-	    Devices devices = Devices.getInstance(this);
 	    mConfigurationManager = ConfigurationManager.getInstance(this);
 
-	    sp.registerOnSharedPreferenceChangeListener(devices);
 	    sp.registerOnSharedPreferenceChangeListener(this);
 	    
         mTitle = getTitle();
         
-		mDevices = Devices.getInstance();
+		mDevices = Devices.getInstance(this);
 		mDevices.setParentActivity(this);
 		mDevices.setResultHandler(mResultHandler);
 		mDevices.setOnDeviceConfigurationChangedListener(this);
+	    sp.registerOnSharedPreferenceChangeListener(mDevices);
 
 		initWorkspaceView();
     }
@@ -372,8 +372,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		Dialog dialog = null;
 		switch (id) {
 		case SWITCH_DIALOG_ID:
-			final Devices devices = Devices.getInstance();
-			final ArrayList<VdrDevice> vdrs = devices.getVdrs();
+			final ArrayList<VdrDevice> vdrs = mDevices.getVdrs();
 			final ArrayList<String> items = new ArrayList<String>();
 			
 			Comparator<VdrDevice> comparator = new Comparator<VdrDevice>() {
@@ -402,7 +401,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			})
 			.setSingleChoiceItems(items.toArray(new CharSequence[items.size()]), (int) current, new DialogInterface.OnClickListener() {
 			    public void onClick(DialogInterface dialog, int item) {
-			        IActuator ac = devices.getVdr(vdrs.get(item).getId());
+			        IActuator ac = mDevices.getVdr(vdrs.get(item).getId());
 		        	Preferences.setVdr(ac.getId());
 			        dialog.dismiss();
 			    }
@@ -537,14 +536,17 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     		
     		if(tag.equals("tab_rc1")){
     			root = inflater.inflate(R.layout.tab1, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.tab1);
     		}
     		if(tag.equals("tab_rc2")){
     			root = inflater.inflate(R.layout.tab2, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.tab2);
     		}
     		if(tag.equals("tab_rc3")){
     			root = inflater.inflate(R.layout.tab3, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.tab3);
     		}
     		if(tag.equals("tab_rc5")){
@@ -552,14 +554,17 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     		}
     		if(tag.equals("tab_main")){
     			root = inflater.inflate(R.layout.remote_vdr_main, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.remote_vdr_main_id);
     		}
     		if(tag.equals("tab_numerics")){
     			root = inflater.inflate(R.layout.remote_vdr_numerics, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.remote_vdr_numerics_id);
     		}
     		if(tag.equals("tab_play")){
     			root = inflater.inflate(R.layout.remote_vdr_play, null);
+    			addLongClickListener(root);
     			return root.findViewById(R.id.remote_vdr_play_id);
     		}
     		return null;
