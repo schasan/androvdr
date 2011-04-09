@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory
+    android:title="@string/settings_general">
+    <EditTextPreference
+      android:key="name"
+      android:title="@string/settings_name"
+      android:defaultValue="" />
+    <EditTextPreference
+      android:key="host"
+      android:title="@string/settings_host"
+      android:summary="@string/settings_host_summary"
+      android:defaultValue="" />
+    <EditTextPreference
+      android:key="port"
+      android:inputType="number"
+      android:title="@string/settings_port"
+      android:summary="@string/settings_port_summary"
+      android:defaultValue="2001" />
+    <EditTextPreference
+      android:key="macaddress"
+      android:title="@string/settings_macaddress"
+      android:summary="@string/settings_macaddress_summary"
+      android:defaultValue="" />
+  </PreferenceCategory>
+  <PreferenceCategory
+    android:title="@string/settings_miscellaneous">
+    <EditTextPreference
+      android:key="channellist"
+      android:title="@string/settings_channellist"
+      android:summary="@string/settings_channellist_summary"
+      android:defaultValue="1-20,24" />
+    <EditTextPreference
+      android:key="epgmax"
+      android:inputType="number"
+      android:title="@string/settings_epgmax"
+      android:summary="@string/settings_epgmax_summary"
+      android:defaultValue="30" />
+    <ListPreference
+      android:key="characterset"
+      android:title="@string/settings_characterset"
+      android:summary="@string/settings_characterset_summary"
+      android:defaultValue="ISO-8859-1" />
+  </PreferenceCategory>
+  <PreferenceCategory
+    android:title="@string/settings_timer">
+    <CheckBoxPreference
+      android:key="vps"
+      android:title="@string/settings_vps"
+      android:summary="@string/settings_vps_summary"
+      android:defaultValue="false" />
+    <EditTextPreference
+      android:key="margin_start"
+      android:inputType="number"
+      android:title="@string/settings_margin_start"
+      android:defaultValue="5" />
+    <EditTextPreference
+      android:key="margin_stop"
+      android:inputType="number"
+      android:title="@string/settings_margin_stop"
+      android:defaultValue="10" />
+  </PreferenceCategory>
+  <PreferenceCategory
+    android:title="@string/settings_remote">
+    <EditTextPreference
+      android:key="remote_host"
+      android:title="@string/settings_host"
+      android:summary="@string/settings_remote_host_summary"
+      android:defaultValue="router.homelinux.net" />
+    <EditTextPreference
+      android:key="remote_port"
+      android:inputType="number"
+      android:title="@string/settings_remote_port"
+      android:summary="@string/settings_remote_port_summary"
+      android:defaultValue="22" />
+    <EditTextPreference
+      android:key="remote_user"
+      android:title="@string/settings_user"
+      android:defaultValue="abcdef" />
+    <EditTextPreference
+      android:key="remote_local_port"
+      android:inputType="number"
+      android:title="@string/settings_remote_local_port"
+      android:summary="@string/settings_remote_local_port_summary"
+      android:defaultValue="35550" />
+    <EditTextPreference
+      android:key="remote_timeout"
+      android:inputType="number"
+      android:title="@string/settings_timeout"
+      android:defaultValue="25000" />
+  </PreferenceCategory>
+</PreferenceScreen>

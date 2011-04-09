@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2010-2011 by androvdr <androvdr@googlemail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+package de.androvdr.activities;
+
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.widget.TextView;
+import de.androvdr.MyLog;
+import de.androvdr.R;
+
+public class AboutActivity extends AbstractActivity {
+	private static final String TAG = "AboutActivity";
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.about);
+
+		try {
+			String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+			TextView tv = (TextView) findViewById(R.id.about_version);
+			tv.setText("Version " + version);
+			
+			tv = (TextView) findViewById(R.id.about_url);
+			tv.setText(Html.fromHtml("Project page at <a href=\"http://code.google.com/p/androvdr\">Google Code</a>."));
+			tv.setMovementMethod(LinkMovementMethod.getInstance());
+
+			tv = (TextView) findViewById(R.id.about_jsch_url);
+			tv.setText(Html.fromHtml("Java Secure Channel at <a href=\"http://www.jcraft.com/jsch/\">JCraft</a>."));
+			tv.setMovementMethod(LinkMovementMethod.getInstance());
+		} catch (NameNotFoundException e) {
+			MyLog.v(TAG, "Error reading versionName");
+		}
+	}
+}
