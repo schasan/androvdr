@@ -178,6 +178,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	}
 	
 	public void run() {
+		Connection connection = null;
 		try {
 			if (mChannelNumber == EPG_NOW) {
 				mEpgdata = new ArrayList<Epg>();
@@ -190,9 +191,8 @@ public class EpgsdataController extends AbstractController implements Runnable {
 				}
 			} else {
 				if (mChannelNumber == 0) {
-					Connection connection = new Connection();
+					connection = new Connection();
 					Channel c = new Channels(Preferences.getVdr().channellist).addChannel(-1, connection);
-					connection.closeDelayed();
 					mChannelNumber = c.nr;
 				}
 				if (mMaxEpgdata == EPG_ALL)
@@ -205,6 +205,9 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			MyLog.v(TAG, "ERROR: new Channels() " + e.toString());
 			lastError = e.toString();
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+		} finally {
+			if (connection != null)
+				connection.closeDelayed();
 		}
 	}
 
