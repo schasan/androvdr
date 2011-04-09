@@ -21,10 +21,10 @@
 package de.androvdr.activities;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -35,10 +35,11 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import de.androvdr.DevicesTable;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.devices.Devices;
 
-public class DevicesActivity extends ListActivity {
+public class DevicesActivity extends AbstractListActivity {
 	private static final int REQUEST_UPDATE = 0;
 	private static final int REQUEST_ADD = 1;
 	
@@ -107,6 +108,10 @@ public class DevicesActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.devices);
+		
+		if (Preferences.blackOnWhite)
+			getListView().setBackgroundColor(Color.WHITE);
+
 		mDevices = Devices.getInstance(this);
 		if (! mDevices.hasPlugins()) {
 			Button b = (Button) findViewById(R.id.devices_add_device);

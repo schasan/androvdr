@@ -28,7 +28,6 @@ import java.util.GregorianCalendar;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.TypedValue;
@@ -108,10 +107,6 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		
 		mMainView = view;
 		mListView = (ListView) view.findViewById(android.R.id.list);
-		if (Preferences.blackOnWhite) {
-			mListView.setBackgroundColor(Color.WHITE);
-			mListView.setCacheColorHint(Color.WHITE);
-		}
 		
 		TextView tv = (TextView) view.findViewById(R.id.epgsheader);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	epgdefaultSize + Preferences.textSizeOffset);

@@ -24,6 +24,7 @@ import java.util.List;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -53,6 +54,13 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		if (Preferences.blackOnWhite) {
+			setTheme(R.style.Theme_Light);
+			getListView().setCacheColorHint(Color.TRANSPARENT);
+			getWindow().setBackgroundDrawable(getResources().getDrawable(android.R.drawable.screen_background_light));
+		}
+		
 		addPreferencesFromResource(R.xml.preferences);
 
 		Devices devices = Devices.getInstance(this);

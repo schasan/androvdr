@@ -27,7 +27,6 @@ import java.util.GregorianCalendar;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.TypedValue;
@@ -120,10 +119,6 @@ public class ChannelController extends AbstractController implements Runnable {
 		timeformatter = new SimpleDateFormat(Preferences.timeformat);
 		
 		mListView = listView;
-		if (Preferences.blackOnWhite) {
-			mListView.setBackgroundColor(Color.WHITE);
-			mListView.setCacheColorHint(Color.WHITE);
-		}
 
 		if (!Channels.isInitialized()) {
 			Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);

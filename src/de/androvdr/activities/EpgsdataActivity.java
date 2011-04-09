@@ -20,6 +20,7 @@
 
 package de.androvdr.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
@@ -58,6 +59,12 @@ public class EpgsdataActivity extends AbstractListActivity {
 		MyLog.v(TAG, "onCreate");
 	    mView = (LinearLayout) findViewById(R.id.epgsdata_main);
 
+		/*
+		 * setTheme doesn't change background color :(
+		 */
+		if (Preferences.blackOnWhite)
+			mView.setBackgroundColor(Color.WHITE);
+		
 		mController = new EpgsdataController(this, handler, mView, mChannelNumber, mMaxItems);
 	}
 	

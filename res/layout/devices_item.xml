@@ -9,8 +9,7 @@
     android:id="@+id/devicename"
     android:layout_height="wrap_content"
     android:layout_width="fill_parent"
-    android:textSize="20dip"
-    android:textColor="@android:color/white" />
+    android:textSize="20dip" />
   <TextView
     android:id="@+id/devicehost"
     android:layout_height="wrap_content"

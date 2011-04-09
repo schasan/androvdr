@@ -20,8 +20,10 @@
 
 package de.androvdr.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.LinearLayout;
+import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.controllers.RecordingInfoController;
 
@@ -33,6 +35,12 @@ public class RecordingInfoActivity extends AbstractGestureActivity {
 		setContentView(R.layout.recordinginfo);
 
 		LinearLayout view = (LinearLayout) findViewById(R.id.reci);
+		
+		/*
+		 * setTheme doesn't change background color :(
+		 */
+		if (Preferences.blackOnWhite)
+			view.setBackgroundColor(Color.WHITE);
 		
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null) {
