@@ -423,12 +423,6 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		return true;
 	}
 
-	@Override
-	protected void onDestroy() {
-		mConfigurationManager.onDestroy();
-		super.onDestroy();
-	}
-	
     @Override
     public void onLoad() {
     	updateTitle(mWorkspace.getCurrentView());
