@@ -21,7 +21,9 @@
 package de.androvdr.activities;
 
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -33,6 +35,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import de.androvdr.EpgSearch;
 import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
@@ -43,12 +46,16 @@ public class TimersActivity extends AbstractListActivity {
 	private static final int HEADER_TEXT_SIZE = 15;
 	
 	private TimerController mController;
+	private boolean mIsSearch = false;
 	private ListView mListView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.timers);
+
+		EpgSearch searchFor = new EpgSearch();
+		searchFor.search = "tatort";
 		
 		TextView tv = (TextView) findViewById(R.id.timers_header);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
@@ -62,7 +69,23 @@ public class TimersActivity extends AbstractListActivity {
 		if (Preferences.blackOnWhite)
 			mListView.setBackgroundColor(Color.WHITE);
 		
-		mController = new TimerController(this, handler, mListView);
+		/*
+		 * perform epgsearch ?
+		 */
+		EpgSearch epgSearch = null;
+	    Intent intent = getIntent();
+	    if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+	      String query = intent.getStringExtra(SearchManager.QUERY);
+	      epgSearch = new EpgSearch();
+	      epgSearch.search = query;
+	      epgSearch.inTitle = Preferences.epgsearch_title;
+	      epgSearch.inSubtitle = Preferences.epgsearch_subtitle;
+	      epgSearch.inDescription = Preferences.epgsearch_description;
+	      tv.setText(epgSearch.search);
+	      mIsSearch = true;
+	    }
+
+		mController = new TimerController(this, handler, mListView, epgSearch);
 	}
 	
 	@Override
@@ -90,6 +113,9 @@ public class TimersActivity extends AbstractListActivity {
 		case R.id.timer_toggle:
 			mController.action(TimerController.TIMER_ACTION_TOGGLE, info.position);
 			return true;
+		case R.id.timer_record:
+			mController.action(TimerController.TIMER_ACTION_RECORD, info.position);
+			return true;
 		default:
 			return super.onContextItemSelected(item);
 		}
@@ -100,7 +126,10 @@ public class TimersActivity extends AbstractListActivity {
 			ContextMenuInfo menuInfo) {
 		AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfo;
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.timers_menu, menu);
+		if (mIsSearch)
+			inflater.inflate(R.menu.timers_menu_search, menu);
+		else
+			inflater.inflate(R.menu.timers_menu, menu);
 		menu.setHeaderTitle(mController.getTitle(mi.position));
 	}
 }

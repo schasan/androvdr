@@ -34,6 +34,9 @@ public class Timer {
 	public static final int TIMER_VPS = 4;
 	public static final int TIMER_RECORDING = 5;
 	
+	private static SimpleDateFormat sDateformatter = new SimpleDateFormat("yyyy-MM-dd HHmm");
+	private static SimpleDateFormat sTimeformatter = new SimpleDateFormat("HHmm");
+	
 	public int number;
 	public int channel;
 	public String title;
@@ -44,6 +47,8 @@ public class Timer {
 	public int lastUpdate;
 	public int status;
 	public String noDate = "";
+	
+	public Timer() { }
 	
 	public Timer(String vdrtimerinfo) throws ParseException {
 		parse(vdrtimerinfo);
@@ -84,9 +89,6 @@ public class Timer {
 	}
 	
 	private void parse(String vdrtimerinfo) throws ParseException {
-		SimpleDateFormat dateformatter = new SimpleDateFormat("yyyy-MM-dd HHmm");
-		SimpleDateFormat timeformatter = new SimpleDateFormat("HHmm");
-		
 		String[] sa = vdrtimerinfo.split(" ");
 		String[] tsa;
 		
@@ -97,14 +99,14 @@ public class Timer {
 			channel = Integer.valueOf(sa[1]);
 
 			try {
-				start = dateformatter.parse(sa[2] + " " + sa[3]).getTime() / 1000;
+				start = sDateformatter.parse(sa[2] + " " + sa[3]).getTime() / 1000;
 			} catch (ParseException e) {
-				start = timeformatter.parse(sa[3]).getTime() / 1000;
+				start = sTimeformatter.parse(sa[3]).getTime() / 1000;
 				noDate = sa[2];
 			}
 				
-			Date t1 = timeformatter.parse(sa[3]);
-			Date t2 = timeformatter.parse(sa[4]);
+			Date t1 = sTimeformatter.parse(sa[3]);
+			Date t2 = sTimeformatter.parse(sa[4]);
 			if (t2.before(t1))
 				t2.setDate(t2.getDate() + 1);
 			end = new Date(start * 1000 + (t2.getTime() - t1.getTime())).getTime() / 1000;
@@ -115,6 +117,40 @@ public class Timer {
 			for (int i = 0; i < tsa.length - 1; i++)
 				folders.add(tsa[i]);
 			title = tsa[tsa.length - 1].replace('|', ':');
+		} catch (Exception e) {
+			throw new ParseException(e.toString(), 0);
+		}
+	}
+	
+	public void initFromEpgsearchResult(String vdrtimerinfo) throws ParseException {
+		String[] sa = vdrtimerinfo.split(" ");
+		
+		try {
+			sa = vdrtimerinfo.substring(vdrtimerinfo.indexOf(' ') + 1).split(":");
+			channel = Integer.valueOf(sa[1]);
+
+			start = sDateformatter.parse(sa[2] + " " + sa[3]).getTime() / 1000;
+				
+			Date t1 = sTimeformatter.parse(sa[3]);
+			Date t2 = sTimeformatter.parse(sa[4]);
+			if (t2.before(t1))
+				t2.setDate(t2.getDate() + 1);
+			end = new Date(start * 1000 + (t2.getTime() - t1.getTime())).getTime() / 1000;
+			
+			priority = Integer.valueOf(sa[5]);
+			lifetime = Integer.valueOf(sa[6]);
+			
+			if (sa.length > 8) {
+				StringBuilder sb = new StringBuilder();
+				for (int i = 7; i < sa.length; i++) {
+					sb.append(sa[i]);
+					if (i < (sa.length - 1))
+						sb.append(':');
+				}
+				title = sb.toString();
+			} else {
+				title = sa[7];
+			}
 		} catch (Exception e) {
 			throw new ParseException(e.toString(), 0);
 		}
