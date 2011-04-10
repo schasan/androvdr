@@ -54,9 +54,6 @@ public class TimersActivity extends AbstractListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.timers);
 
-		EpgSearch searchFor = new EpgSearch();
-		searchFor.search = "tatort";
-		
 		TextView tv = (TextView) findViewById(R.id.timers_header);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
 		
@@ -77,7 +74,7 @@ public class TimersActivity extends AbstractListActivity {
 	    if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 	      String query = intent.getStringExtra(SearchManager.QUERY);
 	      epgSearch = new EpgSearch();
-	      epgSearch.search = query;
+	      epgSearch.search = query.trim();
 	      epgSearch.inTitle = Preferences.epgsearch_title;
 	      epgSearch.inSubtitle = Preferences.epgsearch_subtitle;
 	      epgSearch.inDescription = Preferences.epgsearch_description;
