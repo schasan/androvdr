@@ -22,6 +22,7 @@ package de.androvdr;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 public class Channels {
 	private static final String TAG = "Channels";
@@ -73,9 +74,11 @@ public class Channels {
 	}
 	
 	private void deleteTempChannels() {
-		for (Channel channel: mItems)
+		for(ListIterator<Channel> itr = mItems.listIterator(); itr.hasNext();) {
+			Channel channel = itr.next();
 			if (channel.isTemp)
-				mItems.remove(channel);
+				itr.remove();
+		}
 	}
 	
 	public ArrayList<Channel> getItems() {
