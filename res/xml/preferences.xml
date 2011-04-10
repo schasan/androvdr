@@ -94,6 +94,27 @@
       android:entryValues="@array/color_values" />
   </PreferenceCategory>
   <PreferenceCategory
+    android:title="@string/settings_epgsearch">
+    <CheckBoxPreference
+      android:key="epgsearch_title"
+      android:title="@string/settings_epgsearch_title"
+      android:defaultValue="true" />
+    <CheckBoxPreference
+      android:key="epgsearch_subtitle"
+      android:title="@string/settings_epgsearch_subtitle"
+      android:defaultValue="true" />
+    <CheckBoxPreference
+      android:key="epgsearch_description"
+      android:title="@string/settings_epgsearch_description"
+      android:defaultValue="false" />
+    <EditTextPreference
+      android:key="epgsearch_max"
+      android:inputType="number"
+      android:title="@string/settings_epgsearch_max"
+      android:summary="@string/settings_epgsearch_max_summary"
+      android:defaultValue="30" />
+  </PreferenceCategory>
+  <PreferenceCategory
     android:title="@string/settings_miscellaneous">
     <ListPreference
       android:key="logLevel"

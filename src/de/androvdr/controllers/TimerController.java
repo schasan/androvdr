@@ -48,12 +48,15 @@ import android.widget.AdapterView.OnItemClickListener;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Connection;
+import de.androvdr.Epg;
+import de.androvdr.EpgSearch;
 import de.androvdr.Messages;
 import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.Timer;
 import de.androvdr.Timers;
+import de.androvdr.VdrCommands;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.devices.VdrDevice;
 
@@ -66,6 +69,7 @@ public class TimerController extends AbstractController implements Runnable {
 	private TimerAdapter mAdapter;
 	private Channels mChannels;
 	private final ListView mListView;
+	private final EpgSearch mSearchFor;
 	private ArrayList<Timer> mTimer;
 	
 	// --- needed by each row ---
@@ -77,6 +81,7 @@ public class TimerController extends AbstractController implements Runnable {
 	public final static int TIMER_ACTION_DELETE = 1;
 	public final static int TIMER_ACTION_TOGGLE = 2;
 	public final static int TIMER_ACTION_SHOW_EPG = 3;
+	public final static int TIMER_ACTION_RECORD = 4;
 
 	public String lastError;
 	
@@ -92,13 +97,17 @@ public class TimerController extends AbstractController implements Runnable {
 			case Messages.MSG_VDR_ERROR:
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 				break;
+			case Messages.MSG_EPGSEARCH_NOT_FOUND:
+				mHandler.sendMessage(Messages.obtain(Messages.MSG_EPGSEARCH_NOT_FOUND));
+				break;
 			}
 		}
 	};
 
-	public TimerController(Activity activity, Handler handler, ListView listView) {
+	public TimerController(Activity activity, Handler handler, ListView listView, EpgSearch epgSearch) {
 		super.onCreate(activity, handler);
 		mListView = listView;
+		mSearchFor = epgSearch;
 		dateformatter = new SimpleDateFormat(Preferences.dateformat);
 		timeformatter = new SimpleDateFormat(Preferences.timeformat);
 		weekdays = mActivity.getResources().getStringArray(R.array.weekday);
@@ -161,6 +170,15 @@ public class TimerController extends AbstractController implements Runnable {
 				}
 				else
 					handler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
+				break;
+			case TIMER_ACTION_RECORD:
+				Epg epg = new Epg();
+				epg.kanal = item.channel;
+				epg.startzeit = item.start;
+				Long l = (item.end - item.start);
+				epg.dauer = l.intValue();
+				epg.titel = item.title;
+				VdrCommands.setTimer(epg);
 				break;
 			case TIMER_ACTION_SHOW_EPG:
 				new GetEpgTask().execute(item);
@@ -234,13 +252,19 @@ public class TimerController extends AbstractController implements Runnable {
 	@Override
 	public void run() {
 		try {
-			mTimer = new Timers().getItems();
+			if (mSearchFor == null)
+				mTimer = new Timers().getItems();
+			else
+				mTimer = new Timers(mSearchFor).getItems();
 			mChannels = new Channels(Preferences.getVdr().channellist);
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
 			MyLog.v(TAG, "ERROR new Timers(): " + e.toString());
 			lastError = e.toString();
-			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+			if (lastError.contains("550"))
+				mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_EPGSEARCH_NOT_FOUND));
+			else
+				mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 		}
 	}
 
@@ -398,22 +422,26 @@ public class TimerController extends AbstractController implements Runnable {
 			sb.append(timeformatter.format(calendar.getTime()));
 			vh.time.setText(sb.toString());
 			
-			switch (item.getStatus()) {
-			case Timer.TIMER_INACTIVE: 
-				vh.status.setText("Inactive");
-				break;
-			case Timer.TIMER_ACTIVE:
-				vh.status.setText("Active");
-				break;
-			case Timer.TIMER_VPS:
-				vh.status.setText("VPS");
-				break;
-			case Timer.TIMER_RECORDING:
-				vh.status.setText("Rec");
-				break;
-			default:
-				vh.status.setText("");
-				break;
+			if (mSearchFor == null) {
+				switch (item.getStatus()) {
+				case Timer.TIMER_INACTIVE: 
+					vh.status.setText("Inactive");
+					break;
+				case Timer.TIMER_ACTIVE:
+					vh.status.setText("Active");
+					break;
+				case Timer.TIMER_VPS:
+					vh.status.setText("VPS");
+					break;
+				case Timer.TIMER_RECORDING:
+					vh.status.setText("Rec");
+					break;
+				default:
+					vh.status.setText("");
+					break;
+				}
+			} else {
+				vh.status.setVisibility(View.GONE);
 			}
 
 			if (item.inFolder()) {

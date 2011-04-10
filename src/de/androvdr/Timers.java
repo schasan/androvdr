@@ -34,13 +34,27 @@ public class Timers {
 	
 	public Timers() throws IOException {
 		mConnection = new Connection();
-		init();
-		mConnection.closeDelayed();
+		try {
+			init();
+		} finally {
+			if (mConnection != null)
+				mConnection.closeDelayed();
+		}
 	}
-	
+
 	public Timers(Connection connection) throws IOException {
 		mConnection = connection;
 		init();
+	}
+	
+	public Timers(EpgSearch search) throws IOException {
+		mConnection = new Connection();
+		try {
+			init(search);
+		} finally {
+			if (mConnection != null)
+				mConnection.closeDelayed();
+		}
 	}
 	
 	public ArrayList<Timer> getItems() {
@@ -72,6 +86,97 @@ public class Timers {
 			Collections.sort(mItems, new TimerComparer());
 		} catch (IOException e) {
 			MyLog.v(TAG, "ERROR init(): " + e.toString());
+			throw e;
+		}
+	}
+
+	private void init(EpgSearch search) throws IOException {
+		int lastUpdate = (int) (new Date().getTime() / 60000);
+		try {
+			boolean isLastLine = false;
+			int marginStart = 0;
+			int marginStop = 0;
+			int count = 0;
+			
+			String command = "PLUG epgsearch FIND 0:"
+					+ search.search
+					+ ":0:::0::0:0:"
+					+ (search.inTitle ? 1 : 0) + ":"
+					+ (search.inSubtitle ? 1 : 0) + ":"
+					+ (search.inDescription ? 1 : 0) + ":"
+					+ "0:::0:0:0:0::::::0:0:0::0::1:1:1:0::::::0:::0::0:::::";
+			
+			mConnection.sendData(command + "\n");
+			do {
+				String s = mConnection.readLine();
+
+				count += 1;
+				if (count > Preferences.epgsearch_max) {
+					mConnection.close();
+					break;
+				}
+				
+				if (s.length() < 4) {
+					MyLog.v(TAG, "ERROR init(search): " + s);
+					throw new IOException("invalid data received");
+				}
+				
+				if (s.charAt(3) == ' ')
+					isLastLine = true;
+				
+				try {
+					int result = Integer.parseInt(s.substring(0, 3));
+					
+					if (result == 550)
+						throw new IOException("550 epgsearch plugin not found");
+					
+					if (result == 900) {
+						Timer timer = new Timer();
+						timer.initFromEpgsearchResult(s);
+						timer.lastUpdate = lastUpdate;
+						mItems.add(timer);
+					}
+				} catch (ParseException e) {
+					MyLog.v(TAG, "ERROR invalid timer format: " + e.toString());
+					continue;
+				}
+				
+			} while (! isLastLine);
+			
+			isLastLine = false;
+			if (mConnection.isClosed)
+				mConnection.open();
+			mConnection.sendData("PLUG epgsearch SETP\n");
+			do {
+				String s = mConnection.readLine();
+				if (s.length() < 4) {
+					MyLog.v(TAG, "ERROR init(search): " + s);
+					throw new IOException("invalid data received");
+				}
+				
+				if (s.charAt(3) == ' ')
+					isLastLine = true;
+				
+				try {
+					String[] sa = s.substring(4).split(":");
+					if (sa[0].equals("DefMarginStart"))
+						marginStart = Integer.parseInt(sa[1].trim()) * 60;
+					if (sa[0].equals("DefMarginStop"))
+						marginStop = Integer.parseInt(sa[1].trim()) * 60;
+				} catch (Exception e) {
+					MyLog.v(TAG, "ERROR invalid epgsearch setp response");
+					continue;
+				}
+			} while (! isLastLine);
+
+			for (Timer timer : mItems) {
+				timer.start += marginStart;
+				timer.end -= marginStop;
+			}
+			
+			Collections.sort(mItems, new TimerComparer());
+		} catch (IOException e) {
+			MyLog.v(TAG, "ERROR init(search): " + e.toString());
 			throw e;
 		}
 	}

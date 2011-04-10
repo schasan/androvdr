@@ -36,6 +36,8 @@
 	<string name="priority">Priority</string>
     <string name="duration">"Duration: "</string>
 	<string name="searching">Searching ...</string>
+    <string name="epgsearch_not_installed">The epgsearch plugin is not installed.</string>
+    <string name="epgsearch_hint">Search in EPG</string>
     <!-- ChannelsActivity -->
     <string name="channels">Channels</string>
 	<!-- RecordingsActivity -->
@@ -119,6 +121,12 @@
     <string name="settings_characterset_summary">Characterset used on VDR.</string>
     <string name="settings_class">Class</string>
     <string name="settings_password">Password</string>
+    <string name="settings_epgsearch">EPG Search</string>
+    <string name="settings_epgsearch_title">Title</string>
+    <string name="settings_epgsearch_subtitle">Subtitle</string>
+    <string name="settings_epgsearch_description">Description</string>
+    <string name="settings_epgsearch_max">Max. Searchresults</string>
+    <string name="settings_epgsearch_max_summary">Maximal entries in searchresult.</string>
     <!-- Main -->
     <string name="main_select_vdr">Select VDR</string>
     <string name="main_forwarding_on">Forwarding On</string>

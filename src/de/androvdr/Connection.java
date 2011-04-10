@@ -33,7 +33,7 @@ public class Connection {
 	
 	private static TcpClient mTcpClient = null;
 	private final Semaphore sem = new Semaphore(1, true);
-	private boolean isClosed = false;
+	public boolean isClosed = false;
 	
 	// dient dazu, das Socket nach einer bestimmten Zeit zu schliessen, um die
 	// TCP-Verbindung fuer andere Client's frei zu machen
@@ -143,6 +143,18 @@ public class Connection {
 		return task;
 	}	
 
+	public void open() throws IOException {
+		if (isClosed) {
+		    try {
+				sem.tryAcquire(SEMAPHORE_MAX_WAIT, TimeUnit.MILLISECONDS);
+				isClosed = false;
+			} catch (InterruptedException e) {
+				MyLog.v(TAG, "ERROR: " + e.toString());
+				throw new IOException(e.toString());
+			}
+		}
+	}
+	
 	public String readLine() throws IOException {
 		try {
 			return getTcpClient().readLine();

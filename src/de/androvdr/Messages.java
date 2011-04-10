@@ -32,6 +32,7 @@ public class Messages {
 	public static final int MSG_VDR_ERROR = 6;
 	public static final int MSG_DATA_UPDATE_DONE = 7;
 	public static final int MSG_CONTROLLER_READY = 8;
+	public static final int MSG_EPGSEARCH_NOT_FOUND = 9;
 	
 	public static Message obtain(int arg1) {
 		Message msg = Message.obtain();

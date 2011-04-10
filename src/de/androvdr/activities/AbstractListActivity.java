@@ -87,6 +87,10 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 				dismiss();
 				showError(AbstractListActivity.this.getString(R.string.connect_err_vdr));
 				break;
+			case Messages.MSG_EPGSEARCH_NOT_FOUND:
+				dismiss();
+				showError(AbstractListActivity.this.getString(R.string.epgsearch_not_installed));
+				break;
 			}
 		}
 	};

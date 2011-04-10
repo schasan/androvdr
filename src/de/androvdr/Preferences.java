@@ -47,6 +47,10 @@ public class Preferences {
 	public static int tabIndicatorColor;
 	public static int logoBackgroundColor;
 	public static boolean alternateLayout;
+	public static boolean epgsearch_title;
+	public static boolean epgsearch_subtitle;
+	public static boolean epgsearch_description;
+	public static int epgsearch_max;
 	
 	public static String dateformat = "dd.MM.";
 	public static String dateformatLong = "dd.MM.yyyy HH:mm";
@@ -119,6 +123,10 @@ public class Preferences {
 	    deleteRecordingIds = sharedPreferences.getBoolean("deleteRecordingIds", false);
 	    sCurrentVdrId = sharedPreferences.getLong("currentVdrId", -1);
 	    alternateLayout = sharedPreferences.getBoolean("alternateLayout", true);
+	    epgsearch_title = sharedPreferences.getBoolean("epgsearch_title", true);
+	    epgsearch_subtitle = sharedPreferences.getBoolean("epgsearch_subtitle", true);
+	    epgsearch_description = sharedPreferences.getBoolean("epgsearch_description", false);
+	    epgsearch_max = Integer.parseInt(sharedPreferences.getString("epgsearch_max", "30"));
 
 	    String colorname = sharedPreferences.getString("tabIndicatorColor", "blue");
 	    if (!colorname.equals("none"))
