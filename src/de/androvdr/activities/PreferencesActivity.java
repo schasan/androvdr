@@ -87,7 +87,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 	@Override
 	protected void onPause() {
 		super.onPause();
-		Preferences.init(null);
+		Preferences.init(this);
 	}
 
 	@Override

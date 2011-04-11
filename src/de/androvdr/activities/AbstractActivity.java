@@ -27,6 +27,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
@@ -84,6 +85,7 @@ public class AbstractActivity extends Activity {
 			setTheme(R.style.Theme_Light);
 		
 		mConfigurationManager = ConfigurationManager.getInstance(this);
+		Preferences.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 	
 	protected void onCreate(Bundle savedInstanceState, boolean initConfigurationManager) {

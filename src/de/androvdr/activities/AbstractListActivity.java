@@ -27,6 +27,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Window;
 import de.androvdr.ConfigurationManager;
@@ -112,6 +113,7 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 		mDetector = new SimpleGestureFilter(this, this);
 		mDetector.setMode(SimpleGestureFilter.MODE_TRANSPARENT);
 		mConfigurationManager = ConfigurationManager.getInstance(this);
+		Preferences.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 
 	@Override
