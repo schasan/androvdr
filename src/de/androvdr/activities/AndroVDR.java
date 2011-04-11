@@ -349,19 +349,19 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, false);
 
-	    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        Preferences.init(sp);
+        Preferences.init(this);
 
 	    mConfigurationManager = ConfigurationManager.getInstance(this);
 
-	    sp.registerOnSharedPreferenceChangeListener(this);
-	    
         mTitle = getTitle();
         
 		mDevices = Devices.getInstance(this);
 		mDevices.setParentActivity(this);
 		mDevices.setResultHandler(mResultHandler);
 		mDevices.setOnDeviceConfigurationChangedListener(this);
+
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+	    sp.registerOnSharedPreferenceChangeListener(this);
 	    sp.registerOnSharedPreferenceChangeListener(mDevices);
 
 		initWorkspaceView();

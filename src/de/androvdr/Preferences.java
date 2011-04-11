@@ -22,9 +22,11 @@ package de.androvdr;
 
 import java.io.File;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import de.androvdr.devices.Devices;
 import de.androvdr.devices.VdrDevice;
 
@@ -105,10 +107,8 @@ public class Preferences {
 		editor.commit();
 	}
 	
-	public static void init(SharedPreferences preferences) {
-		if (preferences != null)
-			sharedPreferences = preferences;
-
+	public static void init(Context context) {
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			File appDir = new File(Environment.getExternalStorageDirectory(), CONFIG_ROOTDIR);
