@@ -23,6 +23,7 @@ package de.androvdr.activities;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -79,6 +80,14 @@ public class EpgsdataActivity extends AbstractListActivity {
 	}
 	
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.epgs_option_menu, menu);
+		return true;
+	}
+	
+	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
@@ -88,5 +97,17 @@ public class EpgsdataActivity extends AbstractListActivity {
 		default:
 			return super.onContextItemSelected(item);
 		}
+	}
+
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.epgs_search:
+			onSearchRequested();
+			break;
+		default:
+			super.onContextItemSelected(item);
+		}
+		return true;
 	}
 }

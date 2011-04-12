@@ -175,9 +175,9 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	public void run() {
 		Connection connection = null;
 		try {
+			Channels channels = new Channels(Preferences.getVdr().channellist);
 			if (mChannelNumber == EPG_NOW) {
 				mEpgdata = new ArrayList<Epg>();
-				Channels channels = new Channels(Preferences.getVdr().channellist);
 				for (int i = 0; i < channels.getItems().size(); i++) {
 					Channel channel = channels.getItems().get(i);
 					channel.updateEpg(true);
@@ -185,15 +185,21 @@ public class EpgsdataController extends AbstractController implements Runnable {
 					mEpgdata.add(channel.getNext());
 				}
 			} else {
+				connection = new Connection();
 				if (mChannelNumber == 0) {
-					connection = new Connection();
-					Channel c = new Channels(Preferences.getVdr().channellist).addChannel(-1, connection);
+					Channel c = channels.addChannel(-1, connection);
 					mChannelNumber = c.nr;
 				}
+
+				if (channels.getChannel(mChannelNumber) == null) {
+					Channel c = channels.addChannel(mChannelNumber, connection);
+					c.isTemp = true;
+				}
+				
 				if (mMaxEpgdata == EPG_ALL)
-					mEpgdata = new Channels(Preferences.getVdr().channellist).getChannel(mChannelNumber).getAll();
+					mEpgdata = channels.getChannel(mChannelNumber).getAll();
 				else
-					mEpgdata = new Channels(Preferences.getVdr().channellist).getChannel(mChannelNumber).get(mMaxEpgdata);
+					mEpgdata = channels.getChannel(mChannelNumber).get(mMaxEpgdata);
 			}
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {

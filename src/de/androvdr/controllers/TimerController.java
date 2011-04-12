@@ -58,6 +58,7 @@ import de.androvdr.Timer;
 import de.androvdr.Timers;
 import de.androvdr.VdrCommands;
 import de.androvdr.activities.EpgdataActivity;
+import de.androvdr.activities.EpgsdataActivity;
 import de.androvdr.devices.VdrDevice;
 
 public class TimerController extends AbstractController implements Runnable {
@@ -82,6 +83,9 @@ public class TimerController extends AbstractController implements Runnable {
 	public final static int TIMER_ACTION_TOGGLE = 2;
 	public final static int TIMER_ACTION_SHOW_EPG = 3;
 	public final static int TIMER_ACTION_RECORD = 4;
+	public final static int TIMER_ACTION_PROGRAMINFOS = 5;
+	public final static int TIMER_ACTION_PROGRAMINFOS_ALL = 6;
+	public final static int TIMER_ACTION_SWITCH_CAHNNEL = 7;
 
 	public String lastError;
 	
@@ -171,6 +175,16 @@ public class TimerController extends AbstractController implements Runnable {
 				else
 					handler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
 				break;
+			case TIMER_ACTION_PROGRAMINFOS:
+			case TIMER_ACTION_PROGRAMINFOS_ALL:
+				Intent intent = new Intent(mActivity, EpgsdataActivity.class);
+				intent.putExtra("channelnumber", item.channel);
+				if (action == TIMER_ACTION_PROGRAMINFOS)
+					intent.putExtra("maxitems", Preferences.getVdr().epgmax);
+				else
+					intent.putExtra("maxitems", EpgsdataController.EPG_ALL);
+				mActivity.startActivityForResult(intent, 1);
+				break;
 			case TIMER_ACTION_RECORD:
 				Epg epg = new Epg();
 				epg.kanal = item.channel;
@@ -182,6 +196,9 @@ public class TimerController extends AbstractController implements Runnable {
 				break;
 			case TIMER_ACTION_SHOW_EPG:
 				new GetEpgTask().execute(item);
+				break;
+			case TIMER_ACTION_SWITCH_CAHNNEL:
+				new Connection().doThis("CHAN " + item.channel + "\n");
 				break;
 			case TIMER_ACTION_TOGGLE:
 				handler = new Handler() {

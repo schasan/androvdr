@@ -89,6 +89,12 @@ public class TimersActivity extends AbstractListActivity {
 	public boolean onContextItemSelected(MenuItem item) {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
+		case R.id.timer_overview:
+			mController.action(TimerController.TIMER_ACTION_PROGRAMINFOS, info.position);
+			return true;
+		case R.id.timer_overviewfull:
+			mController.action(TimerController.TIMER_ACTION_PROGRAMINFOS_ALL, info.position);
+			return true;
 		case R.id.timer_delete:
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.timer_delete_timer)
@@ -112,6 +118,9 @@ public class TimersActivity extends AbstractListActivity {
 			return true;
 		case R.id.timer_record:
 			mController.action(TimerController.TIMER_ACTION_RECORD, info.position);
+			return true;
+		case R.id.timer_switch:
+			mController.action(TimerController.TIMER_ACTION_SWITCH_CAHNNEL, info.position);
 			return true;
 		default:
 			return super.onContextItemSelected(item);

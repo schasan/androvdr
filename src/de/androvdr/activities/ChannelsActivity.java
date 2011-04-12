@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.TypedValue;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -95,6 +96,14 @@ public class ChannelsActivity extends AbstractListActivity {
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.channels_option_menu, menu);
+		return true;
+	}
+	
+	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
@@ -119,6 +128,18 @@ public class ChannelsActivity extends AbstractListActivity {
 		return true;
 	}
 
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.cm_search:
+			onSearchRequested();
+			break;
+		default:
+			super.onContextItemSelected(item);
+		}
+		return true;
+	}
+    
 	@Override
 	public void onPause() {
 		super.onPause();

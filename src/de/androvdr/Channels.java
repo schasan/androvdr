@@ -73,7 +73,7 @@ public class Channels {
 		mItems.clear();
 	}
 	
-	private void deleteTempChannels() {
+	public void deleteTempChannels() {
 		for(ListIterator<Channel> itr = mItems.listIterator(); itr.hasNext();) {
 			Channel channel = itr.next();
 			if (channel.isTemp)

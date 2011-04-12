@@ -65,6 +65,7 @@ public class ChannelController extends AbstractController implements Runnable {
 	public static final int CHANNEL_ACTION_REMOTECONTROL = 5;
 	public static final int CHANNEL_ACTION_RECORD = 6;
 
+	private Channels mChannels = null;
 	private final ListView mListView;
 	private ChannelAdapter mChannelAdapter;
 	private UpdateThread mUpdateThread;
@@ -81,9 +82,8 @@ public class ChannelController extends AbstractController implements Runnable {
 			switch (msg.arg1) {
 			case Messages.MSG_DONE:
 				try {
-					setChannelAdapter(new ChannelAdapter(mActivity,
-							new Channels(Preferences.getVdr().channellist).getItems()),
-							mListView);
+					mChannels = new Channels(Preferences.getVdr().channellist);
+					setChannelAdapter(new ChannelAdapter(mActivity,	mChannels.getItems()),	mListView);
 					mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 				} catch (IOException e) {
 					lastError = e.toString();
@@ -201,6 +201,8 @@ public class ChannelController extends AbstractController implements Runnable {
 	
 	public void onResume() {
 		MyLog.v(TAG, "onResume");
+		if (mChannels != null)
+			mChannels.deleteTempChannels();
 		if (mUpdateThread != null)
 			mUpdateThread = new UpdateThread(mThreadHandler);
 	}
