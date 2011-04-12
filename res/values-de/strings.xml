@@ -38,6 +38,7 @@
 	<string name="searching">Suche ...</string>
     <string name="epgsearch_not_installed">Das epgsearch Plugin ist nicht installiert.</string>
     <string name="epgsearch_hint">Suche in EPG</string>
+    <string name="search">Suche</string>
     <!-- ChannelsActivity -->
     <string name="channels">Sender</string>
 	<!-- RecordingsActivity -->
