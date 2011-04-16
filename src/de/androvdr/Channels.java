@@ -22,6 +22,7 @@ package de.androvdr;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ListIterator;
 
 public class Channels {
@@ -130,6 +131,7 @@ public class Channels {
 					continue;
 				}
 			}
+			Collections.sort(mItems);
 			mIsInitialized = true;
 		} catch (IOException e) {
 			MyLog.v(TAG, "Channels.init(): " + e);

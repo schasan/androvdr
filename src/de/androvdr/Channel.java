@@ -28,7 +28,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 
-public class Channel {
+public class Channel implements Comparable<Channel> {
 	public static final String TAG = "Channel";
 	
 	private static final long EPG_UPDATE_PERIOD = 1;
@@ -59,6 +59,11 @@ public class Channel {
 			mNow = new Epg(nr, true);
 			mNext = new Epg(nr, true);
 		}
+	}
+
+	@Override
+	public int compareTo(Channel another) {
+		return ((Integer) nr).compareTo(another.nr);
 	}
 	
 	public ArrayList<Epg> get(int count) throws IOException {
