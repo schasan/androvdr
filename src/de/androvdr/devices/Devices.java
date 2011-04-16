@@ -106,6 +106,7 @@ public class Devices implements OnSharedPreferenceChangeListener {
 			vdr.margin_start = cursor.getInt(16);
 			vdr.margin_stop = cursor.getInt(17);
 			vdr.vps = cursor.getString(18).equals("true");
+			vdr.timeout = cursor.getInt(19);
 			mDevices.put(vdr.getName(), vdr);
 		} else {
 			try {

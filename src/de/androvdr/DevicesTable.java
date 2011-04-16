@@ -28,6 +28,7 @@ public class DevicesTable {
 	public static final String NAME = "name";
 	public static final String HOST = "host";
 	public static final String PORT = "port";
+	public static final String TIMEOUT = "timeout";
 	public static final String USER = "user";
 	public static final String PASSWORD = "password";
 	public static final String MACADDRESS = "macaddress";
@@ -46,7 +47,7 @@ public class DevicesTable {
 	public static final String[] ALL_COLUMNS = new String[] { ID, CLASS, NAME, HOST,
 		PORT, USER,	PASSWORD, MACADDRESS, REMOTE_HOST, REMOTE_USER, REMOTE_PORT,
 		REMOTE_LOCAL_PORT, REMOTE_TIMEOUT, CHANNELLIST, EPGMAX, CHARACTERSET,
-		MARGIN_START, MARGIN_STOP, VPS };
+		MARGIN_START, MARGIN_STOP, VPS, TIMEOUT };
 	
 	public static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_NAME + " ("
@@ -68,7 +69,8 @@ public class DevicesTable {
 		+ CHARACTERSET + " STRING,"
 		+ MARGIN_START + " INT,"
 		+ MARGIN_STOP + " INT,"
-		+ VPS + " STRING DEFAULT 'false'"
+		+ VPS + " STRING DEFAULT 'false',"
+		+ TIMEOUT + " INT"
 		+ ")";
 	
 	public static final String SQL_DROP =

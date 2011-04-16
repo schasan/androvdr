@@ -136,10 +136,11 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 			Preference pref = this.findPreference(key);
 			if (pref != null
 					&& (!mIsVDR || ((pref.getKey().equals("name")
+							|| pref.getKey().equals("timeout")
 							|| pref.getKey().equals("margin_start")
 							|| pref.getKey().equals("margin_stop")
-							|| pref.getKey().equals("remote_user") || pref
-							.getKey().equals("remote_timeout"))))) {
+							|| pref.getKey().equals("remote_user") 
+							|| pref.getKey().equals("remote_timeout"))))) {
 
 				CharSequence value = this.pref.getString(key, "");
 

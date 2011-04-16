@@ -47,6 +47,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 	private Hashtable<String, String> mCommandsCompat = new Hashtable<String, String>();
 	private String mLastError;
 
+	public int timeout;
 	public String macaddress;
 	public String remote_host;
 	public String remote_user;
@@ -190,6 +191,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 		mName = sp.getString("name", "");
 		mHost = sp.getString("host", "");
 		mPort = sp.getInt("port", 2001);
+		timeout = sp.getInt("timeout", 7500);
 		macaddress = sp.getString("macaddress", "");
 		remote_host = sp.getString("remote_host", "");
 		remote_user = sp.getString("remote_user", "");
