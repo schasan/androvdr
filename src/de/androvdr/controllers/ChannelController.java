@@ -382,7 +382,7 @@ public class ChannelController extends AbstractController implements Runnable {
 						MyLog.v(TAG, "epg update finished");
 					} catch (InterruptedException e) {
 						MyLog.v(TAG, "UpdateThread interrupted");
-						return;
+						break;
 					} catch (Exception e) {
 						MyLog.v(TAG, "ERROR epg update: " + e.toString());
 						lastError = e.toString();
