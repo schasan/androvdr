@@ -19,6 +19,11 @@
       android:summary="@string/settings_port_summary"
       android:defaultValue="2001" />
     <EditTextPreference
+      android:key="timeout"
+      android:inputType="number"
+      android:title="@string/settings_timeout"
+      android:defaultValue="7500" />
+    <EditTextPreference
       android:key="macaddress"
       android:title="@string/settings_macaddress"
       android:summary="@string/settings_macaddress_summary"

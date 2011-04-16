@@ -56,7 +56,7 @@ public class TcpClient {
     	else{
     		hostname = vdr.getIP();
     		port = vdr.getPort();
-    		timeout = 7500;
+    		timeout = vdr.timeout;
     		MyLog.v(TAG,"Es wurden lokale Netzwerkeinstellungen gewaehlt");
     	}
     	connect(hostname, port, timeout);
