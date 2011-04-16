@@ -28,7 +28,7 @@ import java.util.ListIterator;
 public class Channels {
 	private static final String TAG = "Channels";
 	
-	private static boolean mIsInitialized = false;
+	private static Boolean mIsInitialized = false;
 	private static String mDefaults;
 	private static ArrayList<Channel> mItems = new ArrayList<Channel>();
 	
@@ -36,8 +36,7 @@ public class Channels {
 		if(mDefaults != null && defaults.compareTo(mDefaults) != 0)
 			mIsInitialized = false;
 		mDefaults = defaults;
-		if(! mIsInitialized)
-			init();
+		init();
 	}
 	
 	public Channel addChannel(int kanal, Connection connection) throws IOException {
@@ -102,43 +101,49 @@ public class Channels {
 	}
 
 	public void init() throws IOException {
-		String[] channelList = mDefaults.split(",");
-		String[] bereich;
-		
-		mItems.clear();
-		mIsInitialized = false;
-		Connection connection = null;
-		
-		try {
-			connection = new Connection();
-			int i = 0;
-			for (i = 0; i < channelList.length; i++) { // Bereiche oder einzelne Kanaele
-				try {
-					if (channelList[i].contains("-")) { // hier sind die Bereiche
-						bereich = channelList[i].split("-");
-						int from = Integer.valueOf(bereich[0]);
-						int to = Integer.valueOf(bereich[1]);
-						for (int x = from; x <= to; x++) {
-							addChannel(x, connection);
+
+		synchronized (mIsInitialized) {
+			if (mIsInitialized)
+				return;
+			
+			String[] channelList = mDefaults.split(",");
+			String[] bereich;
+			
+			mItems.clear();
+			mIsInitialized = false;
+			Connection connection = null;
+			
+			try {
+				connection = new Connection();
+				int i = 0;
+				for (i = 0; i < channelList.length; i++) { // Bereiche oder einzelne Kanaele
+					try {
+						if (channelList[i].contains("-")) { // hier sind die Bereiche
+							bereich = channelList[i].split("-");
+							int from = Integer.valueOf(bereich[0]);
+							int to = Integer.valueOf(bereich[1]);
+							for (int x = from; x <= to; x++) {
+								addChannel(x, connection);
+							}
+						} else { // einzelne Kanaele
+							addChannel(Integer.valueOf(channelList[i]), connection);
 						}
-					} else { // einzelne Kanaele
-						addChannel(Integer.valueOf(channelList[i]), connection);
+					} catch (IOException e) {
+						throw e;
+					} catch (Exception e) {
+						MyLog.v(TAG, "ERROR invalid channellist: " + mDefaults);
+						continue;
 					}
-				} catch (IOException e) {
-					throw e;
-				} catch (Exception e) {
-					MyLog.v(TAG, "ERROR invalid channellist: " + mDefaults);
-					continue;
 				}
+				Collections.sort(mItems);
+				mIsInitialized = true;
+			} catch (IOException e) {
+				MyLog.v(TAG, "Channels.init(): " + e);
+				throw e;
+			} finally {
+				if (connection != null)
+					connection.closeDelayed();
 			}
-			Collections.sort(mItems);
-			mIsInitialized = true;
-		} catch (IOException e) {
-			MyLog.v(TAG, "Channels.init(): " + e);
-			throw e;
-		} finally {
-			if (connection != null)
-				connection.closeDelayed();
 		}
 	}
 	

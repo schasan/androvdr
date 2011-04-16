@@ -377,7 +377,7 @@ public class ChannelController extends AbstractController implements Runnable {
 						for (int i = 0; i < mChannelAdapter.getCount(); i++) {
 							mChannelAdapter.getItem(i).updateEpg(true);
 							if (isInterrupted())
-								return;
+								throw new InterruptedException();;
 						}
 						MyLog.v(TAG, "epg update finished");
 					} catch (InterruptedException e) {
