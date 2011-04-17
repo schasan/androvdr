@@ -96,9 +96,9 @@
     <string name="settings_recordingindex_summary">Aufnahmeindex bei der nächsten Benutzung neu erzeugen.</string>
     <string name="settings_name">Name</string>
     <string name="settings_host">Host</string>
-    <string name="settings_host_summary">Hostname oder IP-Addresse</string>
+    <string name="settings_host_summary">Hostname oder IP-Addresse. Muss in svdrphosts.conf freigegeben werden.</string>
     <string name="settings_port">Port</string>
-    <string name="settings_port_summary">SVDRP-Port (ab 1.7.15 6419). Eintrag in svdrhosts.conf erforderlich.</string>
+    <string name="settings_port_summary">SVDRP-Port (ab 1.7.15 6419).</string>
     <string name="settings_macaddress">MAC-Adresse</string>
     <string name="settings_macaddress_summary">Erforderlich für WakeOnLan</string>
     <string name="settings_channellist">Senderliste</string>

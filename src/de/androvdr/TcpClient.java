@@ -88,6 +88,9 @@ public class TcpClient {
 			if (s == null)
 				throw new IOException("no data received");
 			MyLog.v("TcpClient","Lese Daten aus Socket:"+s);
+			
+			if (s.toLowerCase().contains("access denied"))
+				throw new IOException("Access denied. Check svdrphosts.conf on VDR.");
 		} catch (SocketTimeoutException e) {
 			// wenn keine Daten mehr anliegen kommt ein Timeout
 			MyLog.v(TAG, "ERROR: read timeout");
@@ -98,6 +101,8 @@ public class TcpClient {
     
     
     public String receiveData() throws IOException, SocketTimeoutException {
+    	boolean accessCheck = false;
+    	
 		StringBuffer sb = new StringBuffer();
 		try {
 			//MyLog.v("TcpClient", "lese Daten aus Tcp-Verbindung");
@@ -106,6 +111,11 @@ public class TcpClient {
 				if (s == null)
 					throw new IOException("invalid data received");
 				MyLog.v(TAG, "lese Daten aus socket:" + s);
+
+				if (! accessCheck && s.toLowerCase().contains("access denied"))
+					throw new IOException("Access denied. Check svdrphosts.conf on VDR.");
+				accessCheck = true;
+				
 				sb.append(s);
 				sb.append("\n");
 				// Abruch mit 250 Angeforderte Aktion okay, beendet oder mit 221
