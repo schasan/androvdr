@@ -356,7 +356,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		@Override
 		protected String doIt() {
 			try {
-				String s = mConnection.doThis("DELR " + mRecording.number + "\n");
+				String s = new Connection().doThis("DELR " + mRecording.number + "\n");
 				
 				if (s != null && s.regionMatches(0, "250 ", 0, 4)) {
 					return "";
@@ -444,7 +444,6 @@ public class RecordingController extends AbstractController implements Runnable 
 	}
 
 	private class RecordingInfoTask extends AsyncTask<RecordingViewItem, Void, String> {
-		protected Connection mConnection;
 		protected Recording mRecording;
 		protected RecordingViewItem mRecordingViewItem;
 		protected RecordingInfo mInfo;
@@ -458,7 +457,6 @@ public class RecordingController extends AbstractController implements Runnable 
 			mRecordingViewItem = params[0];
 			mRecording = mRecordingViewItem.recording;
 			try {
-				mConnection = new Connection();
 				mInfo = VdrCommands.getRecordingInfo(mRecording.number);
 				MyLog.v(TAG, "MD5: " + mRecording.getInfoId() + " --- " + mInfo.id);
 				
@@ -469,7 +467,7 @@ public class RecordingController extends AbstractController implements Runnable 
 						return doIt();
 				} else {
 					onProgressUpdate();
-					mRecordingViewItems.update(mConnection);
+					mRecordingViewItems.update();
 					ArrayList<Recording> allRecordings = mRecordingViewItems.getAllRecordings();
 					int index = Collections.binarySearch(allRecordings, mRecording);
 					if (index >= 0) {
@@ -485,9 +483,6 @@ public class RecordingController extends AbstractController implements Runnable 
 			} catch (IOException e) {
 				MyLog.v(TAG, "ERROR RecordingInfoTask: " + e.toString());
 				return null;
-			} finally {
-				if (mConnection != null)
-					mConnection.closeDelayed();
 			}
 		}
 		
@@ -537,8 +532,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				command = "PLAY " + mRecording.number + "\n";
 		
 			try {
-				mConnection.doThis(command);
-				mConnection.close();
+				new Connection().doThis(command);
 				mActivity.finish();
 				return "";
 			} catch (IOException e) {
@@ -586,10 +580,10 @@ public class RecordingController extends AbstractController implements Runnable 
 			}
 		}
 		
-		public void update(Connection connection) throws IOException {
+		public void update() throws IOException {
 			MyLog.v(TAG, "updateRecordings started");
 			// --- get recordings from vdr ---
-			Recordings recordings = new Recordings(connection, db);
+			Recordings recordings = new Recordings(db);
 			RecordingViewItemList recordingViewItems = new RecordingViewItemList();
 			for(RecordingViewItem recordingViewItem: recordings.getItems())
 				recordingViewItems.add(recordingViewItem);

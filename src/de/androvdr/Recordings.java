@@ -34,13 +34,7 @@ public class Recordings {
 	private ArrayList<RecordingViewItem> mItems = new ArrayList<RecordingViewItem>();
 	
 	public Recordings(DBHelper db) throws IOException {
-		Connection connection = new Connection();
-		init(connection, db);
-		connection.close();
-	}
-	
-	public Recordings(Connection connection, DBHelper db) throws IOException {
-		init(connection, db);
+		init(db);
 	}
 	
 	public static void clearIds(DBHelper db) {
@@ -73,10 +67,12 @@ public class Recordings {
 		return result;
 	}
 	
-	private void init(Connection connection, DBHelper db) throws IOException {
+	private void init(DBHelper db) throws IOException {
+		Connection connection = null;
 		try {
 			boolean isLastLine = false;
 			
+			connection = new Connection();
 			connection.sendData("LSTR\n");
 			do {
 				String s = connection.readLine();
@@ -105,11 +101,9 @@ public class Recordings {
 				}
 				
 			} while (! isLastLine);
-		} catch (IOException e) {
+		} finally {
 			if (connection != null)
-				connection.close();
-			MyLog.v(TAG, "ERROR init(): " + e.toString());
-			throw e;
+				connection.closeDelayed();
 		}
 	}
 	

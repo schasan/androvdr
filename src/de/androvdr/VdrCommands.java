@@ -30,14 +30,15 @@ public class VdrCommands {
 	public static RecordingInfo getRecordingInfo(int number) throws IOException {
 		RecordingInfo recordingInfo = new RecordingInfo();
 		StringBuffer sb = new StringBuffer();
-		Connection connection = new Connection();
-
+		
+		Connection connection = null;
 		String[] lines = null;
 		try {
+			connection = new Connection();
 			connection.sendData("LSTR " + number + "\n");
 			lines = connection.receiveData().split("\n");
 			connection.closeDelayed();
-			
+
 			sb.setLength(0);
 			for (int i = 0; i < lines.length; i++)
 				sb.append(lines[i]);
@@ -45,6 +46,9 @@ public class VdrCommands {
 		} catch (IOException e) {
 			MyLog.v(TAG, "ERROR getRecordingInfo: " + e.toString());
 			throw e;
+		} finally {
+			if (connection != null)
+				connection.closeDelayed();
 		}
 		
 		try {
@@ -165,12 +169,16 @@ public class VdrCommands {
 		sb.append("50:99:" + epg.titel.replace(':', '|') + ":\n");
 		MyLog.v(TAG, "setTimer: " + sb.toString());
 
+		Connection conn = null;
 		try {
-			Connection conn = new Connection();
+			conn = new Connection();
 			result = conn.doThis(sb.toString());
 		} catch (IOException e) {
 			MyLog.v(TAG, "ERROR setTimer: " + e.toString());
 			throw e;
+		} finally {
+			if (conn != null)
+				conn.closeDelayed();
 		}
 
 		return result;
