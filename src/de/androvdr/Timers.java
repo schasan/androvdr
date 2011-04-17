@@ -29,32 +29,14 @@ import java.util.Date;
 public class Timers {
 	private static final String TAG = "Timers";
 	
-	final private Connection mConnection;
 	private ArrayList<Timer> mItems = new ArrayList<Timer>();
 	
 	public Timers() throws IOException {
-		mConnection = new Connection();
-		try {
-			init();
-		} finally {
-			if (mConnection != null)
-				mConnection.closeDelayed();
-		}
-	}
-
-	public Timers(Connection connection) throws IOException {
-		mConnection = connection;
 		init();
 	}
-	
+
 	public Timers(EpgSearch search) throws IOException {
-		mConnection = new Connection();
-		try {
-			init(search);
-		} finally {
-			if (mConnection != null)
-				mConnection.closeDelayed();
-		}
+		init(search);
 	}
 	
 	public ArrayList<Timer> getItems() {
@@ -63,12 +45,14 @@ public class Timers {
 	
 	private void init() throws IOException {
 		int lastUpdate = (int) (new Date().getTime() / 60000);
+		Connection connection = null;
 		try {
 			boolean isLastLine = false;
 			
-			mConnection.sendData("LSTT\n");
+			connection = new Connection();
+			connection.sendData("LSTT\n");
 			do {
-				String s = mConnection.readLine();
+				String s = connection.readLine();
 				
 				if (s.charAt(3) == ' ')
 					isLastLine = true;
@@ -87,11 +71,15 @@ public class Timers {
 		} catch (IOException e) {
 			MyLog.v(TAG, "ERROR init(): " + e.toString());
 			throw e;
+		} finally {
+			if (connection != null)
+				connection.closeDelayed();
 		}
 	}
 
 	private void init(EpgSearch search) throws IOException {
 		int lastUpdate = (int) (new Date().getTime() / 60000);
+		Connection connection = null;
 		try {
 			boolean isLastLine = false;
 			int marginStart = 0;
@@ -106,13 +94,14 @@ public class Timers {
 					+ (search.inDescription ? 1 : 0) + ":"
 					+ "0:::0:0:0:0::::::0:0:0::0::1:1:1:0::::::0:::0::0:::::";
 			
-			mConnection.sendData(command + "\n");
+			connection = new Connection();
+			connection.sendData(command + "\n");
 			do {
-				String s = mConnection.readLine();
+				String s = connection.readLine();
 
 				count += 1;
 				if (count > Preferences.epgsearch_max) {
-					mConnection.close();
+					connection.close();
 					break;
 				}
 				
@@ -144,11 +133,11 @@ public class Timers {
 			} while (! isLastLine);
 			
 			isLastLine = false;
-			if (mConnection.isClosed)
-				mConnection.open();
-			mConnection.sendData("PLUG epgsearch SETP\n");
+			if (connection.isClosed)
+				connection.open();
+			connection.sendData("PLUG epgsearch SETP\n");
 			do {
-				String s = mConnection.readLine();
+				String s = connection.readLine();
 				if (s.length() < 4) {
 					MyLog.v(TAG, "ERROR init(search): " + s);
 					throw new IOException("invalid data received");
@@ -178,6 +167,9 @@ public class Timers {
 		} catch (IOException e) {
 			MyLog.v(TAG, "ERROR init(search): " + e.toString());
 			throw e;
+		} finally {
+			if (connection != null)
+				connection.closeDelayed();
 		}
 	}
 	

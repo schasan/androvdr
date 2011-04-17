@@ -127,7 +127,6 @@ public class TimerController extends AbstractController implements Runnable {
 	public void action(int action, int position) {
 		final Timer item = mAdapter.getItem(position);
 		try {
-			final Connection connection = new Connection();
 			Handler handler;
 			int lastUpdate = (int) (new Date().getTime() / 60000);
 			
@@ -142,7 +141,7 @@ public class TimerController extends AbstractController implements Runnable {
 							mAdapter.notifyDataSetChanged();
 							if (item.lastUpdate > 0) {
 								try {
-									String result = connection.doThis("DELT " + item.number + "\n");
+									String result = new Connection().doThis("DELT " + item.number + "\n");
 									if (result != null && result.regionMatches(0, "250 ", 0, 4)) {
 										mAdapter.remove(item);
 										for (int i = 0; i < mTimer.size(); i++)
@@ -170,7 +169,7 @@ public class TimerController extends AbstractController implements Runnable {
 					Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
 					msg.arg2 = R.string.updating;
 					mHandler.sendMessage(msg);
-					new Thread(new TimerUpdater(handler, connection)).start();
+					new Thread(new TimerUpdater(handler)).start();
 				}
 				else
 					handler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
@@ -215,7 +214,7 @@ public class TimerController extends AbstractController implements Runnable {
 										s = " OFF";
 									else
 										s = " ON";
-									String result = connection.doThis("MODT " + item.number + s + "\n");
+									String result = new Connection().doThis("MODT " + item.number + s + "\n");
 									if (result != null && result.regionMatches(0, "250 ", 0, 4)) {
 										update();
 									}
@@ -240,7 +239,7 @@ public class TimerController extends AbstractController implements Runnable {
 					Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
 					msg.arg2 = R.string.updating;
 					mHandler.sendMessage(msg);
-					new Thread(new TimerUpdater(handler, connection)).start();
+					new Thread(new TimerUpdater(handler)).start();
 				}
 				else
 					handler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
@@ -309,15 +308,10 @@ public class TimerController extends AbstractController implements Runnable {
 			}
 		};
 		
-		try {
-			Connection connection = new Connection();
-			Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
-			msg.arg2 = R.string.updating;
-			mHandler.sendMessage(msg);
-			new Thread(new TimerUpdater(threadHandler, connection)).start();
-		} catch (IOException e) {
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-		}
+		Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
+		msg.arg2 = R.string.updating;
+		mHandler.sendMessage(msg);
+		new Thread(new TimerUpdater(threadHandler)).start();
 	}
 	
 	private class GetEpgTask extends AsyncTask<Timer, Void, String> {
@@ -330,12 +324,14 @@ public class TimerController extends AbstractController implements Runnable {
 				Channels channels = new Channels(vdr.channellist);
 				Channel channel = channels.getChannel(timer.channel);
 				if (channel == null) {
-					Connection connection = new Connection();
+					Connection connection = null;
 					try {
+						connection = new Connection();
 						channel = channels.addChannel(timer.channel, connection);
 						channel.isTemp = true;
 					} finally {
-						connection.closeDelayed();
+						if (connection != null)
+							connection.closeDelayed();
 					}
 				}
 				channel.viewEpg = channel.getAt(timer.start + ((vdr.margin_start + 1) * 60));
@@ -514,11 +510,9 @@ public class TimerController extends AbstractController implements Runnable {
 	}
 	
 	private class TimerUpdater implements Runnable {
-		private final Connection mConnection;
 		private final Handler mHandler;
 		
-		public TimerUpdater(Handler handler, Connection connection) {
-			mConnection = connection;
+		public TimerUpdater(Handler handler) {
 			mHandler = handler;
 		}
 		
@@ -531,7 +525,7 @@ public class TimerController extends AbstractController implements Runnable {
 			
 			// --- get timers from vdr ---
 			try {
-				timers = new Timers(mConnection).getItems();
+				timers = new Timers().getItems();
 				TimerComparer comparator = new TimerComparer();
 				Collections.sort(timers, comparator);
 				// --- update timers ---

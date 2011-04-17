@@ -59,7 +59,13 @@ public class TcpClient {
     		timeout = vdr.timeout;
     		MyLog.v(TAG,"Es wurden lokale Netzwerkeinstellungen gewaehlt");
     	}
-    	connect(hostname, port, timeout);
+    	
+    	try {
+    		connect(hostname, port, timeout);
+    	} catch (IOException e) {
+			close();
+			throw e;
+		}
     }  
     
     private void connect(String hostname, int port, int timeout) throws IOException {
@@ -142,6 +148,7 @@ public class TcpClient {
     	bw.close();
     	br.close();
     	socket.close();
+    	MyLog.v(TAG, "Socket closed");
     }
     
 }
