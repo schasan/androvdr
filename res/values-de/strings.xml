@@ -96,11 +96,11 @@
     <string name="settings_recordingindex_summary">Aufnahmeindex bei der nächsten Benutzung neu erzeugen.</string>
     <string name="settings_name">Name</string>
     <string name="settings_host">Host</string>
-    <string name="settings_host_summary">Hostname oder IP-Addresse. Muss in svdrphosts.conf freigegeben werden.</string>
+    <string name="settings_host_summary">Hostname oder IP-Addresse (empfohlen). Muss in svdrphosts.conf freigegeben werden.</string>
     <string name="settings_port">Port</string>
     <string name="settings_port_summary">SVDRP-Port (ab 1.7.15 6419).</string>
     <string name="settings_macaddress">MAC-Adresse</string>
-    <string name="settings_macaddress_summary">Erforderlich für WakeOnLan</string>
+    <string name="settings_macaddress_summary">Erforderlich für WakeOnLan. Format 00:00:00:00:00:00</string>
     <string name="settings_channellist">Senderliste</string>
     <string name="settings_channellist_summary">Komma separierte Liste von Bereichen oder Werten ohne Leerzeichen.</string>
     <string name="settings_epgmax">Max. EPG Einträge</string>
