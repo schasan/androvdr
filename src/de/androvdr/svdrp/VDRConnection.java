@@ -95,9 +95,13 @@ public class VDRConnection {
     }
     
     public static void close() throws IOException {
-        connection.close();
-        connection = null;
-        timer.cancel();
-        timer = null;
+        if(connection != null) {
+            connection.close();
+            connection = null;
+        }
+        if(timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
 }
