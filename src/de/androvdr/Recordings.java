@@ -23,6 +23,12 @@ package de.androvdr;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.StringTokenizer;
+
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.LSTR;
+
+import de.androvdr.svdrp.VDRConnection;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -34,13 +40,7 @@ public class Recordings {
 	private ArrayList<RecordingViewItem> mItems = new ArrayList<RecordingViewItem>();
 	
 	public Recordings(DBHelper db) throws IOException {
-		Connection connection = new Connection();
-		init(connection, db);
-		connection.close();
-	}
-	
-	public Recordings(Connection connection, DBHelper db) throws IOException {
-		init(connection, db);
+		init(db);
 	}
 	
 	public static void clearIds(DBHelper db) {
@@ -73,43 +73,34 @@ public class Recordings {
 		return result;
 	}
 	
-	private void init(Connection connection, DBHelper db) throws IOException {
-		try {
-			boolean isLastLine = false;
-			
-			connection.sendData("LSTR\n");
-			do {
-				String s = connection.readLine();
-				
-				if (s.charAt(3) == ' ')
-					isLastLine = true;
-				
-				try {
-					Recording recording = new Recording(s.substring(4), db);
-					RecordingViewItem item;
-					if (recording.inFolder()) {
-						if ((item = getFolder(recording.folders.get(0))) == null) {
-							item = new RecordingViewItem(recording.folders.get(0));
-							mItems.add(item);
-						}
-						recording.folders.remove(0);
-						item.add(recording);
-					}
-					else {
-						item = new RecordingViewItem(recording);
-						mItems.add(item);
-					}
-				} catch (Exception e) {
-					MyLog.v(TAG, "ERROR invalid recording format: " + e.toString());
-					continue;
-				}
-				
-			} while (! isLastLine);
-		} catch (IOException e) {
-			if (connection != null)
-				connection.close();
-			MyLog.v(TAG, "ERROR init(): " + e.toString());
-			throw e;
+	private void init(DBHelper db) throws IOException {
+		Response response = VDRConnection.send(new LSTR());
+		if(response.getCode() == 250) {
+		    String message = response.getMessage();
+		    StringTokenizer st = new StringTokenizer(message, "\n");
+		    while(st.hasMoreTokens()) {
+		        try {
+		            Recording recording = new Recording(st.nextToken(), db);
+		            RecordingViewItem item;
+		            if (recording.inFolder()) {
+		                if ((item = getFolder(recording.folders.get(0))) == null) {
+		                    item = new RecordingViewItem(recording.folders.get(0));
+		                    mItems.add(item);
+		                }
+		                recording.folders.remove(0);
+		                item.add(recording);
+		            }
+		            else {
+		                item = new RecordingViewItem(recording);
+		                mItems.add(item);
+		            }
+		        } catch (Exception e) {
+		            MyLog.v(TAG, "ERROR invalid recording format", e);
+		            continue;
+		        }
+		    } 
+		} else {
+		    throw new IOException("Couldn't retrieve recordings: " + response.getCode() + " " + response.getMessage());
 		}
 	}
 	

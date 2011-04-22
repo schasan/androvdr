@@ -35,15 +35,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
-import de.androvdr.Connection;
 import de.androvdr.Epg;
 import de.androvdr.Messages;
 import de.androvdr.MyLog;
@@ -173,7 +172,6 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	}
 	
 	public void run() {
-		Connection connection = null;
 		try {
 			Channels channels = new Channels(Preferences.getVdr().channellist);
 			if (mChannelNumber == EPG_NOW) {
@@ -185,14 +183,13 @@ public class EpgsdataController extends AbstractController implements Runnable {
 					mEpgdata.add(channel.getNext());
 				}
 			} else {
-				connection = new Connection();
 				if (mChannelNumber == 0) {
-					Channel c = channels.addChannel(-1, connection);
+					Channel c = channels.addChannel(-1);
 					mChannelNumber = c.nr;
 				}
 
 				if (channels.getChannel(mChannelNumber) == null) {
-					Channel c = channels.addChannel(mChannelNumber, connection);
+					Channel c = channels.addChannel(mChannelNumber);
 					c.isTemp = true;
 				}
 				
@@ -206,9 +203,6 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			MyLog.v(TAG, "ERROR: new Channels() " + e.toString());
 			lastError = e.toString();
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-		} finally {
-			if (connection != null)
-				connection.closeDelayed();
 		}
 	}
 

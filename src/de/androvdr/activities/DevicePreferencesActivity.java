@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import android.content.ContentValues;
@@ -267,14 +266,6 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 			public void apply() {
 				commit();
 			}
-
-			@Override
-			public android.content.SharedPreferences.Editor putStringSet(
-					String arg0, Set<String> arg1) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
 		}
 
 		public Editor edit() {
@@ -323,12 +314,6 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		public void unregisterOnSharedPreferenceChangeListener(
 				OnSharedPreferenceChangeListener listener) {
 			listeners.remove(listener);
-		}
-
-		@Override
-		public Set<String> getStringSet(String arg0, Set<String> arg1) {
-			// TODO Auto-generated method stub
-			return null;
 		}
 	}
 

@@ -25,36 +25,25 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.StringTokenizer;
+
+import org.hampelratte.svdrp.Command;
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.LSTT;
+
+import de.androvdr.svdrp.VDRConnection;
 
 public class Timers {
 	private static final String TAG = "Timers";
 	
-	final private Connection mConnection;
 	private ArrayList<Timer> mItems = new ArrayList<Timer>();
 	
 	public Timers() throws IOException {
-		mConnection = new Connection();
-		try {
-			init();
-		} finally {
-			if (mConnection != null)
-				mConnection.closeDelayed();
-		}
-	}
-
-	public Timers(Connection connection) throws IOException {
-		mConnection = connection;
 		init();
 	}
 	
 	public Timers(EpgSearch search) throws IOException {
-		mConnection = new Connection();
-		try {
-			init(search);
-		} finally {
-			if (mConnection != null)
-				mConnection.closeDelayed();
-		}
+		init(search);
 	}
 	
 	public ArrayList<Timer> getItems() {
@@ -63,33 +52,32 @@ public class Timers {
 	
 	private void init() throws IOException {
 		int lastUpdate = (int) (new Date().getTime() / 60000);
-		try {
-			boolean isLastLine = false;
-			
-			mConnection.sendData("LSTT\n");
-			do {
-				String s = mConnection.readLine();
-				
-				if (s.charAt(3) == ' ')
-					isLastLine = true;
-				
-				try {
-					Timer timer = new Timer(s.substring(4));
-					timer.lastUpdate = lastUpdate;
-					mItems.add(timer);
-				} catch (ParseException e) {
-					MyLog.v(TAG, "ERROR invalid timer format: " + e.toString());
-					continue;
-				}
-				
-			} while (! isLastLine);
-			Collections.sort(mItems, new TimerComparer());
-		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR init(): " + e.toString());
-			throw e;
+		
+		Response response = VDRConnection.send(new LSTT());
+		if(response.getCode() == 250) {
+		    String message = response.getMessage();
+		    StringTokenizer st = new StringTokenizer(message, "\n");
+		    while(st.hasMoreTokens()) {
+		        try {
+		            Timer timer = new Timer(st.nextToken());
+		            timer.lastUpdate = lastUpdate;
+		            mItems.add(timer);
+		        } catch (ParseException e) {
+		            MyLog.v(TAG, "ERROR invalid timer format: " + e.toString());
+		            continue;
+		        }
+		    }
+		    Collections.sort(mItems, new TimerComparer());
+		} else if(response.getCode() == 550) {
+		    if(!"No timers defined".equals(response.getMessage().trim())) {
+		        throw new IOException("Couldn't retrieve timers: " + response.getCode() + " " + response.getMessage());
+		    }
+		} else {
+		    throw new IOException("Couldn't retrieve timers: " + response.getCode() + " " + response.getMessage());
 		}
 	}
 
+	@SuppressWarnings("serial")
 	private void init(EpgSearch search) throws IOException {
 		int lastUpdate = (int) (new Date().getTime() / 60000);
 		try {
@@ -98,7 +86,7 @@ public class Timers {
 			int marginStop = 0;
 			int count = 0;
 			
-			String command = "PLUG epgsearch FIND 0:"
+			final String command = "PLUG epgsearch FIND 0:"
 					+ search.search
 					+ ":0:::0::0:0:"
 					+ (search.inTitle ? 1 : 0) + ":"
@@ -106,31 +94,32 @@ public class Timers {
 					+ (search.inDescription ? 1 : 0) + ":"
 					+ "0:::0:0:0:0::::::0:0:0::0::1:1:1:0::::::0:::0::0:::::";
 			
-			mConnection.sendData(command + "\n");
-			do {
-				String s = mConnection.readLine();
-
+			Response response = VDRConnection.send(new Command() {
+                @Override
+                public String toString() {
+                    return command;
+                }
+                
+                @Override
+                public String getCommand() {
+                    return command;
+                }
+            });
+            
+            if (response.getCode() == 550)
+                throw new IOException("550 epgsearch plugin not found");
+            
+			String result = response.getMessage();
+			StringTokenizer st = new StringTokenizer(result, "\n");
+			while(st.hasMoreTokens()) {
+				String s = st.nextToken();
 				count += 1;
 				if (count > Preferences.epgsearch_max) {
-					mConnection.close();
 					break;
 				}
 				
-				if (s.length() < 4) {
-					MyLog.v(TAG, "ERROR init(search): " + s);
-					throw new IOException("invalid data received");
-				}
-				
-				if (s.charAt(3) == ' ')
-					isLastLine = true;
-				
 				try {
-					int result = Integer.parseInt(s.substring(0, 3));
-					
-					if (result == 550)
-						throw new IOException("550 epgsearch plugin not found");
-					
-					if (result == 900) {
+					if (response.getCode() == 900) {
 						Timer timer = new Timer();
 						timer.initFromEpgsearchResult(s);
 						timer.lastUpdate = lastUpdate;
@@ -140,25 +129,28 @@ public class Timers {
 					MyLog.v(TAG, "ERROR invalid timer format: " + e.toString());
 					continue;
 				}
-				
-			} while (! isLastLine);
+			}
 			
-			isLastLine = false;
-			if (mConnection.isClosed)
-				mConnection.open();
-			mConnection.sendData("PLUG epgsearch SETP\n");
-			do {
-				String s = mConnection.readLine();
-				if (s.length() < 4) {
-					MyLog.v(TAG, "ERROR init(search): " + s);
-					throw new IOException("invalid data received");
-				}
-				
-				if (s.charAt(3) == ' ')
-					isLastLine = true;
+			response = VDRConnection.send(new Command() {
+			    private String command = "PLUG epgsearch SETP";
+			    
+                @Override
+                public String toString() {
+                    return command;
+                }
+                
+                @Override
+                public String getCommand() {
+                    return command;
+                }
+            });
+			
+			st = new StringTokenizer(result, "\n");
+            while(st.hasMoreTokens()) {
+                String s = st.nextToken();
 				
 				try {
-					String[] sa = s.substring(4).split(":");
+					String[] sa = s.split(":");
 					if (sa[0].equals("DefMarginStart"))
 						marginStart = Integer.parseInt(sa[1].trim()) * 60;
 					if (sa[0].equals("DefMarginStop"))

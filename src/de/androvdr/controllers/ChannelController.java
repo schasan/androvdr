@@ -25,6 +25,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.CHAN;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
@@ -34,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,10 +46,8 @@ import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
-import de.androvdr.Connection;
 import de.androvdr.Messages;
 import de.androvdr.MyLog;
 import de.androvdr.Preferences;
@@ -54,6 +56,7 @@ import de.androvdr.VdrCommands;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.activities.EpgsdataActivity;
 import de.androvdr.devices.VdrDevice;
+import de.androvdr.svdrp.VDRConnection;
 
 public class ChannelController extends AbstractController implements Runnable {
 	public static final String TAG = "ChannelController";
@@ -151,14 +154,13 @@ public class ChannelController extends AbstractController implements Runnable {
 			mActivity.startActivityForResult(intent, 1);
 			break;
 		case CHANNEL_ACTION_SWITCH:
-			try {
-				new Connection().doThis("CHAN " + channel.nr + "\n");
-				mActivity.finish();
-			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR switch channel: " + e.toString());
-				lastError = e.toString();
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-			}
+		    Response resp = VDRConnection.send(new CHAN(Integer.toString(channel.nr)));
+		    if(resp.getCode() != 250) {
+		        MyLog.v(TAG, "ERROR switch channel: " + resp.getMessage());
+		        lastError = resp.getMessage();
+		        mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+		    }
+			mActivity.finish();
 			break;
 		case CHANNEL_ACTION_REMOTECONTROL:
 			mActivity.finish();

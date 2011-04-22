@@ -21,9 +21,18 @@
 package de.androvdr;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.ListIterator;
+
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.CHAN;
+import org.hampelratte.svdrp.commands.LSTC;
+import org.hampelratte.svdrp.util.ChannelParser;
+
+import de.androvdr.svdrp.VDRConnection;
 
 public class Channels {
 	private static final String TAG = "Channels";
@@ -39,21 +48,25 @@ public class Channels {
 		init();
 	}
 	
-	public Channel addChannel(int kanal, Connection connection) throws IOException {
+	public Channel addChannel(int kanal) throws IOException {
 		Channel channel = null;
 		
-		if (kanal == -1)
-			connection.sendData("CHAN\n");
-		else
-			connection.sendData("LSTC "+kanal+"\n");
-		
-		String s = connection.readLine().substring(4);
+		Response response; 
+		// determine the current channel
+		if (kanal == -1) {
+		    response = VDRConnection.send(new CHAN());
+		    if(response.getCode() != 250) {
+		        throw new IOException("Couldn't determine current channel number");
+		    }
+		    kanal = Integer.parseInt(response.getMessage().split(" ")[0]);
+		}
+	    response = VDRConnection.send(new LSTC(kanal));
+		if(response.getCode() != 250) {
+		    throw new IOException("Couldn't retrieve channel details for channel " + kanal + ": " + response.getMessage());
+		}
 		try {
-			if(s.contains("not defined")){
-				MyLog.v(TAG, "Kanal "+kanal+" nicht gefunden");
-				return null;
-			}
-			channel = new Channel(s);
+		    List<org.hampelratte.svdrp.responses.highlevel.Channel> channels = ChannelParser.parse(response.getMessage(), true);
+			channel = new Channel(channels.get(0));
 			if (kanal == -1) {
 				channel.isTemp = true;
 				if (getChannel(channel.nr) == null)
@@ -64,6 +77,8 @@ public class Channels {
 		} catch (IOException e) {
 			MyLog.v(TAG, "ungueltiger Kanaldatensatz",e);
 			// faengt u A NumberformatExceptions ab
+		} catch(ParseException pe) {
+		    MyLog.v(TAG, "Couldn't parse channel details",pe);
 		}
 		return channel;
 	}
@@ -111,10 +126,8 @@ public class Channels {
 			
 			mItems.clear();
 			mIsInitialized = false;
-			Connection connection = null;
 			
 			try {
-				connection = new Connection();
 				int i = 0;
 				for (i = 0; i < channelList.length; i++) { // Bereiche oder einzelne Kanaele
 					try {
@@ -123,10 +136,10 @@ public class Channels {
 							int from = Integer.valueOf(bereich[0]);
 							int to = Integer.valueOf(bereich[1]);
 							for (int x = from; x <= to; x++) {
-								addChannel(x, connection);
+								addChannel(x);
 							}
 						} else { // einzelne Kanaele
-							addChannel(Integer.valueOf(channelList[i]), connection);
+							addChannel(Integer.valueOf(channelList[i]));
 						}
 					} catch (IOException e) {
 						throw e;
@@ -140,9 +153,6 @@ public class Channels {
 			} catch (IOException e) {
 				MyLog.v(TAG, "Channels.init(): " + e);
 				throw e;
-			} finally {
-				if (connection != null)
-					connection.closeDelayed();
 			}
 		}
 	}

@@ -27,6 +27,10 @@ import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.Stack;
 
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.DELR;
+import org.hampelratte.svdrp.commands.PLAY;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -38,6 +42,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -45,8 +50,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import de.androvdr.Connection;
 import de.androvdr.DBHelper;
 import de.androvdr.Messages;
 import de.androvdr.MyLog;
@@ -59,6 +62,7 @@ import de.androvdr.Recordings;
 import de.androvdr.VdrCommands;
 import de.androvdr.activities.AbstractListActivity;
 import de.androvdr.activities.RecordingInfoActivity;
+import de.androvdr.svdrp.VDRConnection;
 
 public class RecordingController extends AbstractController implements Runnable {
 	public static final int RECORDING_ACTION_INFO = 1;
@@ -355,19 +359,12 @@ public class RecordingController extends AbstractController implements Runnable 
 		
 		@Override
 		protected String doIt() {
-			try {
-				String s = mConnection.doThis("DELR " + mRecording.number + "\n");
-				
-				if (s != null && s.regionMatches(0, "250 ", 0, 4)) {
-					return "";
-				}
-				else {
-					return s.replace("\n", "");
-				}
-			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR RecordingDeleteTask: " + e.toString());
-				return null;
-			}
+		    Response response = VDRConnection.send(new DELR(mRecording.number));
+		    if(response.getCode() == 250) {
+		        return "";
+		    } else {
+		        return response.getMessage();
+		    }
 		}
 		
 		@Override
@@ -408,10 +405,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				Preferences.store();
 			}
 			
-			Connection connection = null;
 			try {
-				connection = new Connection();
-
 				for (Recording recording: mRecordingViewItems.getAllRecordings()) {
 					if (isInterrupted()) {
 						MyLog.v(TAG, "UpdateThread interrupted");
@@ -435,8 +429,6 @@ public class RecordingController extends AbstractController implements Runnable 
 			} catch (IOException e) {
 				MyLog.v(TAG, e.toString());
 			} finally {
-				if (connection != null)
-					connection.closeDelayed();
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
 			}
 			MyLog.v(TAG, "UpdateThread finished");
@@ -444,7 +436,6 @@ public class RecordingController extends AbstractController implements Runnable 
 	}
 
 	private class RecordingInfoTask extends AsyncTask<RecordingViewItem, Void, String> {
-		protected Connection mConnection;
 		protected Recording mRecording;
 		protected RecordingViewItem mRecordingViewItem;
 		protected RecordingInfo mInfo;
@@ -458,7 +449,6 @@ public class RecordingController extends AbstractController implements Runnable 
 			mRecordingViewItem = params[0];
 			mRecording = mRecordingViewItem.recording;
 			try {
-				mConnection = new Connection();
 				mInfo = VdrCommands.getRecordingInfo(mRecording.number);
 				MyLog.v(TAG, "MD5: " + mRecording.getInfoId() + " --- " + mInfo.id);
 				
@@ -469,7 +459,7 @@ public class RecordingController extends AbstractController implements Runnable 
 						return doIt();
 				} else {
 					onProgressUpdate();
-					mRecordingViewItems.update(mConnection);
+					mRecordingViewItems.update();
 					ArrayList<Recording> allRecordings = mRecordingViewItems.getAllRecordings();
 					int index = Collections.binarySearch(allRecordings, mRecording);
 					if (index >= 0) {
@@ -485,10 +475,7 @@ public class RecordingController extends AbstractController implements Runnable 
 			} catch (IOException e) {
 				MyLog.v(TAG, "ERROR RecordingInfoTask: " + e.toString());
 				return null;
-			} finally {
-				if (mConnection != null)
-					mConnection.closeDelayed();
-			}
+			} 
 		}
 		
 		protected String doIt() {
@@ -529,21 +516,18 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 		
 		protected String doIt() {
-			String command;
-			
-			if (mFromBeginning)
-				command = "PLAY " + mRecording.number + " begin\n";
-			else
-				command = "PLAY " + mRecording.number + "\n";
-		
-			try {
-				mConnection.doThis(command);
-				mConnection.close();
-				mActivity.finish();
-				return "";
-			} catch (IOException e) {
-				return null;
-			}
+		    PLAY play = new PLAY(mRecording.number);
+		    if(mFromBeginning) {
+		        play.setStartTime(PLAY.BEGIN);
+		    }
+		    
+		    Response response = VDRConnection.send(play);
+		    if(response.getCode() == 250) {
+		        mActivity.finish();
+		        return "";
+		    } else {
+		        return null;
+		    }
 		}
 	}
 	
@@ -586,10 +570,10 @@ public class RecordingController extends AbstractController implements Runnable 
 			}
 		}
 		
-		public void update(Connection connection) throws IOException {
+		public void update() throws IOException {
 			MyLog.v(TAG, "updateRecordings started");
 			// --- get recordings from vdr ---
-			Recordings recordings = new Recordings(connection, db);
+			Recordings recordings = new Recordings(db);
 			RecordingViewItemList recordingViewItems = new RecordingViewItemList();
 			for(RecordingViewItem recordingViewItem: recordings.getItems())
 				recordingViewItems.add(recordingViewItem);

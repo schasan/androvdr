@@ -3,6 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="lib/jsch-0.1.42.jar"/>
+	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar" sourcepath="lib/jsch-0.1.44-sources.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-android-1.5.8.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/svdrp4j"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

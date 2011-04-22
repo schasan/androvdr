@@ -25,13 +25,15 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.hampelratte.svdrp.Command;
+
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import de.androvdr.Channels;
-import de.androvdr.Connection;
 import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.Wol;
+import de.androvdr.svdrp.VDRConnection;
 
 public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 	private static final String TAG = "VdrDevice";
@@ -219,8 +221,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 			if (clearChannels)
 				Channels.clear();
 			try {
-				Connection connection = new Connection();
-				connection.close();
+				VDRConnection.close();
 			} catch (IOException e) { 
 				MyLog.v(TAG, e.toString());
 			}
@@ -257,6 +258,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 		mUser = user;
 	}
 
+	private String vdrcommand;
 	@Override
 	public boolean write(String command) {
 		if (command.equalsIgnoreCase("WOL")) {
@@ -275,7 +277,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 			return true;
 		}
 		
-		String vdrcommand = (String) mCommands.get(command);
+		vdrcommand = (String) mCommands.get(command);
 		if (vdrcommand == null)
 			vdrcommand = (String) mCommandsCompat.get(command);
 		
@@ -284,19 +286,17 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 			return false;
 		}
 		
-		Connection connection = null;
-		try {
-			connection = new Connection();
-			connection.sendData(vdrcommand + "\n");
-			connection.receiveData();
-		} catch (IOException e) {
-			mLastError = e.toString();
-			return false;
-		} finally {
-			if (connection != null)
-				connection.closeDelayed();
-		}
-		mLastError = "";
+		VDRConnection.send(new Command() {
+            @Override
+            public String toString() {
+                return vdrcommand;
+            }
+            
+            @Override
+            public String getCommand() {
+                return vdrcommand;
+            }
+        });
 		return true;
 	}
 }

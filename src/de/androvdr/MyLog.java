@@ -34,7 +34,7 @@ public class MyLog {
 	private static final File logFile = new File(Preferences.getExternalRootDirName() + "/log.txt");
 
 	// die Loglevel sind in der Resourcendatei @values/arrays festgelegt
-	private static int logLevel = 0;
+	private static int logLevel = 1;
 
 	public static void v(String tag, String msg) {
 		v(tag, msg, null);
