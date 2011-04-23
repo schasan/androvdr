@@ -83,6 +83,10 @@
       android:key="remote_user"
       android:title="@string/settings_user"
       android:defaultValue="abcdef" />
+    <Preference
+      android:key="sshkey_pref"
+      android:title="SSH-Key"
+      android:summary="Import SSH-Key from SD-Card" />
     <EditTextPreference
       android:key="remote_local_port"
       android:inputType="number"

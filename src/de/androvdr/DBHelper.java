@@ -28,7 +28,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TAG = "DBHelper";
 	
 	public static final String DATABASE_NAME = "AndroVDR.db";
-	public static final int DATABASE_VERSION = 2;
+	public static final int DATABASE_VERSION = 3;
 	
 	public DBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -47,6 +47,10 @@ public class DBHelper extends SQLiteOpenHelper {
 			MyLog.v(TAG, "Upgrading database from version 1 to 2");
 			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME 
 					+ " ADD COLUMN " + DevicesTable.TIMEOUT + " INT DEFAULT 7500");
+		case 2:
+			MyLog.v(TAG, "Upgrading database from version 2 to 3");
+			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME 
+					+ " ADD COLUMN " + DevicesTable.SSHKEY + " BLOB DEFAULT NULL");
 			
 			
 			break;

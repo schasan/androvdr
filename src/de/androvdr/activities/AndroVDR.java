@@ -28,6 +28,9 @@ import java.util.Comparator;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -94,6 +97,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	
 	private Devices mDevices;
 	private CharSequence mTitle;
+	private WatchPortForwadingThread mWatchPortForwardingThread;
 	private WorkspaceView mWorkspace;
 	private boolean mLayoutChanged = false;
 	
@@ -365,6 +369,9 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    sp.registerOnSharedPreferenceChangeListener(mDevices);
 
 		initWorkspaceView();
+		
+		mWatchPortForwardingThread = new WatchPortForwadingThread();
+		mWatchPortForwardingThread.start();
     }
 
 	@Override
@@ -422,6 +429,17 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		return true;
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		try {
+			Connection connection = new Connection();
+			connection.close();
+		} catch (IOException e) { }
+		if (portForwarding != null)
+			portForwarding.disconnect();
+	}
+	
     @Override
     public void onLoad() {
     	updateTitle(mWorkspace.getCurrentView());
@@ -435,6 +453,8 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 				Connection connection = new Connection();
 				connection.close();
 			} catch (IOException e) { }
+			if (portForwarding != null)
+				portForwarding.disconnect();
 			android.os.Process.killProcess(android.os.Process.myPid());
 			return true;
 		case R.id.androvdr_about:
@@ -475,6 +495,14 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			String key) {
 		if (key.equals("alternateLayout"))
 			mLayoutChanged = true;
+		if (key.equals("currentVdrId")) {
+			try {
+				Connection connection = new Connection();
+				connection.close();
+			} catch (IOException e) { }
+			if (portForwarding != null)
+				portForwarding.disconnect();
+		}
 	}
 
     private Handler sshDialogHandler = new Handler() {
@@ -492,8 +520,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			NetworkInfo[] info = cm.getAllNetworkInfo();
 			for (int i = 0; i < info.length; i++) {
 				if (info[i].isConnected() == true) { // dann wird wohl hoffentlich eine Verbindung klappen
-					AndroVDR.portForwarding = new PortForwarding(
-							sshDialogHandler, this);
+					portForwarding = new PortForwarding(sshDialogHandler, this);
 					return;
 				} else { // sammel mer mal die Begruendung
 					NetworkInfo.DetailedState state = info[i].getDetailedState();
@@ -504,9 +531,9 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			Toast.makeText(this, connectionState, Toast.LENGTH_LONG).show();
 		} else {
 			// Toast.makeText(Settings.this, "Nein", Toast.LENGTH_SHORT).show();
-			if (AndroVDR.portForwarding != null) {
-				AndroVDR.portForwarding.disconnect();
-				AndroVDR.portForwarding = null;
+			if (portForwarding != null) {
+				portForwarding.disconnect();
+				portForwarding = null;
 			}
 		}
 	}
@@ -569,5 +596,43 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     		}
     		return null;
     	}
-      }
+    }
+    
+    public class WatchPortForwadingThread extends Thread {
+    	
+    	public void run() {
+			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+			while (!isInterrupted()) {
+    			synchronized (Preferences.useInternetSync) {
+    				try {
+						if (Preferences.useInternet) {
+							int icon = R.drawable.stat_ic_menu_login;
+							CharSequence tickerText = getString(R.string.notification_connected_ticker);
+							long when = System.currentTimeMillis();
+							Context context = getApplicationContext();
+							CharSequence contentTitle = getString(R.string.app_name);
+							CharSequence contentText = getString(R.string.notification_connected); 
+							VdrDevice vdr = Preferences.getVdr();
+							if (vdr != null)
+								contentText = contentText + " " + vdr.remote_host; 
+							Intent notificationIntent = new Intent(AndroVDR.this, AndroVDR.class);
+							PendingIntent contentIntent = PendingIntent.getActivity(AndroVDR.this, 0, notificationIntent, 0);
+
+							Notification notification = new Notification(icon, tickerText, when);
+							notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+							notification.flags = Notification.FLAG_NO_CLEAR;
+							
+							notificationManager.notify(1, notification);
+						} else {
+							notificationManager.cancelAll();
+						}
+						Preferences.useInternetSync.wait();
+					} catch (InterruptedException e) {
+						MyLog.v(TAG, "WatchPortForwardingThread interrupted");
+					}
+				}
+    		}
+    	}
+    }
 }
