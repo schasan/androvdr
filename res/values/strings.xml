@@ -12,8 +12,8 @@
     <string name="record">Record</string>
     <string name="portforwarding_fails">Can not activate Portforwarding\n\n</string>
     <string name="start_portforwarding">Starting Portforwarding...\n</string>
-    <string name="pw_titel">Passworddialog</string>
-    <string name="pw_msg">Please enter your user-password</string>
+    <string name="pw_msg">User Password</string>
+    <string name="pw_msg_passphrase">Key Passphrase</string>
     <string name="break_msg">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
@@ -39,6 +39,8 @@
     <string name="epgsearch_not_installed">The epgsearch plugin is not installed.</string>
     <string name="epgsearch_hint">Search in EPG</string>
     <string name="search">Search</string>
+    <string name="notification_connected_ticker">Connection established</string>
+    <string name="notification_connected">Connected with</string>
     <!-- ChannelsActivity -->
     <string name="channels">Channels</string>
 	<!-- RecordingsActivity -->
@@ -115,6 +117,9 @@
     <string name="settings_remote_port">SSH Port</string>
     <string name="settings_remote_port_summary">Open port on the router (forwarding configured ?).</string>
     <string name="settings_user">User</string>
+    <string name="settings_sshkey">SSH-Key</string>
+    <string name="settings_sshkey_summary">Import SSH-Key from SD-Card.</string>
+    <string name="settings_sshkey_delete">Delete SSH-Key</string>
     <string name="settings_remote_local_port">Local Forwarding Port</string>
     <string name="settings_remote_local_port_summary">Local port used by forwarding.</string>
     <string name="settings_timeout">Timeout (in ms)</string>

@@ -36,11 +36,14 @@ public class Preferences {
 	private static final String CONFIG_PLUGINDIR = "plugins";
 	private static final String CONFIG_MACROFILE = "macros.xml";
 	private static final String CONFIG_GESTUREFILE = "gestures";
+	private static final String CONFIG_SSH_KEY = "sshkey";
+	private static final String CONFIG_SSH_KNOWN_HOSTS = "known_hosts";
 	
 	private static VdrDevice sCurrentVdr = null;
 	private static long sCurrentVdrId = -1;
 	
 	public static SharedPreferences sharedPreferences;
+	public static String sFilesDir;
 	
 	public static boolean blackOnWhite;
 	public static boolean useLogos;
@@ -59,6 +62,7 @@ public class Preferences {
 	public static String timeformat = "HH:mm";
 
 	public static boolean useInternet = false; // legt fest, ob Portforwarding zum Einsatz kommt
+	public static Boolean useInternetSync = false;
 	public static boolean doRecordingIdCleanUp = true;
 	
 	public static String getExternalRootDirName() {
@@ -79,6 +83,14 @@ public class Preferences {
 	
 	public static String getPluginDirName() {
 		return getExternalRootDirName() + "/" + CONFIG_PLUGINDIR;
+	}
+	
+	public static String getSSHKeyFileName() {
+		return sFilesDir + "/" + CONFIG_SSH_KEY;
+	}
+	
+	public static String getSSHKnownHostsFileName() {
+		return sFilesDir + "/" + CONFIG_SSH_KNOWN_HOSTS;
 	}
 	
 	public static VdrDevice getVdr() {
@@ -109,6 +121,7 @@ public class Preferences {
 	
 	public static void init(Context context) {
 		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		sFilesDir = context.getFilesDir().getAbsolutePath();
 		
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			File appDir = new File(Environment.getExternalStorageDirectory(), CONFIG_ROOTDIR);
