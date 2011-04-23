@@ -56,6 +56,10 @@ public class AboutActivity extends AbstractActivity {
 			tv.setText(Html.fromHtml("Project page at <a href=\"http://code.google.com/p/androvdr\">Google Code</a>."));
 			tv.setMovementMethod(LinkMovementMethod.getInstance());
 
+			tv = (TextView) findViewById(R.id.about_wiki);
+			tv.setText(Html.fromHtml("<a href=\"http://code.google.com/p/androvdr/wiki/Documentation\">Documentation (German)</a>"));
+			tv.setMovementMethod(LinkMovementMethod.getInstance());
+
 			tv = (TextView) findViewById(R.id.about_jsch_url);
 			tv.setText(Html.fromHtml("Java Secure Channel at <a href=\"http://www.jcraft.com/jsch/\">JCraft</a>."));
 			tv.setMovementMethod(LinkMovementMethod.getInstance());
