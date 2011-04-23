@@ -145,9 +145,12 @@ public class TcpClient {
     
     
     public void close() throws IOException {
-    	bw.close();
-    	br.close();
-    	socket.close();
+    	if (bw != null)
+    		bw.close();
+    	if (br != null)
+    		br.close();
+    	if (socket != null)
+    		socket.close();
     	MyLog.v(TAG, "Socket closed");
     }
     
