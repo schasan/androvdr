@@ -58,6 +58,7 @@ public class VdrCommands {
             if (epg.size() > 0) {
                 EPGEntry entry = epg.get(0);
                 RecordingInfo recordingInfo = new RecordingInfo();
+                recordingInfo.id = MD5.calculate(response.getMessage());
 
                 recordingInfo.channelName = entry.getChannelName();
                 recordingInfo.date = entry.getStartTime().getTimeInMillis() / 1000;
@@ -65,6 +66,8 @@ public class VdrCommands {
                 long end = entry.getEndTime().getTimeInMillis() / 1000;
                 recordingInfo.duration = end - recordingInfo.date;
                 recordingInfo.title = entry.getTitle();
+                recordingInfo.priority = entry.getPriority();
+                recordingInfo.lifetime = entry.getLifetime();
                 
                 // add information about the muxed streams
                 for (Stream stream : entry.getStreams()) {

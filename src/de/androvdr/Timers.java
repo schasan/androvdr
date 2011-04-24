@@ -81,7 +81,6 @@ public class Timers {
 	private void init(EpgSearch search) throws IOException {
 		int lastUpdate = (int) (new Date().getTime() / 60000);
 		try {
-			boolean isLastLine = false;
 			int marginStart = 0;
 			int marginStop = 0;
 			int count = 0;
@@ -159,7 +158,7 @@ public class Timers {
 					MyLog.v(TAG, "ERROR invalid epgsearch setp response");
 					continue;
 				}
-			} while (! isLastLine);
+			};
 
 			for (Timer timer : mItems) {
 				timer.start += marginStart;
