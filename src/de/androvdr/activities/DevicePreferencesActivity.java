@@ -20,27 +20,42 @@
 
 package de.androvdr.activities;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.Preference.OnPreferenceClickListener;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 import de.androvdr.DevicesTable;
 import de.androvdr.ListPreferenceValueHolder;
 import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
+import de.androvdr.activities.DevicePreferencesActivity.CursorPreferenceHack.Editor;
 import de.androvdr.devices.Devices;
 import de.androvdr.devices.IDevice;
 
@@ -113,6 +128,66 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 					}
 				}).start();
 			}
+			
+			Preference sshkey = (Preference) findPreference("sshkey_pref");
+			sshkey.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+				
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					if (! Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+						Toast.makeText(DevicePreferencesActivity.this, "SD-Card not available", Toast.LENGTH_LONG).show();
+						return true;
+					}
+					
+					ArrayList<String> filenames = new ArrayList<String>();
+					File filepath = Environment.getExternalStorageDirectory();
+					if (filepath != null) {
+						for (File file : filepath.listFiles()) {
+							if (file.isFile()) {
+								filenames.add(file.getName());
+							}
+						}
+					}
+					
+					final CharSequence[] items = filenames.toArray(new CharSequence[filenames.size()]);
+					if (filenames.size() > 0) {
+						AlertDialog.Builder builder = new AlertDialog.Builder(DevicePreferencesActivity.this);
+						builder.setTitle("Select SSH-Key");
+						builder.setItems(items, new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog, int item) {
+						    	File file = new File(Environment.getExternalStorageDirectory() + "/" + items[item]);
+						    	BufferedReader in = null;
+								StringBuilder sb = new StringBuilder();
+						    	try {
+									in = new BufferedReader(new FileReader(file));
+									String s;
+									while ((s = in.readLine()) != null) {
+										sb.append(s + "\n");
+									}
+								} catch (IOException e) {
+									Toast.makeText(DevicePreferencesActivity.this, e.toString(), Toast.LENGTH_LONG);
+								} finally {
+									if (in != null)
+										try {
+											in.close();
+										} catch (IOException e) { }
+								}
+								
+						    	Editor editor = pref.edit();
+						    	editor.putString("sshkey", sb.toString());
+						    	editor.commit();
+						        
+						    	Toast.makeText(getApplicationContext(), items[item] + " imported", Toast.LENGTH_SHORT).show();
+						    }
+						});
+						AlertDialog dialog = builder.create();
+						dialog.show();
+					} else {
+						Toast.makeText(DevicePreferencesActivity.this, "No files available", Toast.LENGTH_LONG).show();
+					}
+					return true;
+				}
+			});
 		} else {
 			addPreferencesFromResource(R.xml.devicepreferences);
 
@@ -123,6 +198,43 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		updateSummaries();
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.devicepreferences_option_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.devpref_sshkey_delete:
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(R.string.settings_sshkey_delete)
+			       .setCancelable(false)
+			       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+			           public void onClick(DialogInterface dialog, int id) {
+			        	   dialog.dismiss();
+			        	   
+			        	   Editor editor = pref.edit();
+			        	   editor.putString("sshkey", null);
+			        	   editor.commit();
+			           }
+			       })
+			       .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+			           public void onClick(DialogInterface dialog, int id) {
+			                dialog.cancel();
+			           }
+			       });
+			AlertDialog alert = builder.create();
+			alert.show();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
@@ -266,6 +378,14 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 			public void apply() {
 				commit();
 			}
+
+			@Override
+			public android.content.SharedPreferences.Editor putStringSet(
+					String arg0, Set<String> arg1) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
 		}
 
 		public Editor edit() {
@@ -314,6 +434,12 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		public void unregisterOnSharedPreferenceChangeListener(
 				OnSharedPreferenceChangeListener listener) {
 			listeners.remove(listener);
+		}
+
+		@Override
+		public Set<String> getStringSet(String arg0, Set<String> arg1) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 

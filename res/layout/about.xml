@@ -24,13 +24,19 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:paddingTop="10dip"
+    android:paddingTop="15dip"
     android:id="@+id/about_url" />
   <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:paddingTop="10dip"
+    android:paddingTop="15dip"
+    android:id="@+id/about_wiki" />
+  <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:paddingTop="15dip"
     android:id="@+id/about_jsch_url" />
   <LinearLayout
     android:layout_width="fill_parent"

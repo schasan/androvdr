@@ -144,15 +144,18 @@ public class TimerController extends AbstractController implements Runnable {
 						case Messages.MSG_DATA_UPDATE_DONE:
 							mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 							mAdapter.notifyDataSetChanged();
-							
-							Response response = VDRConnection.send(new DELT(item.number));
-							if(response.getCode() == 250) {
-							    mAdapter.remove(item);
-							    for (int i = 0; i < mTimer.size(); i++)
-							        mTimer.get(i).lastUpdate = 0;
-							} else {
-							    Toast.makeText(mActivity, response.getMessage().replace("\n", ""), Toast.LENGTH_LONG).show();
+							if (item.lastUpdate > 0) {
+								Response response = VDRConnection.send(new DELT(item.number));
+								if(response.getCode() == 250) {
+								    mAdapter.remove(item);
+								    for (int i = 0; i < mTimer.size(); i++)
+								        mTimer.get(i).lastUpdate = 0;
+								} else {
+								    Toast.makeText(mActivity, response.getMessage().replace("\n", ""), Toast.LENGTH_LONG).show();
+								}
 							}
+							else
+								Toast.makeText(mActivity, R.string.timer_not_found, Toast.LENGTH_LONG).show();
 							break;
 						case Messages.MSG_VDR_ERROR:
 							mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
