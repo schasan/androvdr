@@ -17,7 +17,8 @@ public class VDRConnection {
     private static transient Logger logger = LoggerFactory.getLogger(VDRConnection.class.getName());
 
     private static Connection connection;
-
+    private static Integer syncer = 0;
+    
     public static String host;
 
     public static int port;
@@ -41,56 +42,65 @@ public class VDRConnection {
      * the last request. {@link #persistentConnection} has to be
      * set to true.
      */
-    private static final int CONNECTION_KEEP_ALIVE = 15000;
+    private static final int CONNECTION_KEEP_ALIVE = 10000;
     
     /**
      * Sends a SVDRP command to VDR and returns a response object, which represents the vdr response
      * @param cmd The SVDRP command to send
      * @return The SVDRP response or null, if the Command couldn't be sent
      */
-    public synchronized static Response send(final Command cmd) {
-        Response res = null;
-        try {
-            if(connection == null) {
-                logger.trace("New connection");
-                connection = new Connection(host, port, timeout, charset);
-            } else {
-                logger.trace("old connection");
-            }
-            logger.debug("-->{}", cmd.getCommand());
-            
-            res = connection.send(cmd);
-            lastTransmissionTime = System.currentTimeMillis();
-            if(!persistentConnection) {
-                connection.close();
-                connection = null;
-            } else {
-                if(timer == null) {
-                    logger.debug("Starting connection closer");
-                    timer = new java.util.Timer("SVDRP connection closer");
-                    timer.schedule(new ConnectionCloser(), 0, 100);
-                }
-            }
-            logger.debug("<--{}", res.getMessage());
-        } catch (Exception e1) {
-            res = new ConnectionProblem();
-            logger.error(res.getMessage(), e1);
-        }
-        
-        return res;
-    }
+	public synchronized static Response send(final Command cmd) {
+		Response res = null;
+		try {
+			
+			/*
+			 *  prevent ConnectionCloser to close the connection
+			 */
+			synchronized (syncer) {
+				if (connection == null) {
+					logger.trace("New connection");
+					connection = new Connection(host, port, timeout, charset);
+				} else {
+					logger.trace("old connection");
+					lastTransmissionTime = System.currentTimeMillis();
+				}
+				logger.debug("--> {}", cmd.getCommand());
+			}
+
+			res = connection.send(cmd);
+			lastTransmissionTime = System.currentTimeMillis();
+			if (!persistentConnection) {
+				connection.close();
+				connection = null;
+			} else {
+				if (timer == null) {
+					logger.debug("Starting connection closer");
+					timer = new java.util.Timer("SVDRP connection closer");
+					timer.schedule(new ConnectionCloser(), 0, 1000);
+				}
+			}
+			logger.debug("<-- {}", res.getMessage());
+		} catch (Exception e1) {
+			res = new ConnectionProblem();
+			logger.error(res.getMessage(), e1);
+		}
+
+		return res;
+	}
     
     static class ConnectionCloser extends TimerTask {
         @Override
         public void run() {
-            if (connection != null && (System.currentTimeMillis() - lastTransmissionTime) > CONNECTION_KEEP_ALIVE) {
-                logger.debug("Closing connection");
-                try {
-                    close();
-                } catch (IOException e) {
-                    logger.error("Couldn't close connection", e);
+        	synchronized (syncer) {
+                if (connection != null && (System.currentTimeMillis() - lastTransmissionTime) > CONNECTION_KEEP_ALIVE) {
+                    logger.debug("Closing connection");
+                    try {
+                        close();
+                    } catch (IOException e) {
+                        logger.error("Couldn't close connection", e);
+                    }
                 }
-            }
+			}
         }
     }
     

@@ -458,6 +458,16 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		return true;
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		try {
+			VDRConnection.close();
+		} catch (IOException e) { }
+		if (portForwarding != null)
+			portForwarding.disconnect();
+	}
+	
     @Override
     public void onLoad() {
     	updateTitle(mWorkspace.getCurrentView());

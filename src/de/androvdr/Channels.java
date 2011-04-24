@@ -50,6 +50,7 @@ public class Channels {
 	
 	public Channel addChannel(int kanal) throws IOException {
 		Channel channel = null;
+		boolean isTempChannel = (kanal == -1);
 		
 		Response response; 
 		// determine the current channel
@@ -67,13 +68,9 @@ public class Channels {
 		try {
 		    List<org.hampelratte.svdrp.responses.highlevel.Channel> channels = ChannelParser.parse(response.getMessage(), true);
 			channel = new Channel(channels.get(0));
-			if (kanal == -1) {
-				channel.isTemp = true;
-				if (getChannel(channel.nr) == null)
-					mItems.add(channel);
-			} else {
+			channel.isTemp = isTempChannel;
+			if (getChannel(channel.nr) == null)
 				mItems.add(channel);
-			}
 		} catch (IOException e) {
 			MyLog.v(TAG, "ungueltiger Kanaldatensatz",e);
 			// faengt u A NumberformatExceptions ab
