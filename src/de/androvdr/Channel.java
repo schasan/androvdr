@@ -47,12 +47,15 @@ public class Channel implements Comparable<Channel> {
 
 	public Epg viewEpg = null;		// used by EpdataController
 	
-	public Channel(String vdrchannelinfo) throws IOException {
-		parse(vdrchannelinfo);
-		mNow = new Epg(nr, true);
-		mNext = new Epg(nr, true);
-		logo = initLogo();
-	}
+	public Channel(org.hampelratte.svdrp.responses.highlevel.Channel channel) throws IOException {
+        name = channel.getName();
+        zusatz = channel.getShortName();
+        nr = channel.getChannelNumber();
+        
+        mNow = new Epg(nr, true);
+        mNext = new Epg(nr, true);
+        logo = initLogo();
+    }
 
 	public void cleanupEpg() {
 		if(mNow != null && (System.currentTimeMillis() / 1000) > (mNow.startzeit + mNow.dauer)) {
@@ -108,36 +111,6 @@ public class Channel implements Comparable<Channel> {
 			image = BitmapFactory.decodeFile(filename);
 		}
 		return image;
-	}
-	
-	private void parse(String vdrchannelinfo) throws IOException {
-		int idx1 = vdrchannelinfo.indexOf(' ');
-		String snr;
-		if (idx1 == -1) {
-			snr = vdrchannelinfo;
-			name = "";
-			zusatz = "";
-		} else {
-			snr = vdrchannelinfo.substring(0, idx1);
-			String[] ss = vdrchannelinfo.substring(idx1 + 1).split(":");
-			if (ss.length > 0) {
-				String eintrag = ss[0].split(",")[0];
-				String[] sss = eintrag.split(";");
-				if (sss.length > 1) {
-					name = sss[0];
-					zusatz = sss[1];
-				} else {
-					name = eintrag;
-					zusatz = "";
-				}
-			}
-		}
-		try {
-			nr = Integer.valueOf(snr);
-		} catch (NumberFormatException e) {
-			MyLog.v(TAG, "ERROR parsing channelinfo: " + e.toString());
-			throw new IOException("invalid channelinfo");
-		}
 	}
 	
 	public void updateEpg(boolean next) throws IOException {

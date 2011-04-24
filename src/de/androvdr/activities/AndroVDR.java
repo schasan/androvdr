@@ -63,7 +63,6 @@ import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TabHost.TabContentFactory;
 import de.androvdr.ConfigurationManager;
-import de.androvdr.Connection;
 import de.androvdr.GesturesFind;
 import de.androvdr.MyLog;
 import de.androvdr.OnLoadListener;
@@ -76,6 +75,7 @@ import de.androvdr.devices.Devices;
 import de.androvdr.devices.IActuator;
 import de.androvdr.devices.OnChangeListener;
 import de.androvdr.devices.VdrDevice;
+import de.androvdr.svdrp.VDRConnection;
 
 public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLoadListener, OnSharedPreferenceChangeListener {
     
@@ -368,10 +368,39 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    sp.registerOnSharedPreferenceChangeListener(this);
 	    sp.registerOnSharedPreferenceChangeListener(mDevices);
 
+	    // initialize the svdrp connection
+	    initializeSvdrp();
+	    
 		initWorkspaceView();
 		
 		mWatchPortForwardingThread = new WatchPortForwadingThread();
 		mWatchPortForwardingThread.start();
+    }
+
+    private void initializeSvdrp() {
+        VdrDevice vdr = Preferences.getVdr();
+        if (vdr == null) {
+            Toast.makeText(this, "No VDR defined", Toast.LENGTH_LONG).show();
+            return;
+        }
+        String hostname;
+        int port,timeout;
+        if(Preferences.useInternet == true){
+            hostname = "localhost";
+            port = vdr.remote_local_port;
+            timeout = vdr.remote_timeout;
+            MyLog.v(TAG,"Es wurden die Interneteinstellungen gewaehlt");
+        }
+        else{
+            hostname = vdr.getIP();
+            port = vdr.getPort();
+            timeout = vdr.timeout;
+            MyLog.v(TAG,"Es wurden lokale Netzwerkeinstellungen gewaehlt");
+        }
+        VDRConnection.host = hostname;
+        VDRConnection.port = port;
+        VDRConnection.timeout = timeout;
+        VDRConnection.charset = "UTF-8";
     }
 
 	@Override
@@ -429,17 +458,6 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		return true;
 	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		try {
-			Connection connection = new Connection();
-			connection.close();
-		} catch (IOException e) { }
-		if (portForwarding != null)
-			portForwarding.disconnect();
-	}
-	
     @Override
     public void onLoad() {
     	updateTitle(mWorkspace.getCurrentView());
@@ -450,8 +468,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		switch (item.getItemId()) {
 		case R.id.androvdr_exit:
 			try {
-				Connection connection = new Connection();
-				connection.close();
+				VDRConnection.close();
 			} catch (IOException e) { }
 			if (portForwarding != null)
 				portForwarding.disconnect();
@@ -497,11 +514,11 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			mLayoutChanged = true;
 		if (key.equals("currentVdrId")) {
 			try {
-				Connection connection = new Connection();
-				connection.close();
+				VDRConnection.close();
 			} catch (IOException e) { }
 			if (portForwarding != null)
 				portForwarding.disconnect();
+			initializeSvdrp();
 		}
 	}
 

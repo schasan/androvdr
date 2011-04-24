@@ -21,166 +21,120 @@
 package de.androvdr;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.LSTR;
+import org.hampelratte.svdrp.commands.NEWT;
+import org.hampelratte.svdrp.responses.highlevel.EPGEntry;
+import org.hampelratte.svdrp.responses.highlevel.Stream;
+import org.hampelratte.svdrp.responses.highlevel.VDRTimer;
+import org.hampelratte.svdrp.util.EPGParser;
+
+import de.androvdr.svdrp.VDRConnection;
 
 public class VdrCommands {
 	private static final String TAG = "VdrCommands";
 
 	public static RecordingInfo getRecordingInfo(int number) throws IOException {
-		RecordingInfo recordingInfo = new RecordingInfo();
-		StringBuffer sb = new StringBuffer();
-		
-		Connection connection = null;
-		String[] lines = null;
-		try {
-			connection = new Connection();
-			connection.sendData("LSTR " + number + "\n");
-			lines = connection.receiveData().split("\n");
-			connection.closeDelayed();
+	    Response response = VDRConnection.send(new LSTR(number));
+	    if (response != null && response.getCode() == 215) {
 
-			sb.setLength(0);
-			for (int i = 0; i < lines.length; i++)
-				sb.append(lines[i]);
-			recordingInfo.id = MD5.calculate(sb.toString());
-		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR getRecordingInfo: " + e.toString());
-			throw e;
-		} finally {
-			if (connection != null)
-				connection.closeDelayed();
-		}
-		
-		try {
-			for (int i = 0; i < lines.length; i++) {
-				if (lines[i].charAt(3) == ' ')
-					break;
-				
-				char type = lines[i].charAt(4);
-				String[] sa;
-				switch (type) {
-				case 'C':
-					sa = lines[i].split(" ");
-					sb.setLength(0);
-					if (sa.length > 2) {
-						for (int j = 2; j < sa.length; j++)
-							sb.append(sa[j] + " ");
-						recordingInfo.channelName = sb.toString().trim();
-					}
-					break;
-				case 'E':
-					sa = lines[i].split(" ");
-					if (sa.length > 2)
-						recordingInfo.date = Long.valueOf(sa[2]);
-					if (sa.length > 3)
-						recordingInfo.duration = Long.valueOf(sa[3]);
-					break;
-				case 'T':
-					recordingInfo.title = lines[i].substring(6);
-					break;
-				case 'S':
-					recordingInfo.subtitle = lines[i].substring(6);
-					break;
-				case 'D':
-					recordingInfo.description = lines[i].substring(6).replace(
-							"|", "\n");
-					break;
-				case 'X':
-					sa = lines[i].split(" ");
-					if (sa.length > 1) {
-						int kind = Integer.parseInt(sa[1]);
-						StreamInfo si = new StreamInfo();
-						if (sa.length >= 3)
-							si.type = sa[2];
-						if (sa.length >= 4)
-							si.language = sa[3];
-						if (sa.length >= 5) {
-							sb.setLength(0);
-							for (int j = 4; j < sa.length; j++) {
-								sb.append(sa[j] + " ");
-							}
-							si.description = sb.toString().trim();
-						}
-						switch (kind) {
-						case 1:
-							recordingInfo.setVideoStream(si);
-							break;
-						case 2:
-							recordingInfo.addAudioStream(si);
-							break;
-						case 4:
-							recordingInfo.setAudioType(si);
-							break;
-						case 5:
-							recordingInfo.setVideoType(si);
-							break;
-						}
-					}
-					break;
-				case 'F':
-					break;
-				case 'P':
-					recordingInfo.priority = Integer.valueOf(lines[i]
-							.substring(6));
-					break;
-				case 'L':
-					recordingInfo.lifetime = Integer.valueOf(lines[i]
-							.substring(6));
-					break;
-				case '@':
-					recordingInfo.remark = lines[i].substring(6);
-					break;
-				}
-			}
-		} catch (Exception e) {
-			MyLog.v(TAG, "ERROR parsing recording info: " + e.toString());
-		}
-		return recordingInfo;
+            // workaround for the epg parser, because LSTR does not send an 'e' as entry terminator
+            StringTokenizer st = new StringTokenizer(response.getMessage(), "\n");
+            StringBuilder mesg = new StringBuilder();
+            while (st.hasMoreElements()) {
+                String line = st.nextToken();
+                if (!st.hasMoreElements()) {
+                    mesg.append('e').append('\n');
+                }
+                mesg.append(line).append('\n');
+            }
+
+            // parse epg information
+            List<EPGEntry> epg = EPGParser.parse(mesg.toString());
+            if (epg.size() > 0) {
+                EPGEntry entry = epg.get(0);
+                RecordingInfo recordingInfo = new RecordingInfo();
+
+                recordingInfo.channelName = entry.getChannelName();
+                recordingInfo.date = entry.getStartTime().getTimeInMillis() / 1000;
+                recordingInfo.description = entry.getDescription();
+                long end = entry.getEndTime().getTimeInMillis() / 1000;
+                recordingInfo.duration = end - recordingInfo.date;
+                recordingInfo.title = entry.getTitle();
+                
+                // add information about the muxed streams
+                for (Stream stream : entry.getStreams()) {
+                    StreamInfo si = new StreamInfo();
+                    // stream type
+                    si.type = Integer.toString(stream.getType(), 16);
+                    
+                    // stream language
+                    si.language = stream.getLanguage();
+                    
+                    // stream description
+                    si.description = stream.getDescription();
+                    
+                    // stream kind
+                    switch(stream.getContent()) {
+                    case MP2V:
+                    case H264:
+                        si.kind = 1;
+                        recordingInfo.setVideoStream(si);
+                        break;
+                    case MP2A:
+                    case AC3:
+                    case HEAAC:
+                        si.kind = 2;
+                        recordingInfo.addAudioStream(si);
+                        break;
+                    }
+                }
+                
+                // TODO add more information (prio, lifetime, etc?)
+                
+                return recordingInfo;
+            } else {
+                throw new IOException("Couldn't retrieve recording details: " + response.getCode() + " " + response.getMessage());
+            }
+        } else {
+            throw new IOException("Couldn't retrieve recording details");
+        }
 	}
 
 	public static String setTimer(Epg epg) throws IOException {
-		String result = "";
+		
+	    String result = "";
 
 		if (epg == null)
 			return result;
 
-		SimpleDateFormat dateformatter = new SimpleDateFormat("yyyy-MM-dd");
-		SimpleDateFormat timeformatter = new SimpleDateFormat("HHmm");
+		GregorianCalendar startTime = new GregorianCalendar();
+		startTime.setTimeInMillis(epg.startzeit * 1000 - Preferences.getVdr().margin_start * 60 * 1000);
 
-		GregorianCalendar calendar = new GregorianCalendar();
-		calendar.setTimeInMillis(epg.startzeit * 1000);
+		GregorianCalendar endTime = new GregorianCalendar();
+		endTime.setTimeInMillis(epg.startzeit * 1000 + epg.dauer * 1000 + Preferences.getVdr().margin_stop * 60 * 1000);
 
-		StringBuilder sb = new StringBuilder();
-		int flag = 1;
-		if (Preferences.getVdr().vps)
-			flag = 5;
-		
-		sb.append("NEWT " + flag + ":" + epg.kanal + ":");
-		sb.append(dateformatter.format(calendar.getTime()) + ":");
+		VDRTimer timer = new VDRTimer();
+		timer.setChannelNumber(epg.kanal);
+		timer.setStartTime(startTime);
+		timer.setEndTime(endTime);
+		timer.setPriority(50);
+		timer.setLifetime(99);
+		timer.setTitle(epg.titel);
+		timer.setDescription(epg.beschreibung);
+		timer.changeStateTo(VDRTimer.VPS, Preferences.getVdr().vps);
 
-		calendar.setTimeInMillis(epg.startzeit * 1000
-				- Preferences.getVdr().margin_start * 60 * 1000);
-		sb.append(timeformatter.format(calendar.getTime()) + ":");
-
-		calendar.setTimeInMillis(epg.startzeit * 1000 + epg.dauer * 1000
-				+ Preferences.getVdr().margin_stop * 60 * 1000);
-		sb.append(timeformatter.format(calendar.getTime()) + ":");
-
-		sb.append("50:99:" + epg.titel.replace(':', '|') + ":\n");
-		MyLog.v(TAG, "setTimer: " + sb.toString());
-
-		Connection conn = null;
-		try {
-			conn = new Connection();
-			result = conn.doThis(sb.toString());
-		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR setTimer: " + e.toString());
-			throw e;
-		} finally {
-			if (conn != null)
-				conn.closeDelayed();
+		NEWT newt = new NEWT(timer.toNEWT());
+		Response response = VDRConnection.send(newt);
+		if(response.getCode() == 250) {
+		    result = response.getMessage();
+		} else {
+		    MyLog.v(TAG, "ERROR setTimer: " + response.getMessage());
 		}
-
 		return result;
 	}
 }
