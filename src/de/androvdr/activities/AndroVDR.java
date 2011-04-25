@@ -21,7 +21,6 @@
 package de.androvdr.activities;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -368,39 +367,10 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    sp.registerOnSharedPreferenceChangeListener(this);
 	    sp.registerOnSharedPreferenceChangeListener(mDevices);
 
-	    // initialize the svdrp connection
-	    initializeSvdrp();
-	    
 		initWorkspaceView();
 		
 		mWatchPortForwardingThread = new WatchPortForwadingThread();
 		mWatchPortForwardingThread.start();
-    }
-
-    private void initializeSvdrp() {
-        VdrDevice vdr = Preferences.getVdr();
-        if (vdr == null) {
-            Toast.makeText(this, "No VDR defined", Toast.LENGTH_LONG).show();
-            return;
-        }
-        String hostname;
-        int port,timeout;
-        if(Preferences.useInternet == true){
-            hostname = "localhost";
-            port = vdr.remote_local_port;
-            timeout = vdr.remote_timeout;
-            MyLog.v(TAG,"Es wurden die Interneteinstellungen gewaehlt");
-        }
-        else{
-            hostname = vdr.getIP();
-            port = vdr.getPort();
-            timeout = vdr.timeout;
-            MyLog.v(TAG,"Es wurden lokale Netzwerkeinstellungen gewaehlt");
-        }
-        VDRConnection.host = hostname;
-        VDRConnection.port = port;
-        VDRConnection.timeout = timeout;
-        VDRConnection.charset = "UTF-8";
     }
 
 	@Override
@@ -461,9 +431,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		try {
-			VDRConnection.close();
-		} catch (IOException e) { }
+		VDRConnection.close();
 		if (portForwarding != null)
 			portForwarding.disconnect();
 	}
@@ -477,9 +445,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.androvdr_exit:
-			try {
-				VDRConnection.close();
-			} catch (IOException e) { }
+			VDRConnection.close();
 			if (portForwarding != null)
 				portForwarding.disconnect();
 			android.os.Process.killProcess(android.os.Process.myPid());
@@ -523,12 +489,9 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		if (key.equals("alternateLayout"))
 			mLayoutChanged = true;
 		if (key.equals("currentVdrId")) {
-			try {
-				VDRConnection.close();
-			} catch (IOException e) { }
+			VDRConnection.close();
 			if (portForwarding != null)
 				portForwarding.disconnect();
-			initializeSvdrp();
 		}
 	}
 
@@ -540,6 +503,8 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	};
     
 	private void togglePortforwarding() {
+		VDRConnection.close();
+
 		if (Preferences.useInternet == false) {
 			String connectionState = "";
 			final ConnectivityManager cm = (ConnectivityManager) this
