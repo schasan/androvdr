@@ -10,6 +10,9 @@ import org.hampelratte.svdrp.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.androvdr.Preferences;
+import de.androvdr.devices.VdrDevice;
+
 
 
 public class VDRConnection {
@@ -18,14 +21,6 @@ public class VDRConnection {
 
     private static Connection connection;
     private static Integer syncer = 0;
-    
-    public static String host;
-
-    public static int port;
-
-    public static int timeout = 500;
-    
-    public static String charset;
     
     /**
      * If set, the connection will be kept open for some time,
@@ -50,16 +45,32 @@ public class VDRConnection {
      * @return The SVDRP response or null, if the Command couldn't be sent
      */
 	public synchronized static Response send(final Command cmd) {
+		VdrDevice vdr = Preferences.getVdr();
+		if (vdr == null)
+			return new ConnectionProblem("No VDR defined");
+		
+		String host;
+		int port, timeout;
+		if (Preferences.useInternet) {
+			host = "localhost";
+			port = vdr.remote_local_port;
+			timeout = vdr.remote_timeout;
+		} else {
+			host = vdr.getIP();
+			port = vdr.getPort();
+			timeout = vdr.timeout;
+		}
+		
 		Response res = null;
 		try {
 			
 			/*
-			 *  prevent ConnectionCloser to close the connection
+			 *  prevent ConnectionCloser from closing the connection
 			 */
 			synchronized (syncer) {
 				if (connection == null) {
-					logger.trace("New connection");
-					connection = new Connection(host, port, timeout, charset);
+					logger.trace("New connection to {} port {}", host, port);
+					connection = new Connection(host, port, timeout, "UTF-8", vdr.characterset);
 				} else {
 					logger.trace("old connection");
 					lastTransmissionTime = System.currentTimeMillis();
@@ -81,7 +92,7 @@ public class VDRConnection {
 			}
 			logger.debug("<-- {}", res.getMessage());
 		} catch (Exception e1) {
-			res = new ConnectionProblem();
+			res = new ConnectionProblem(e1.getMessage());
 			logger.error(res.getMessage(), e1);
 		}
 
@@ -93,25 +104,28 @@ public class VDRConnection {
         public void run() {
         	synchronized (syncer) {
                 if (connection != null && (System.currentTimeMillis() - lastTransmissionTime) > CONNECTION_KEEP_ALIVE) {
-                    logger.debug("Closing connection");
-                    try {
-                        close();
-                    } catch (IOException e) {
-                        logger.error("Couldn't close connection", e);
-                    }
+                    close();
                 }
 			}
         }
     }
     
-    public static void close() throws IOException {
-        if(connection != null) {
-            connection.close();
-            connection = null;
-        }
-        if(timer != null) {
-            timer.cancel();
-            timer = null;
-        }
+    public synchronized static void close() {
+        try {
+        	if (connection != null) {
+                logger.debug("Closing connection");
+        		connection.close();
+        	}
+		} catch (IOException e) {
+			logger.error("Couldn't close connection", e);
+		} finally {
+	        if(timer != null) {
+	            logger.debug("Canceling ConnectionCloser");
+	            timer.cancel();
+	        }
+			connection = null;
+			timer = null;
+	     
+		}
     }
 }

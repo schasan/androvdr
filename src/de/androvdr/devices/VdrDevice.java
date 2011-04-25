@@ -20,17 +20,16 @@
 
 package de.androvdr.devices;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.hampelratte.svdrp.Command;
+import org.hampelratte.svdrp.Response;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import de.androvdr.Channels;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.Wol;
 import de.androvdr.svdrp.VDRConnection;
@@ -222,11 +221,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 		if ((currentVdr != null) && (currentVdr.getId() == mId)) {
 			if (clearChannels)
 				Channels.clear();
-			try {
-				VDRConnection.close();
-			} catch (IOException e) { 
-				MyLog.v(TAG, e.toString());
-			}
+			VDRConnection.close();
 		}
 	}
 
@@ -261,6 +256,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 	}
 
 	private String vdrcommand;
+	@SuppressWarnings("serial")
 	@Override
 	public boolean write(String command) {
 		if (command.equalsIgnoreCase("WOL")) {
@@ -288,7 +284,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 			return false;
 		}
 		
-		VDRConnection.send(new Command() {
+		Response response = VDRConnection.send(new Command() {
             @Override
             public String toString() {
                 return vdrcommand;
@@ -299,6 +295,12 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
                 return vdrcommand;
             }
         });
+		
+		if (response != null && response.getCode() != 250) {
+			mLastError = response.getMessage();
+			return false;
+		}
+		
 		return true;
 	}
 }
