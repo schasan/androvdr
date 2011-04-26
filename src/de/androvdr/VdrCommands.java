@@ -32,11 +32,13 @@ import org.hampelratte.svdrp.responses.highlevel.EPGEntry;
 import org.hampelratte.svdrp.responses.highlevel.Stream;
 import org.hampelratte.svdrp.responses.highlevel.VDRTimer;
 import org.hampelratte.svdrp.util.EPGParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.androvdr.svdrp.VDRConnection;
 
 public class VdrCommands {
-	private static final String TAG = "VdrCommands";
+	private static transient Logger logger = LoggerFactory.getLogger(VdrCommands.class);
 
 	public static RecordingInfo getRecordingInfo(int number) throws IOException {
 	    Response response = VDRConnection.send(new LSTR(number));
@@ -96,9 +98,6 @@ public class VdrCommands {
                         break;
                     }
                 }
-                
-                // TODO add more information (prio, lifetime, etc?)
-                
                 return recordingInfo;
             } else {
                 throw new IOException("Couldn't retrieve recording details: " + response.getCode() + " " + response.getMessage());
@@ -133,11 +132,9 @@ public class VdrCommands {
 
 		NEWT newt = new NEWT(timer.toNEWT());
 		Response response = VDRConnection.send(newt);
-		if(response.getCode() == 250) {
-		    result = response.getMessage();
-		} else {
-		    MyLog.v(TAG, "ERROR setTimer: " + response.getMessage());
-		}
+		result = response.getMessage();
+		if(response.getCode() != 250)
+		    logger.error("Couldn't set timer: {}", response.getMessage());
 		return result;
 	}
 }

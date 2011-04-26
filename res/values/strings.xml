@@ -94,6 +94,8 @@
     <string name="settings_miscellaneous">Miscellaneous</string>
     <string name="settings_logging">Logging</string>
     <string name="settings_logging_summary">Where to store log messages.</string>
+    <string name="settings_logging_level">Loglevel</string>
+    <string name="settings_logging_level_summary">What should be logged.</string>
     <string name="settings_recordingindex">Recordingindex</string>
     <string name="settings_recordingindex_summary">Recreate index on next use.</string>
     <string name="settings_name">Name</string>

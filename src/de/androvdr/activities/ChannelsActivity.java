@@ -20,6 +20,9 @@
 
 package de.androvdr.activities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,13 +38,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.controllers.ChannelController;
 
 public class ChannelsActivity extends AbstractListActivity {
-	private static final String TAG = "ChannelsActivity";
+	private static transient Logger logger = LoggerFactory.getLogger(ChannelsActivity.class);
 	private static final int HEADER_TEXT_SIZE = 15;
 	
 	private ChannelController mController;
@@ -51,7 +53,7 @@ public class ChannelsActivity extends AbstractListActivity {
 
 		@Override
 		public void handleMessage(Message msg) {
-			MyLog.v(TAG, "handleMessage: arg1 = " + msg.arg1);
+			logger.trace("handleMessage: arg1 = {}", msg.arg1);
 			
 			switch (msg.arg1) {
 			case Messages.MSG_DATA_UPDATE_DONE:

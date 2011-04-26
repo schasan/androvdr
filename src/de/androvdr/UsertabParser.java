@@ -25,11 +25,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 public class UsertabParser {
 	
-	private static final String TAG = "UsertabParser";
+	private static transient Logger logger = LoggerFactory.getLogger(UsertabParser.class);
 	
 	ArrayList<UserButton> buttons = new ArrayList<UserButton>();
 	
@@ -38,7 +41,7 @@ public class UsertabParser {
 		if(file.exists() && file.isFile())
 			parseFile(file);
 		else
-			MyLog.v(TAG,"keine gueltige Datei gefunden");
+			logger.error("Invalid layout description");
 	}
 	
 	private void parseFile(File file){
@@ -57,11 +60,9 @@ public class UsertabParser {
 			}
 			r.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Couldn't read layout description", e);
 		}
 	}
-
 	
 	private UserButton parseLine(String line){
 		String[] s = line.split(",");
@@ -74,8 +75,7 @@ public class UsertabParser {
 					button.beschriftung = img.getAbsolutePath();	
 				}
 				else {
-					MyLog.v(TAG,s[1]);
-					MyLog.v(TAG,"Image nicht gefunden");
+					logger.error("Image not found: {}", s[1]);
 					return null;
 				}
 			}
@@ -96,19 +96,16 @@ public class UsertabParser {
 				return null;
 			}
 			button.action = s[6];
-			MyLog.v(TAG,button.beschriftung + " geparsed");
+			logger.debug("Parsed {}", button.beschriftung);
 			return button;
 		}
-		MyLog.v(TAG,"Zeile in Datei ungueltig");
+		logger.error("Invalid button definition: {}", line);
 		return null;
 	}
-	
 	
 	public ArrayList<UserButton> getButtons(){
 		return buttons;
 	}
-	
-	
 	
 	public class UserButton {
 		public int art;

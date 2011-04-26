@@ -27,6 +27,8 @@ import java.util.StringTokenizer;
 
 import org.hampelratte.svdrp.Response;
 import org.hampelratte.svdrp.commands.LSTR;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.androvdr.svdrp.VDRConnection;
 
@@ -35,7 +37,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 public class Recordings {
-	private static final String TAG = "Recordings";
+	private static transient Logger logger = LoggerFactory.getLogger(Recordings.class);
 	
 	private ArrayList<RecordingViewItem> mItems = new ArrayList<RecordingViewItem>();
 	
@@ -95,7 +97,7 @@ public class Recordings {
 		                mItems.add(item);
 		            }
 		        } catch (Exception e) {
-		            MyLog.v(TAG, "ERROR invalid recording format", e);
+		            logger.error("Invalid recording format", e);
 		            continue;
 		        }
 		    } 

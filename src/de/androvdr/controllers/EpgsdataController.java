@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
@@ -35,24 +38,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Epg;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.VdrCommands;
 import de.androvdr.activities.EpgdataActivity;
 
 public class EpgsdataController extends AbstractController implements Runnable {
-	private static final String TAG = "EpgsController";
+	private static transient Logger logger = LoggerFactory.getLogger(EpgsdataController.class);
 	
 	private static final int epgtitelSize = 20,
 							 epgdefaultSize = 15;
@@ -83,15 +85,8 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		public void handleMessage(Message msg) {
 			switch (msg.arg1) {
 			case Messages.MSG_DONE:
-				try {
-					setEpgAdapter(new EpgdataAdapter(mActivity, mEpgdata),
-							mListView);
-					mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
-				} catch (IOException e) {
-					MyLog.v(TAG, "ERROR setEpgAdapter:" + e);
-					lastError = e.toString();
-					mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-				}
+				setEpgAdapter(new EpgdataAdapter(mActivity, mEpgdata), mListView);
+				mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 				break;
 			case Messages.MSG_VDR_ERROR:
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
@@ -135,7 +130,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			try {
 				VdrCommands.setTimer(epg);
 			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR action: " + e.toString());
+				logger.error("Couldn't set timer", e);
 				lastError = e.toString();
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 			}
@@ -145,10 +140,8 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	
 	private OnItemClickListener getOnItemClickListener() {
 		return new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> listView, View v,
-					int position, long ID) {
-				Epg item = (Epg) listView.getAdapter()
-						.getItem(position);
+			public void onItemClick(AdapterView<?> listView, View v, int position, long ID) {
+				Epg item = (Epg) listView.getAdapter().getItem(position);
 				try {
 					Channel channel = new Channels(Preferences.getVdr().channellist).getChannel(item.kanal);
 					channel.viewEpg = item;
@@ -158,7 +151,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 					mActivity.startActivityForResult(intent, 1);
 					
 				} catch (IOException e) {
-					MyLog.v(TAG, "ERROR getOnItemClickListener: " + e.toString());
+					logger.error("Couldn't load channels", e);
 					lastError = e.toString();
 					mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 				}
@@ -200,18 +193,23 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			}
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR: new Channels() " + e.toString());
+			logger.error("Couldn't load epg data", e);
 			lastError = e.toString();
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 		}
 	}
 
-	private void setEpgAdapter(EpgdataAdapter adapter, ListView listView) throws IOException {
+	private void setEpgAdapter(EpgdataAdapter adapter, ListView listView) {
 		mEpgdataAdapter = adapter;
 
 		TextView tv = (TextView) mMainView.findViewById(R.id.epgsheader);
 		if (! mIsMultiChannelView) {
-			tv.setText(new Channels(Preferences.getVdr().channellist).getName(mChannelNumber));
+			try {
+				tv.setText(new Channels(Preferences.getVdr().channellist).getName(mChannelNumber));			
+			} catch (Exception e) {
+				tv.setText("");
+				logger.error("Couldn't load channels", e);
+			}
 		} else {
 			tv.setVisibility(View.GONE);
 		}

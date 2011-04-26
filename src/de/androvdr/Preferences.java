@@ -22,6 +22,9 @@ package de.androvdr;
 
 import java.io.File;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -35,6 +38,7 @@ public class Preferences {
 	private static final String CONFIG_LOGODIR = "logos";
 	private static final String CONFIG_PLUGINDIR = "plugins";
 	private static final String CONFIG_MACROFILE = "macros.xml";
+	private static final String CONFIG_LOGFILE = "log.txt";
 	private static final String CONFIG_GESTUREFILE = "gestures";
 	private static final String CONFIG_SSH_KEY = "sshkey";
 	private static final String CONFIG_SSH_KNOWN_HOSTS = "known_hosts";
@@ -71,6 +75,10 @@ public class Preferences {
 	
 	public static String getGestureFileName() {
 		return getExternalRootDirName() + "/" + CONFIG_GESTUREFILE;
+	}
+	
+	public static String getLogFileName() {
+		return getExternalRootDirName() + "/" + CONFIG_LOGFILE;
 	}
 	
 	public static String getLogoDirName() {
@@ -129,8 +137,17 @@ public class Preferences {
 				appDir.mkdirs();
 		}
 		
-	    MyLog.setLogLevel(Integer.parseInt(sharedPreferences.getString("logLevel", "0"))); // 2 = Logging auf SD-Karte
-	    blackOnWhite = sharedPreferences.getBoolean("blackOnWhite", false);
+		Logger logger = LoggerFactory.getLogger(Preferences.class);
+		if (logger instanceof IFileLogger) {
+			IFileLogger filelogger = (IFileLogger) logger;
+			int logging = Integer.parseInt(sharedPreferences.getString("logLevel", "0"));
+			if (logging == 0)
+				filelogger.setLogLevel(0);
+			else
+				filelogger.setLogLevel(Integer.parseInt(sharedPreferences.getString("slf4jLevel", "5")));
+		}
+
+		blackOnWhite = sharedPreferences.getBoolean("blackOnWhite", false);
 	    textSizeOffset = Integer.parseInt(sharedPreferences.getString("textSizeOffset", "0"));
 	    useLogos = sharedPreferences.getBoolean("useLogos", false);
 	    deleteRecordingIds = sharedPreferences.getBoolean("deleteRecordingIds", false);

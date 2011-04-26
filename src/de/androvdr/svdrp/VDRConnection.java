@@ -69,13 +69,13 @@ public class VDRConnection {
 			 */
 			synchronized (syncer) {
 				if (connection == null) {
-					logger.trace("New connection to {} port {}", host, port);
+					logger.debug("New connection to {} port {}", host, port);
 					connection = new Connection(host, port, timeout, "UTF-8", vdr.characterset);
 				} else {
 					logger.trace("old connection");
 					lastTransmissionTime = System.currentTimeMillis();
 				}
-				logger.debug("--> {}", cmd.getCommand());
+				logger.trace("--> {}", cmd.getCommand());
 			}
 
 			res = connection.send(cmd);
@@ -85,12 +85,12 @@ public class VDRConnection {
 				connection = null;
 			} else {
 				if (timer == null) {
-					logger.debug("Starting connection closer");
+					logger.trace("Starting connection closer");
 					timer = new java.util.Timer("SVDRP connection closer");
 					timer.schedule(new ConnectionCloser(), 0, 1000);
 				}
 			}
-			logger.debug("<-- {}", res.getMessage());
+			logger.trace("<-- {}", res.getMessage());
 		} catch (Exception e1) {
 			res = new ConnectionProblem(e1.getMessage());
 			logger.error(res.getMessage(), e1);
@@ -120,7 +120,7 @@ public class VDRConnection {
 			logger.error("Couldn't close connection", e);
 		} finally {
 	        if(timer != null) {
-	            logger.debug("Canceling ConnectionCloser");
+	            logger.trace("Canceling ConnectionCloser");
 	            timer.cancel();
 	        }
 			connection = null;

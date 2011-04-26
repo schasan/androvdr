@@ -33,6 +33,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -52,7 +55,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import de.androvdr.DevicesTable;
 import de.androvdr.ListPreferenceValueHolder;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.activities.DevicePreferencesActivity.CursorPreferenceHack.Editor;
@@ -60,6 +62,8 @@ import de.androvdr.devices.Devices;
 import de.androvdr.devices.IDevice;
 
 public class DevicePreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+	private static transient Logger logger = LoggerFactory.getLogger(DevicePreferencesActivity.class);
+	
 	private CursorPreferenceHack pref = null;
 	private long mId;
 	private boolean mIsVDR = false;
@@ -309,7 +313,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 			private ContentValues update = new ContentValues();
 
 			public SharedPreferences.Editor clear() {
-				MyLog.v(this.getClass().toString(), "clear()");
+				logger.trace("clear");
 				update = new ContentValues();
 				return this;
 			}

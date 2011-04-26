@@ -20,6 +20,9 @@
 
 package de.androvdr.activities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -32,14 +35,13 @@ import android.view.KeyEvent;
 import android.view.Window;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.SimpleGestureFilter;
 import de.androvdr.SimpleGestureFilter.SimpleGestureListener;
 
 public class AbstractListActivity extends ListActivity implements SimpleGestureListener {
-	private static final String TAG = "AbstractListActivity";
+	private static transient Logger logger = LoggerFactory.getLogger(AbstractListActivity.class);
 	
 	protected ConfigurationManager mConfigurationManager;
 	protected SimpleGestureFilter mDetector;
@@ -58,7 +60,7 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 
 		@Override
 		public void handleMessage(Message msg) {
-			MyLog.v(TAG, "handleMessage: arg1 = " + msg.arg1);
+			logger.trace("handleMessage: arg1 = {}", msg.arg1);
 			
 			switch (msg.arg1) {
 			case Messages.MSG_PROGRESS_SHOW:

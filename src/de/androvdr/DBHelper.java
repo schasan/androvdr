@@ -20,12 +20,15 @@
 
 package de.androvdr;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
-	public static final String TAG = "DBHelper";
+	private static transient Logger logger = LoggerFactory.getLogger(DBHelper.class);
 	
 	public static final String DATABASE_NAME = "AndroVDR.db";
 	public static final int DATABASE_VERSION = 3;
@@ -44,19 +47,18 @@ public class DBHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		switch (oldVersion) {
 		case 1:
-			MyLog.v(TAG, "Upgrading database from version 1 to 2");
+			logger.debug("Upgrading database from version 1 to 2");
 			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME 
 					+ " ADD COLUMN " + DevicesTable.TIMEOUT + " INT DEFAULT 7500");
 		case 2:
-			MyLog.v(TAG, "Upgrading database from version 2 to 3");
+			logger.debug("Upgrading database from version 2 to 3");
 			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME 
 					+ " ADD COLUMN " + DevicesTable.SSHKEY + " BLOB DEFAULT NULL");
 			
 			
 			break;
 		default:
-			MyLog.v(TAG, String.format(
-					"Upgrading database from version %d to %d", oldVersion, newVersion));
+			logger.debug("Upgrading database from version {} to {}", oldVersion, newVersion);
 			db.execSQL(RecordingIdsTable.SQL_DROP);
 			db.execSQL(DevicesTable.SQL_DROP);
 			onCreate(db);

@@ -123,6 +123,14 @@
       android:defaultValue="0"
       android:entries="@array/logLevel"
       android:entryValues="@array/logLevel_values" />
+    <ListPreference
+      android:key="slf4jLevel"
+      android:title="@string/settings_logging_level"
+      android:summary="@string/settings_logging_level_summary"
+      android:defaultValue="5"
+      android:dependency="logLevel"
+      android:entries="@array/slf4jLevel"
+      android:entryValues="@array/slf4jLevel_values" />
     <CheckBoxPreference
       android:key="deleteRecordingIds"
       android:title="@string/settings_recordingindex"

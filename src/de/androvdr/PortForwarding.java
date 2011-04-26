@@ -30,8 +30,10 @@ package de.androvdr;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.Hashtable;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -52,8 +54,8 @@ import de.androvdr.activities.AndroVDR;
 import de.androvdr.devices.VdrDevice;
 
 public class PortForwarding implements Runnable {
+	private static transient Logger logger = LoggerFactory.getLogger(PortForwarding.class);
 	
-	private static final String TAG = "PortForwarding";
 	// wird fuer die Kommunikation mit der GUI gebraucht
 	public static volatile boolean guiFlag = false; // wird beim GUI-Dialogende auf true gesetzt
 	public static String sshPassword;
@@ -126,25 +128,24 @@ public class PortForwarding implements Runnable {
 
 			session.connect();
 
-			MyLog.v(TAG, "SSH-Session verbunden");
+			logger.trace("SSH-Session verbunden");
 
 			int assinged_port = session.setPortForwardingL(vdr.remote_local_port, "localhost", vdr.getPort());
 
-			MyLog.v(TAG, "localhost:" + assinged_port + " -> " + vdr.getIP()
-					+ ":" + vdr.getPort());
+			logger.debug("localhost:{} -> {}",  assinged_port, (vdr.getIP() + ":" + vdr.getPort()));
 
 			handler.sendEmptyMessage(STOP_PROGRESS_DIALOG); // alles OK, beende
 															// mit dieser
 															// Nachricht die
 															// Fortschrittsanzeige
-			MyLog.v(TAG, "PortForwarding eingerichtet");
+			logger.trace("PortForwarding eingerichtet");
 			
 			synchronized (Preferences.useInternetSync) {
 				Preferences.useInternet = true;
 				Preferences.useInternetSync.notify();
 			}
 		} catch (Exception e) {
-			MyLog.v(TAG, e.toString());
+			logger.error("Couldn't establish connection", e);
 			guiMessage = sActivity.getString(R.string.portforwarding_fails)	+ e.toString();
 			guiFlag = false;
 			positiveButton = false;
@@ -160,7 +161,7 @@ public class PortForwarding implements Runnable {
 		if(session != null){
 			if(session.isConnected()){
 				session.disconnect();
-				MyLog.v(TAG,"Session getrennt");
+				logger.debug("Session getrennt");
 			}
 		}
 		session = null;
@@ -212,7 +213,7 @@ public class PortForwarding implements Runnable {
 			if(session != null){
 				if(session.isConnected()){
 					session.disconnect();
-					MyLog.v(TAG,"Session durch Benutzer abgebrochen");
+					logger.debug("Session durch Benutzer abgebrochen");
 				}
 			}
 			
@@ -230,13 +231,13 @@ public class PortForwarding implements Runnable {
 		
 		@Override
 		public String getPassphrase(){
-			MyLog.v("MyUserInfo","getPassphrase");
+			logger.trace("getPassphrase");
 			return sshPassphrase; 
 		}
 		
 		@Override
 		public boolean promptPassphrase(String arg0){
-			MyLog.v("MyUserInfo","promptPassphrase");
+			logger.trace("promptPassphrase");
 			guiFlag = false;
 			positiveButton = false;
 			// rufe GUI-Dialog promptPassword() auf
@@ -255,7 +256,7 @@ public class PortForwarding implements Runnable {
 
 		@Override
 		public boolean promptPassword(String arg0) { // Aufruf GUI zum Eingeben des Passwortes
-			MyLog.v(TAG,"promptPassword");
+			logger.trace("promptPassword");
 			
 			guiFlag = false;
 			positiveButton = false;
@@ -277,7 +278,7 @@ public class PortForwarding implements Runnable {
 			// warte, bis Fingerprint bestaetigt ist
 	    	while(guiFlag == false);
 			
-			MyLog.v(TAG,"promptYesNo:"+s);
+			logger.debug("promptYesNo: {}", s);
 			
 			return positiveButton;  //true;
 		}
@@ -291,19 +292,19 @@ public class PortForwarding implements Runnable {
 			handler.sendEmptyMessage(PROMPT_MESSAGE);
 			// warte, bis showMessage bestaetigt ist
 	    	while(guiFlag == false);
-			MyLog.v(TAG,"showMessage:"+s);
+			logger.debug("showMessage: {}", s);
 		}
 
 		@Override   // unbenutzt
 		public String[] promptKeyboardInteractive(String destination,String name,
                 String instruction,String[] prompt,boolean[] echo) {
 			StringBuffer s = new StringBuffer();
-			MyLog.v("MyUserInfo:promptKey...","Name="+name);
+			logger.trace("promptKey... Name = {}", name);
 			s.append(name+"\n");
-			MyLog.v("MyUserInfo:promptKey...","Instruction="+instruction);
+			logger.trace("promptKey... Instruction = {}", instruction);
 			s.append(instruction+"\n");
 			for(int i=0;i < prompt.length;i++){
-				MyLog.v("MyUserInfo:promptKey...",prompt[i]+"-"+echo[i]);
+				logger.trace("promptKey... {} - {}",prompt[i], echo[i]);
 				s.append(prompt[i]+"-"+echo[i]+"\n");
 			}
 			guiMessage = s.toString();
@@ -413,21 +414,27 @@ public class PortForwarding implements Runnable {
 	}
 	
 	public static class MyLogger implements com.jcraft.jsch.Logger {
-		static Hashtable<Integer, String> name = new Hashtable<Integer, String>();
-		static {
-			name.put(new Integer(DEBUG), "DEBUG: ");
-			name.put(new Integer(INFO), "INFO: ");
-			name.put(new Integer(WARN), "WARN: ");
-			name.put(new Integer(ERROR), "ERROR: ");
-			name.put(new Integer(FATAL), "FATAL: ");
-		}
 
 		public boolean isEnabled(int level) {
 			return true;
 		}
 
 		public void log(int level, String message) {
-			MyLog.v(TAG, name.get(new Integer(level)) + message);
+			switch (level) {
+			case DEBUG:
+				logger.debug(message);
+				break;
+			case INFO:
+				logger.info(message);
+				break;
+			case WARN:
+				logger.warn(message);
+				break;
+			case ERROR:
+			case FATAL:
+				logger.error(message);
+				break;
+			}
 		}
 	}
 }
