@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Notification;
@@ -63,7 +66,7 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TabHost.TabContentFactory;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.GesturesFind;
-import de.androvdr.MyLog;
+import de.androvdr.IFileLogger;
 import de.androvdr.OnLoadListener;
 import de.androvdr.PortForwarding;
 import de.androvdr.Preferences;
@@ -78,9 +81,9 @@ import de.androvdr.svdrp.VDRConnection;
 
 public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLoadListener, OnSharedPreferenceChangeListener {
     
-	private static final String TAG = "AndroVDR";
 	private static final int PREFERENCEACTIVITY_ID = 1;
 	private static final int ACTIVITY_ID = 2;
+	private static transient Logger logger = LoggerFactory.getLogger(AndroVDR.class);
 	
 	private final File usertabFile = new File(Preferences.getExternalRootDirName() + "/mytab");
 
@@ -198,6 +201,17 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		return v;
 	}
 
+	private void initLogging(SharedPreferences sp) {
+		if (logger instanceof IFileLogger) {
+			IFileLogger filelogger = (IFileLogger) logger;
+	    	int loglevel = Integer.parseInt(sp.getString("logLevel", "0"));
+	    	if (loglevel < 2)
+	    		filelogger.initLogFile(null, false);
+	    	else
+	    		filelogger.initLogFile(Preferences.getLogFileName(), (loglevel == 3));
+	    }
+	}
+
 	public void initWorkspaceView() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
@@ -206,14 +220,14 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		else
 			setTheme(R.style.Theme_Original);
 		
-		MyLog.v(TAG, "Model: " + Build.MODEL);
-		MyLog.v(TAG, "SDK Version: " + Build.VERSION.SDK_INT);
+		logger.debug("Model: {}", Build.MODEL);
+		logger.debug("SDK Version: {}", Build.VERSION.SDK_INT);
 
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		MyLog.v(TAG, "Width: " + metrics.widthPixels);
-		MyLog.v(TAG, "Height: " + metrics.heightPixels);
-		MyLog.v(TAG, "Density: " + metrics.densityDpi);
+		logger.debug("Width: {}", metrics.widthPixels);
+		logger.debug("Height: {}", metrics.heightPixels);
+		logger.debug("Density: {}", metrics.densityDpi);
 		
 	    Configuration conf = getResources().getConfiguration();
 	    boolean screenSmall = ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_SMALL) == Configuration.SCREENLAYOUT_SIZE_SMALL);
@@ -222,11 +236,11 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    boolean screenLarge = ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_LARGE) == Configuration.SCREENLAYOUT_SIZE_LARGE);
 	    boolean screenXLarge = ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
 
-	    MyLog.v(TAG, "Screen Small: " + screenSmall);
-	    MyLog.v(TAG, "Screen Normal: " + screenNormal);
-	    MyLog.v(TAG, "Screen Long: " + screenLong);
-	    MyLog.v(TAG, "Screen Large: " + screenLarge);
-	    MyLog.v(TAG, "Screen XLarge: " + screenXLarge);
+	    logger.debug("Screen Small: {}", screenSmall);
+	    logger.debug("Screen Normal: {}", screenNormal);
+	    logger.debug("Screen Long: {}", screenLong);
+	    logger.debug("Screen Large: {}", screenLarge);
+	    logger.debug("Screen XLarge: {}", screenXLarge);
 
 	    /*
 	     * device dependant layout initilization
@@ -278,7 +292,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			}
 
 			if (usertabFile.exists()) {
-				MyLog.v(TAG, "Add user defined screen");
+				logger.trace("Add user defined screen");
 				mWorkspace.addView(getUserScreen());
 			}
 
@@ -309,7 +323,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		    }
 		    
 	        if(usertabFile.exists()){
-	        	MyLog.v("Test","fuege User-Tab hinzu");
+	        	logger.trace("fuege User-Tab hinzu");
 	        	mTabHost.addTab(mTabHost.newTabSpec("tab_rc5").setIndicator("User").setContent(tab));
 	        }
 
@@ -367,6 +381,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    sp.registerOnSharedPreferenceChangeListener(this);
 	    sp.registerOnSharedPreferenceChangeListener(mDevices);
 
+	    initLogging(sp);
 		initWorkspaceView();
 		
 		mWatchPortForwardingThread = new WatchPortForwadingThread();
@@ -493,6 +508,8 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			if (portForwarding != null)
 				portForwarding.disconnect();
 		}
+		if (key.equals("logLevel"))
+			initLogging(sharedPreferences);
 	}
 
     private Handler sshDialogHandler = new Handler() {
@@ -551,7 +568,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     	@Override
     	public View createTabContent(String tag) {
     		View root;
-    		MyLog.v("MyTabContentFactory","Erstelle den Tab "+tag);
+    		logger.trace("Erstelle den Tab {}", tag);
     		
     		if(tag.equals("tab_rc1")){
     			root = inflater.inflate(R.layout.tab1, null);
@@ -621,7 +638,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 						}
 						Preferences.useInternetSync.wait();
 					} catch (InterruptedException e) {
-						MyLog.v(TAG, "WatchPortForwardingThread interrupted");
+						logger.debug("WatchPortForwardingThread interrupted");
 					}
 				}
     		}

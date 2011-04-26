@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -49,13 +52,12 @@ import android.preference.PreferenceManager;
 import dalvik.system.DexClassLoader;
 import de.androvdr.DBHelper;
 import de.androvdr.DevicesTable;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.Recordings;
 
 public class Devices implements OnSharedPreferenceChangeListener {
+	private static transient Logger logger = LoggerFactory.getLogger(Devices.class);
 	private static Devices sDevices;
-	private static final String TAG = "Devices";
 	
 	public static final String VDR_CLASSNAME = "VDR";
 	public static final CharSequence[] volumePrefNames = new CharSequence[] { "volumeDevice", "volumeUp", "volumeDown" };
@@ -296,12 +298,12 @@ public class Devices implements OnSharedPreferenceChangeListener {
 			MacroConfigParser parser = new MacroConfigParser(macroConfig);
 			ArrayList<Macro> macros = parser.parse();
 			if (macros == null) {
-				MyLog.v(TAG, "ERROR: " + parser.lastError);
+				logger.error("Couldn't parse macro configuration: {}", parser.lastError);
 			} else {
 				for (Macro macro : macros) {
-					MyLog.v(TAG, "Macro: " + macro.name);
+					logger.debug("Macro: {}", macro.name);
 					for (String command : macro.commands)
-						MyLog.v(TAG, "  -> " + command);
+						logger.debug("  -> {}", command);
 					mMacros.put(macro.name, macro);
 				}
 			}
@@ -389,8 +391,8 @@ public class Devices implements OnSharedPreferenceChangeListener {
 						if (IActuator.class.isAssignableFrom(c)) {
 							IActuator ac = (IActuator) c.newInstance();
 							mPlugins.put(ac.getDisplayClassName(), c);
-							MyLog.v(TAG, "Plugin: " + ac.getDisplayClassName()
-									+ " (" + c.getName() + ")");
+							logger.debug("Plugin: {}", 
+									(ac.getDisplayClassName() + " (" + c.getName() + ")"));
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -422,7 +424,7 @@ public class Devices implements OnSharedPreferenceChangeListener {
 	}
 
 	public void send(String command) {
-		MyLog.v(TAG, "send: " + command);
+		logger.debug("send: {}", command);
 		String sa[] = command.split("\\.");
 		if (sa.length > 1 && sa[0].equals("Macro")) {
 			Macro macro = mMacros.get(sa[1]);
@@ -544,9 +546,9 @@ public class Devices implements OnSharedPreferenceChangeListener {
 						int microSecond = Integer.parseInt(sa[1]);
 						Thread.sleep(microSecond);
 					} catch (NumberFormatException e) {
-						MyLog.v(TAG, "Invalid sleep value");
+						logger.error("Invalid sleep value");
 					} catch (InterruptedException e) {
-						MyLog.v(TAG, "MacroThread interrupted");
+						logger.trace("MacroThread interrupted");
 					}
 				} else {
 					send(command);

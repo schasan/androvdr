@@ -20,6 +20,9 @@
 
 package de.androvdr.activities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.DialogInterface;
@@ -36,13 +39,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import de.androvdr.EpgSearch;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.controllers.TimerController;
 
 public class TimersActivity extends AbstractListActivity {
-	private static final String TAG = "TimersActivity";
+	private static transient Logger logger = LoggerFactory.getLogger(TimersActivity.class);
 	private static final int HEADER_TEXT_SIZE = 15;
 	
 	private TimerController mController;
@@ -57,7 +59,7 @@ public class TimersActivity extends AbstractListActivity {
 		TextView tv = (TextView) findViewById(R.id.timers_header);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
 		
-		MyLog.v(TAG, "onCreate");
+		logger.trace("onCreate");
 	    mListView = (ListView) findViewById(android.R.id.list);
 
 		/*

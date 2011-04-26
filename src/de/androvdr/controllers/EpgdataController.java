@@ -27,6 +27,9 @@ import java.util.Calendar;
 import java.util.Formatter;
 import java.util.GregorianCalendar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.os.Handler;
 import android.util.TypedValue;
@@ -38,14 +41,13 @@ import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Epg;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.StreamInfo;
 import de.androvdr.VdrCommands;
 
 public class EpgdataController extends AbstractController {
-	private static final String TAG = "EpgdataController";
+	private static transient Logger logger = LoggerFactory.getLogger(EpgdataController.class);
 	
 	private static final int pgi_titelSize = 20,
 							 pgi_shorttextSize = 16,
@@ -70,7 +72,7 @@ public class EpgdataController extends AbstractController {
 			mChannel = new Channels(Preferences.getVdr().channellist).getChannel(mChannelNumber);
 			showData();
 		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR showData(): " + e.toString());
+			logger.error("Couldn't load channels", e);
 			mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 		}
 	}
@@ -84,7 +86,7 @@ public class EpgdataController extends AbstractController {
 			try {
 				VdrCommands.setTimer(mChannel.viewEpg);
 			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR action: " + e.toString());
+				logger.error("Couldn't set timer", e);
 				lastError = e.toString();
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 			}

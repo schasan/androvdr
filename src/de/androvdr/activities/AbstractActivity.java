@@ -20,6 +20,9 @@
 
 package de.androvdr.activities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -31,12 +34,11 @@ import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 
 public class AbstractActivity extends Activity {
-	private static final String TAG = "AbstractActivity";
+	private static transient Logger logger = LoggerFactory.getLogger(AbstractActivity.class);
 
 	protected ConfigurationManager mConfigurationManager;
 	
@@ -54,7 +56,7 @@ public class AbstractActivity extends Activity {
 
 		@Override
 		public void handleMessage(Message msg) {
-			MyLog.v(TAG, "handleMessage: arg1 = " + msg.arg1);
+			logger.trace("handleMessage: arg1 = {}", msg.arg1);
 			
 			switch (msg.arg1) {
 			case Messages.MSG_PROGRESS_SHOW:

@@ -31,11 +31,13 @@ import org.hampelratte.svdrp.Response;
 import org.hampelratte.svdrp.commands.CHAN;
 import org.hampelratte.svdrp.commands.LSTC;
 import org.hampelratte.svdrp.util.ChannelParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.androvdr.svdrp.VDRConnection;
 
 public class Channels {
-	private static final String TAG = "Channels";
+	private static transient Logger logger = LoggerFactory.getLogger(Channels.class);
 	
 	private static Boolean mIsInitialized = false;
 	private static String mDefaults;
@@ -72,10 +74,10 @@ public class Channels {
 			if (getChannel(channel.nr) == null)
 				mItems.add(channel);
 		} catch (IOException e) {
-			MyLog.v(TAG, "ungueltiger Kanaldatensatz",e);
+			logger.error("ungueltiger Kanaldatensatz",e);
 			// faengt u A NumberformatExceptions ab
 		} catch(ParseException pe) {
-		    MyLog.v(TAG, "Couldn't parse channel details",pe);
+		    logger.error("Couldn't parse channel details", pe);
 		}
 		return channel;
 	}
@@ -141,14 +143,14 @@ public class Channels {
 					} catch (IOException e) {
 						throw e;
 					} catch (Exception e) {
-						MyLog.v(TAG, "ERROR invalid channellist: " + mDefaults);
+						logger.error("invalid channellist: {}", mDefaults);
 						continue;
 					}
 				}
 				Collections.sort(mItems);
 				mIsInitialized = true;
 			} catch (IOException e) {
-				MyLog.v(TAG, "Channels.init(): " + e);
+				logger.error("Couldn't initialize Channels", e);
 				throw e;
 			}
 		}

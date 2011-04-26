@@ -30,11 +30,13 @@ import java.util.StringTokenizer;
 import org.hampelratte.svdrp.Command;
 import org.hampelratte.svdrp.Response;
 import org.hampelratte.svdrp.commands.LSTT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.androvdr.svdrp.VDRConnection;
 
 public class Timers {
-	private static final String TAG = "Timers";
+	private static transient Logger logger = LoggerFactory.getLogger(Timers.class);
 	
 	private ArrayList<Timer> mItems = new ArrayList<Timer>();
 	
@@ -63,7 +65,7 @@ public class Timers {
 		            timer.lastUpdate = lastUpdate;
 		            mItems.add(timer);
 		        } catch (ParseException e) {
-		            MyLog.v(TAG, "ERROR invalid timer format: " + e.toString());
+		            logger.error("Invalid timer format" + e);
 		            continue;
 		        }
 		    }
@@ -125,7 +127,7 @@ public class Timers {
 						mItems.add(timer);
 					}
 				} catch (ParseException e) {
-					MyLog.v(TAG, "ERROR invalid timer format: " + e.toString());
+					logger.error("Invalid timer format", e);
 					continue;
 				}
 			}
@@ -144,6 +146,7 @@ public class Timers {
                 }
             });
 			
+			result = response.getMessage();
 			st = new StringTokenizer(result, "\n");
             while(st.hasMoreTokens()) {
                 String s = st.nextToken();
@@ -155,7 +158,7 @@ public class Timers {
 					if (sa[0].equals("DefMarginStop"))
 						marginStop = Integer.parseInt(sa[1].trim()) * 60;
 				} catch (Exception e) {
-					MyLog.v(TAG, "ERROR invalid epgsearch setp response");
+					logger.error("Invalid epgsearch setp response", e);
 					continue;
 				}
 			};
@@ -167,7 +170,7 @@ public class Timers {
 			
 			Collections.sort(mItems, new TimerComparer());
 		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR init(search): " + e.toString());
+			logger.error("Couldn't get epgsearch result", e);
 			throw e;
 		}
 	}
