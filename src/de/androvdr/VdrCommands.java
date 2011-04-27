@@ -127,7 +127,7 @@ public class VdrCommands {
 		timer.setPriority(50);
 		timer.setLifetime(99);
 		timer.setTitle(epg.titel);
-		timer.setDescription(epg.beschreibung);
+		timer.setDescription((epg.beschreibung == null) ? "" : epg.beschreibung );
 		timer.changeStateTo(VDRTimer.VPS, Preferences.getVdr().vps);
 
 		NEWT newt = new NEWT(timer.toNEWT());
