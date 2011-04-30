@@ -36,7 +36,14 @@
     <string name="priority">Priorità</string>
     <string name="duration">"Durata: "</string>
     <string name="searching">Ricerca...</string>
-     <!-- RecordingsActivity -->
+    <string name="epgsearch_not_installed">Il plugin EPGSearch non è installato.</string>
+    <string name="epgsearch_hint">Cerca EPG</string>
+    <string name="search">Cerca</string>
+    <string name="notification_connected_ticker">Connessione stabilita</string>
+    <string name="notification_connected">Connesso a</string>
+    <!-- ChannelsActivity -->
+    <string name="channels">Canali</string>
+    <!-- RecordingsActivity -->
     <string name="rec_recordings">Registrazioni</string>
     <string name="rec_sortbyname">Nome</string>
     <string name="rec_sortbydate">Data</string>
@@ -51,6 +58,11 @@
     <string name="timer_toggle">Cambia stato</string>
     <string name="timer_delete_timer">Eliminare il timer?</string>
     <string name="timer_not_found">Timer non trovato</string>
+    <!--  DevicesActivity -->
+    <string name="devices_add_vdr">Nuova VDR</string>
+    <string name="devices_add_device">Nuovo dispositivo</string>
+    <string name="devices_delete">Elimina</string>
+    <string name="devices_delete_device">Eliminare il dispositivo?</string>
     <!-- SettingsBasic -->
     <string name="settings_general">Generale</string>
     <string name="settings_devices">Dispositivi</string>
@@ -98,8 +110,8 @@
     <string name="settings_timer">Timer</string>
     <string name="settings_vps">VPS</string>
     <string name="settings_vps_summary">Usa VPS per nuovi timer.</string>
-    <string name="settings_margin_start">Margine avvio (Min.)</string>
-    <string name="settings_margin_stop">Margine fine (Min.)</string>
+    <string name="settings_margin_start">Margine avvio (min.)</string>
+    <string name="settings_margin_stop">Margine fine (min.)</string>
     <string name="settings_remote">Remoto</string>
     <string name="settings_remote_host_summary">Nome sistema pubblico o indirizzo IP del router.</string>
     <string name="settings_remote_port">Porta SSH</string>
@@ -123,8 +135,8 @@
     <string name="settings_epgsearch_max_summary">Voci massime nei risultati.</string>
     <!-- Main -->
     <string name="main_select_vdr">Seleziona VDR</string>
-    <string name="main_forwarding_on">Inoltro attivo</string>
-    <string name="main_forwarding_off">Inoltro disattivo</string>
+    <string name="main_forwarding_on">Attiva inoltro</string>
+    <string name="main_forwarding_off">Disattiva inoltro</string>
     <string name="main_exit">Esci</string>
     <string name="main_settings">Impostazioni</string>
     <string name="main_about">Info</string>
