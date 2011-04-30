@@ -327,9 +327,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     	switch (requestCode) {
     	case PREFERENCEACTIVITY_ID:
     		if (mLayoutChanged) {
-    			Intent intent = new Intent(this, AndroVDR.class);
-    			startActivity(intent);
-    			finish();
+    			initWorkspaceView();
     		}
     	}
     }
