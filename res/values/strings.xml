@@ -97,9 +97,9 @@
     <string name="settings_logging_level">Loglevel</string>
     <string name="settings_logging_level_summary">What should be logged.</string>
     <string name="settings_recordingindex">Recordingindex</string>
+    <string name="settings_recordingindex_summary">Recreate index on next use.</string>
     <string name="settings_acra">Bug Report</string>
     <string name="settings_acra_summary">Send bug report after crash.</string>
-    <string name="settings_recordingindex_summary">Recreate index on next use.</string>
     <string name="settings_name">Name</string>
     <string name="settings_host">Host</string>
     <string name="settings_host_summary">Hostname or IP address (recommended). Must be enabled in svdrphosts.conf.</string>

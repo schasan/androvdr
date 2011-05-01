@@ -96,6 +96,8 @@
     <string name="settings_logging_summary">Salvataggio messaggi di registro.</string>
     <string name="settings_recordingindex">Indice registrazione</string>
     <string name="settings_recordingindex_summary">Ricrea indice al prossimo avvio.</string>
+    <string name="settings_acra">Bug Report</string>
+    <string name="settings_acra_summary">Send bug report after crash.</string>
     <string name="settings_name">Nome</string>
     <string name="settings_host">Sistema</string>
     <string name="settings_host_summary">Nome sistema o indirizzo IP (raccomandato). Deve essere abilitato in "svdrphosts.conf".</string>
@@ -141,7 +143,21 @@
     <string name="main_settings">Impostazioni</string>
     <string name="main_about">Info</string>
     <string name="main_gestures">Gesti</string>
+    <!-- Crash -->
+    <string name="crash_notif_ticker_text">Unexpected error, please send a report ...</string>
+    <string name="crash_notif_title">AndroVDR has crashed ...</string>
+    <string name="crash_notif_text">Please click here to help fix the issue.</string>
+    <string name="crash_dialog_title">AndroVDR has crashed</string>
+    <string name="crash_dialog_text">An unexpected error occurred forcing the
+        application to stop. Please help us fix this by sending us error data,
+        all you have to do is click \'OK\'.</string>
+    <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
+    <string name="crash_dialog_ok_toast">Thank you !</string>
     <!--  Remote  -->
+    <!--
+         because of many different screen / button sizes
+         labels on remote are always in english
+    -->
 <!-- 
     <string name="remote_schedule">Programmi</string>
     <string name="remote_schedule_short">Prog.</string>
