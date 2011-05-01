@@ -38,7 +38,9 @@ import de.androvdr.devices.Devices;
 import de.androvdr.devices.IActuator;
 
 public class PreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-
+	
+	private Devices mDevices;
+	
 	private void initVolumeDevicePref(final ListPreference pref) {
 		DeviceHolder deviceHolder = new DeviceHolder();
 		pref.setEntryValues(deviceHolder.getIds());
@@ -55,6 +57,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		Preferences.init(false);
 		if (Preferences.blackOnWhite) {
 			setTheme(R.style.Theme_Light);
 			getListView().setCacheColorHint(Color.TRANSPARENT);
@@ -63,8 +66,8 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		
 		addPreferencesFromResource(R.xml.preferences);
 
-		Devices devices = Devices.getInstance(this);
-		if (!devices.hasPlugins()) {
+		mDevices = Devices.getInstance(this);
+		if (!mDevices.hasPlugins()) {
 			PreferenceGroup volumeCategory = (PreferenceGroup) findPreference("category_volume");
 			for (CharSequence prefName : Devices.volumePrefNames) {
 				Preference pref = findPreference(prefName);
@@ -87,7 +90,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 	@Override
 	protected void onPause() {
 		super.onPause();
-		Preferences.init(this);
+		Preferences.init(true);
 	}
 
 	@Override
@@ -133,10 +136,9 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		@Override
 		protected void setValues(List<CharSequence> ids,
 				List<CharSequence> names) {
-			Devices devices = Devices.getInstance();
 			ids.add("-1");
 			names.add("None");
-			for (IActuator device : devices.getDevices()) {
+			for (IActuator device : mDevices.getDevices()) {
 				ids.add(Long.toString(device.getId()));
 				names.add(device.getName());
 			}
@@ -153,7 +155,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		@Override
 		protected void setValues(List<CharSequence> ids,
 				List<CharSequence> names) {
-			IActuator device = Devices.getInstance().getDevice(mDeviceId);
+			IActuator device = mDevices.getDevice(mDeviceId);
 			if (device != null && device.getCommands() != null) {
 				for (String command : device.getCommands()) {
 					ids.add(command);

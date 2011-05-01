@@ -94,7 +94,11 @@
     <string name="settings_miscellaneous">Miscellaneous</string>
     <string name="settings_logging">Logging</string>
     <string name="settings_logging_summary">Where to store log messages.</string>
+    <string name="settings_logging_level">Loglevel</string>
+    <string name="settings_logging_level_summary">What should be logged.</string>
     <string name="settings_recordingindex">Recordingindex</string>
+    <string name="settings_acra">Bug Report</string>
+    <string name="settings_acra_summary">Send bug report after crash.</string>
     <string name="settings_recordingindex_summary">Recreate index on next use.</string>
     <string name="settings_name">Name</string>
     <string name="settings_host">Host</string>
@@ -141,7 +145,17 @@
     <string name="main_settings">Settings</string>
     <string name="main_about">About</string>
     <string name="main_gestures">Gestures</string>
-    <!-- Remote -->
+    <!-- Crash -->
+    <string name="crash_notif_ticker_text">Unexpected error, please send a report ...</string>
+    <string name="crash_notif_title">AndroVDR has crashed ...</string>
+    <string name="crash_notif_text">Please click here to help fix the issue.</string>
+    <string name="crash_dialog_title">AndroVDR has crashed</string>
+    <string name="crash_dialog_text">An unexpected error occurred forcing the
+        application to stop. Please help us fix this by sending us error data,
+        all you have to do is click \'OK\'.</string>
+    <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
+    <string name="crash_dialog_ok_toast">Thank you !</string>
+    <!--  Remote  -->
     <!--
          because of many different screen / button sizes
          labels on remote are always in english

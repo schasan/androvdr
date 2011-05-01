@@ -20,6 +20,9 @@
 
 package de.androvdr.activities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -27,12 +30,11 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 
 public class AboutActivity extends AbstractActivity {
-	private static final String TAG = "AboutActivity";
+	private static transient Logger logger = LoggerFactory.getLogger(AboutActivity.class);
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +66,7 @@ public class AboutActivity extends AbstractActivity {
 			tv.setText(Html.fromHtml("Java Secure Channel at <a href=\"http://www.jcraft.com/jsch/\">JCraft</a>."));
 			tv.setMovementMethod(LinkMovementMethod.getInstance());
 		} catch (NameNotFoundException e) {
-			MyLog.v(TAG, "Error reading versionName");
+			logger.error("Couldn't read version name");
 		}
 	}
 }

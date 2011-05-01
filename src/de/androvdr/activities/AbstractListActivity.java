@@ -20,6 +20,9 @@
 
 package de.androvdr.activities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -27,19 +30,17 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Window;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.SimpleGestureFilter;
 import de.androvdr.SimpleGestureFilter.SimpleGestureListener;
 
 public class AbstractListActivity extends ListActivity implements SimpleGestureListener {
-	private static final String TAG = "AbstractListActivity";
+	private static transient Logger logger = LoggerFactory.getLogger(AbstractListActivity.class);
 	
 	protected ConfigurationManager mConfigurationManager;
 	protected SimpleGestureFilter mDetector;
@@ -58,7 +59,7 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 
 		@Override
 		public void handleMessage(Message msg) {
-			MyLog.v(TAG, "handleMessage: arg1 = " + msg.arg1);
+			logger.trace("handleMessage: arg1 = {}", msg.arg1);
 			
 			switch (msg.arg1) {
 			case Messages.MSG_PROGRESS_SHOW:
@@ -105,7 +106,9 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		logger.trace("onCreate");
 		
+		Preferences.init(false);
 		if (Preferences.blackOnWhite)
 			setTheme(R.style.Theme_Light);
 		
@@ -113,9 +116,14 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 		mDetector = new SimpleGestureFilter(this, this);
 		mDetector.setMode(SimpleGestureFilter.MODE_TRANSPARENT);
 		mConfigurationManager = ConfigurationManager.getInstance(this);
-		Preferences.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		logger.trace("onDestroy");
+	}
+	
 	@Override
 	public void onDoubleTap() {
 	}
@@ -128,6 +136,7 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 	@Override
 	protected void onPause() {
 		super.onPause();
+		logger.trace("onPause");
 		mConfigurationManager.onPause();
 		handler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 		handler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
@@ -136,6 +145,7 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 	@Override
 	protected void onResume() {
 		super.onResume();
+		logger.trace("onResume");
 		mConfigurationManager.onResume();
 	}
 	

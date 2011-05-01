@@ -20,6 +20,9 @@
 
 package de.androvdr.activities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -27,16 +30,14 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 
 public class AbstractActivity extends Activity {
-	private static final String TAG = "AbstractActivity";
+	private static transient Logger logger = LoggerFactory.getLogger(AbstractActivity.class);
 
 	protected ConfigurationManager mConfigurationManager;
 	
@@ -54,7 +55,7 @@ public class AbstractActivity extends Activity {
 
 		@Override
 		public void handleMessage(Message msg) {
-			MyLog.v(TAG, "handleMessage: arg1 = " + msg.arg1);
+			logger.trace("handleMessage: arg1 = {}", msg.arg1);
 			
 			switch (msg.arg1) {
 			case Messages.MSG_PROGRESS_SHOW:
@@ -80,18 +81,26 @@ public class AbstractActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		logger.trace("onCreate");
 		
+		Preferences.init(false);
 		if (Preferences.blackOnWhite)
 			setTheme(R.style.Theme_Light);
 		
 		mConfigurationManager = ConfigurationManager.getInstance(this);
-		Preferences.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 	
 	protected void onCreate(Bundle savedInstanceState, boolean initConfigurationManager) {
 		super.onCreate(savedInstanceState);
+		logger.trace("onCreate");
 		if (initConfigurationManager)
 			mConfigurationManager = ConfigurationManager.getInstance(this);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		logger.trace("onDestroy");
 	}
 	
 	@Override
@@ -102,6 +111,7 @@ public class AbstractActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		logger.trace("onPause");
 		mConfigurationManager.onPause();
 		handler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 	}
@@ -109,6 +119,7 @@ public class AbstractActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		logger.trace("onResume");
 		mConfigurationManager.onResume();
 	}
 

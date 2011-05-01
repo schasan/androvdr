@@ -20,6 +20,9 @@
 
 package de.androvdr;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
@@ -35,7 +38,7 @@ import android.view.KeyEvent;
 import de.androvdr.devices.Devices;
 
 public class ConfigurationManager implements OnSharedPreferenceChangeListener {
-	private static final String TAG = "ConfigurationManager";
+	private static transient Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 	private static final long VIBRATION_LENGTH = 45;
 
 	private static ConfigurationManager sInstance;
@@ -86,10 +89,10 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 	public void disableKeyguard() {
 		if (mKeyguardLock == null) {
 	    	KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
-	    	mKeyguardLock = keyguardManager.newKeyguardLock(TAG);
+	    	mKeyguardLock = keyguardManager.newKeyguardLock(mActivity.getString(R.string.app_name));
 		}
 		mKeyguardLock.disableKeyguard();
-		MyLog.v("TAG", "keyguard disabled");
+		logger.trace("keyguard disabled");
 	}
 
 	public void disableStandby() {
@@ -97,12 +100,12 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 			PowerManager pm = (PowerManager) mActivity.getSystemService(Context.POWER_SERVICE);  
 	    	mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "DoNotGoStandby");
 		}
-    	MyLog.v(TAG, "standby disabled");
+    	logger.trace("standby disabled");
 	}
 	
 	public void disableVibrator() {
 		mVibrator = null;
-		MyLog.v(TAG, "vibrator disabled");
+		logger.trace("vibrator disabled");
 	}
 
 	public void disableVolumeControl() {
@@ -118,7 +121,7 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 			mKeyguardLock.reenableKeyguard();
 			mKeyguardLock = null;
 		}
-		MyLog.v(TAG, "keyguard enabled");
+		logger.trace("keyguard enabled");
 	}
 
 	public void enableStandby() {
@@ -127,14 +130,14 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 				mWakeLock.release();
 			mWakeLock = null;
 		}
-    	MyLog.v(TAG, "standby enabled");
+    	logger.trace("standby enabled");
 	}
 
 	public void enableVibrator() {
 		if (mVibrator == null) {
 	    	mVibrator = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
 		}
-    	MyLog.v(TAG, "vibrator enabled");
+    	logger.trace("vibrator enabled");
 	}
 	
 	public void enableVolumeControl() {

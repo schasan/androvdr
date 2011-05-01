@@ -25,12 +25,15 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.content.Context;
 import android.widget.Toast;
 
 public class Wol {
 	
-	private final static String TAG ="Wol";
+	private final transient Logger logger = LoggerFactory.getLogger(Wol.class);
 	
 	private Context context;
 	
@@ -57,7 +60,7 @@ public class Wol {
 
 			InetAddress address;
 			address = InetAddress.getByName(ipAddr);
-			MyLog.v(TAG, "Adresse: " + address.getHostAddress());
+			logger.debug("Address: {}", address.getHostAddress());
 			if (sendBroadcast == true) {
 				// Umwandeln in IP-Broadcast-Adresse
 				byte[] adr = address.getAddress();
@@ -66,7 +69,7 @@ public class Wol {
 				}
 				adr[3] = -1; // Broadcast
 				address = InetAddress.getByAddress(adr);
-				MyLog.v(TAG, "Broadcastadresse:" + address.getHostAddress());
+				logger.debug("Broadcastaddress: {}", address.getHostAddress());
 			}
 			DatagramPacket packet = new DatagramPacket(bytes, bytes.length,	address, PORT);
 			DatagramSocket socket = new DatagramSocket();
@@ -78,7 +81,7 @@ public class Wol {
 			if (context != null)
 				Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
 			lastError = e.toString();
-			MyLog.v(TAG, e.toString());
+			logger.error("Couldn't send WOL packet", e.toString());
 			return false;
 		}
 	}    

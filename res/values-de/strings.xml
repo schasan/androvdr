@@ -94,6 +94,10 @@
     <string name="settings_miscellaneous">Verschiedenes</string>
     <string name="settings_logging">Logging</string>
     <string name="settings_logging_summary">Wo werden Log-Meldungen gespeichert.</string>
+    <string name="settings_logging_level">Loglevel</string>
+    <string name="settings_logging_level_summary">Was soll geloggt werden.</string>
+    <string name="settings_acra">Fehlerbericht</string>
+    <string name="settings_acra_summary">Sende Fehlerbericht nach Programmabsturz.</string>
     <string name="settings_recordingindex">Aufnahmeindex</string>
     <string name="settings_recordingindex_summary">Aufnahmeindex bei der nächsten Benutzung neu erzeugen.</string>
     <string name="settings_name">Name</string>
@@ -141,4 +145,14 @@
     <string name="main_settings">Einstellungen</string>
     <string name="main_about">Über</string>
     <string name="main_gestures">Gesten</string>
+    <!-- Crash -->
+    <string name="crash_notif_ticker_text">Unerwarteter Fehler. Bitte Bericht senden ...</string>
+    <string name="crash_notif_title">AndroVDR ist abgestürzt ...</string>
+    <string name="crash_notif_text">Bei der Problemlösung helfen.</string>
+    <string name="crash_dialog_title">AndroVDR ist abgestürzt</string>
+    <string name="crash_dialog_text">Ein unerwarteter Fehler ist aufgetreten und hat das Programm
+        beendet. Bitte helfen Sie mit das Problem zu beheben, indem Sie den Fehlerbericht 
+        abschicken. Sie brauchen nur auf \'OK\' zu drücken.</string>
+    <string name="crash_dialog_comment_prompt">Sie können hier einen Kommentar zu dem Problem eingeben:</string>
+    <string name="crash_dialog_ok_toast">Vielen Dank !</string>
 </resources>

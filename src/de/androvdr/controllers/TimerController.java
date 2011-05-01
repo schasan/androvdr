@@ -29,6 +29,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.CHAN;
+import org.hampelratte.svdrp.commands.DELT;
+import org.hampelratte.svdrp.commands.MODT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -47,11 +54,9 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
-import de.androvdr.Connection;
 import de.androvdr.Epg;
 import de.androvdr.EpgSearch;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.Timer;
@@ -60,9 +65,10 @@ import de.androvdr.VdrCommands;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.activities.EpgsdataActivity;
 import de.androvdr.devices.VdrDevice;
+import de.androvdr.svdrp.VDRConnection;
 
 public class TimerController extends AbstractController implements Runnable {
-	private static final String TAG = "TimerController";
+	private static transient Logger logger = LoggerFactory.getLogger(TimerController.class);
 	
 	private static final int timer_titleSize = 20,
 							 timer_defaultSize = 15;
@@ -140,19 +146,13 @@ public class TimerController extends AbstractController implements Runnable {
 							mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 							mAdapter.notifyDataSetChanged();
 							if (item.lastUpdate > 0) {
-								try {
-									String result = new Connection().doThis("DELT " + item.number + "\n");
-									if (result != null && result.regionMatches(0, "250 ", 0, 4)) {
-										mAdapter.remove(item);
-										for (int i = 0; i < mTimer.size(); i++)
-											mTimer.get(i).lastUpdate = 0;
-									}
-									else
-										Toast.makeText(mActivity, result.replace("\n", ""), Toast.LENGTH_LONG).show();
-									break;
-								} catch (IOException e) {
-									MyLog.v(TAG, "ERROR: " + e.toString());
-									mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+								Response response = VDRConnection.send(new DELT(item.number));
+								if(response.getCode() == 250) {
+								    mAdapter.remove(item);
+								    for (int i = 0; i < mTimer.size(); i++)
+								        mTimer.get(i).lastUpdate = 0;
+								} else {
+								    Toast.makeText(mActivity, response.getMessage().replace("\n", ""), Toast.LENGTH_LONG).show();
 								}
 							}
 							else
@@ -197,7 +197,7 @@ public class TimerController extends AbstractController implements Runnable {
 				new GetEpgTask().execute(item);
 				break;
 			case TIMER_ACTION_SWITCH_CAHNNEL:
-				new Connection().doThis("CHAN " + item.channel + "\n");
+			    VDRConnection.send(new CHAN(item.channel));
 				break;
 			case TIMER_ACTION_TOGGLE:
 				handler = new Handler() {
@@ -208,22 +208,18 @@ public class TimerController extends AbstractController implements Runnable {
 							mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 							mAdapter.notifyDataSetChanged();
 							if (item.lastUpdate > 0) {
-								try {
-									String s;
-									if (item.isActive())
-										s = " OFF";
-									else
-										s = " ON";
-									String result = new Connection().doThis("MODT " + item.number + s + "\n");
-									if (result != null && result.regionMatches(0, "250 ", 0, 4)) {
-										update();
-									}
-									else
-										Toast.makeText(mActivity, result.replace("\n", ""), Toast.LENGTH_LONG).show();
-								} catch (IOException e) {
-									MyLog.v(TAG, "ERROR: " + e.toString());
-									mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+								String s;
+								if (item.isActive())
+									s = " OFF";
+								else
+									s = " ON";
+								MODT modt = new MODT(item.number, s);
+								Response response = VDRConnection.send(modt);
+								if(response.getCode() == 250) {
+									update();
 								}
+								else
+									Toast.makeText(mActivity, response.getMessage().replace("\n", ""), Toast.LENGTH_LONG).show();
 							}
 							else
 								Toast.makeText(mActivity, R.string.timer_not_found, Toast.LENGTH_LONG).show();
@@ -246,7 +242,7 @@ public class TimerController extends AbstractController implements Runnable {
 				break;
 			}
 		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR action: " + e.toString());
+			logger.error("Couldn't achieve action", e);
 			lastError = e.toString();
 			mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 		}
@@ -270,12 +266,13 @@ public class TimerController extends AbstractController implements Runnable {
 		try {
 			if (mSearchFor == null)
 				mTimer = new Timers().getItems();
-			else
-				mTimer = new Timers(mSearchFor).getItems();
+			else {
+			    mTimer = new Timers(mSearchFor).getItems();
+			}
 			mChannels = new Channels(Preferences.getVdr().channellist);
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR new Timers(): " + e.toString());
+			logger.error("Couldn't load timers or execute epgsearch", e);
 			lastError = e.toString();
 			if (lastError.contains("550"))
 				mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_EPGSEARCH_NOT_FOUND));
@@ -324,15 +321,8 @@ public class TimerController extends AbstractController implements Runnable {
 				Channels channels = new Channels(vdr.channellist);
 				Channel channel = channels.getChannel(timer.channel);
 				if (channel == null) {
-					Connection connection = null;
-					try {
-						connection = new Connection();
-						channel = channels.addChannel(timer.channel, connection);
-						channel.isTemp = true;
-					} finally {
-						if (connection != null)
-							connection.closeDelayed();
-					}
+					channel = channels.addChannel(timer.channel);
+					channel.isTemp = true;
 				}
 				channel.viewEpg = channel.getAt(timer.start + ((vdr.margin_start + 1) * 60));
 				Intent intent = new Intent(mActivity, EpgdataActivity.class);
@@ -340,7 +330,7 @@ public class TimerController extends AbstractController implements Runnable {
 				mActivity.startActivityForResult(intent, 1);
 				return "";
 			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR GetEpgTask: " + e.toString());
+				logger.error("Couldn't get epg data", e);
 				return null;
 			}
 		}
@@ -518,7 +508,7 @@ public class TimerController extends AbstractController implements Runnable {
 		
 		@Override
 		public void run() {
-			MyLog.v(TAG, "update start");
+			logger.trace("update start");
 			
 			int lastUpdate = (int) (new Date().getTime() / 60000);
 			ArrayList<Timer> timers = null;
@@ -535,7 +525,7 @@ public class TimerController extends AbstractController implements Runnable {
 					if (index >= 0) {
 						Timer src = timers.get(index);
 						if (dst.number != src.number) {
-							MyLog.v(TAG, dst.title + " " + dst.number + " -> " + src.number);
+							logger.trace(dst.title + " " + dst.number + " -> " + src.number);
 						}
 						dst.number = src.number;
 						dst.status = src.status;
@@ -544,13 +534,12 @@ public class TimerController extends AbstractController implements Runnable {
 					else
 						dst.lastUpdate = -1;
 				}
-				MyLog.v(TAG, "update done");
+				logger.trace("update done");
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
 			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR TimerUpdater: " + e.toString());
+				logger.error("Couldn't update timers", e);
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 			}
 		}
-		
 	}
 }

@@ -25,6 +25,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.CHAN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
@@ -45,18 +50,17 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
-import de.androvdr.Connection;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.VdrCommands;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.activities.EpgsdataActivity;
 import de.androvdr.devices.VdrDevice;
+import de.androvdr.svdrp.VDRConnection;
 
 public class ChannelController extends AbstractController implements Runnable {
-	public static final String TAG = "ChannelController";
+	public static transient Logger logger = LoggerFactory.getLogger(ChannelController.class);
 
 	public static final int CHANNEL_ACTION_PROGRAMINFO = 1;
 	public static final int CHANNEL_ACTION_PROGRAMINFOS = 2;
@@ -151,14 +155,13 @@ public class ChannelController extends AbstractController implements Runnable {
 			mActivity.startActivityForResult(intent, 1);
 			break;
 		case CHANNEL_ACTION_SWITCH:
-			try {
-				new Connection().doThis("CHAN " + channel.nr + "\n");
-				mActivity.finish();
-			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR switch channel: " + e.toString());
-				lastError = e.toString();
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-			}
+		    Response resp = VDRConnection.send(new CHAN(Integer.toString(channel.nr)));
+		    if(resp.getCode() != 250) {
+		        logger.error("Couldn't switch channel: {}", resp.getMessage());
+		        lastError = resp.getMessage();
+		        mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+		    }
+			mActivity.finish();
 			break;
 		case CHANNEL_ACTION_REMOTECONTROL:
 			mActivity.finish();
@@ -167,7 +170,7 @@ public class ChannelController extends AbstractController implements Runnable {
 			try {
 				VdrCommands.setTimer(channel.getNow());
 			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR action: " + e.toString());
+				logger.error("Couldn't set timer", e);
 				lastError = e.toString();
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 			}
@@ -194,13 +197,13 @@ public class ChannelController extends AbstractController implements Runnable {
 	}
 
 	public void onPause() {
-		MyLog.v(TAG, "onPause");
+		logger.trace("onPause");
 		if (mUpdateThread != null)
 			mUpdateThread.interrupt();
 	}
 	
 	public void onResume() {
-		MyLog.v(TAG, "onResume");
+		logger.trace("onResume");
 		if (mChannels != null)
 			mChannels.deleteTempChannels();
 		if (mUpdateThread != null)
@@ -215,7 +218,7 @@ public class ChannelController extends AbstractController implements Runnable {
 			new Channels(Preferences.getVdr().channellist).getItems();
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR: new Channels()");
+			logger.error("Couldn't load channels", e);
 			lastError = e.toString();
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 		}
@@ -357,7 +360,7 @@ public class ChannelController extends AbstractController implements Runnable {
 		
 		@Override
 		public void run() {
-			MyLog.v(TAG, "UpdateThread started");
+			logger.trace("UpdateThread started");
 			try {
 				while (! isInterrupted()) {
 					try {
@@ -372,25 +375,26 @@ public class ChannelController extends AbstractController implements Runnable {
 							}
 						}
 						
-						MyLog.v(TAG, "epg update started");
+						logger.trace("epg update started");
 						mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_SHOW));
 						for (int i = 0; i < mChannelAdapter.getCount(); i++) {
 							mChannelAdapter.getItem(i).updateEpg(true);
 							if (isInterrupted())
 								throw new InterruptedException();;
 						}
-						MyLog.v(TAG, "epg update finished");
+						logger.trace("epg update finished");
 					} catch (InterruptedException e) {
-						MyLog.v(TAG, "UpdateThread interrupted");
+						logger.trace("UpdateThread interrupted");
 						break;
 					} catch (Exception e) {
-						MyLog.v(TAG, "ERROR epg update: " + e.toString());
+						logger.error("Couldn't update epg data", e);
 						lastError = e.toString();
 					} finally {
 						mHandler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
 						mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
 					}
 				}
+				logger.trace("UpdateThread finished");
 			} finally {
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
 			}

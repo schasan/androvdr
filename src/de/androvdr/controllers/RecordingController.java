@@ -27,6 +27,12 @@ import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.Stack;
 
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.DELR;
+import org.hampelratte.svdrp.commands.PLAY;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -46,10 +52,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
-import de.androvdr.Connection;
 import de.androvdr.DBHelper;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.Recording;
@@ -59,6 +63,7 @@ import de.androvdr.Recordings;
 import de.androvdr.VdrCommands;
 import de.androvdr.activities.AbstractListActivity;
 import de.androvdr.activities.RecordingInfoActivity;
+import de.androvdr.svdrp.VDRConnection;
 
 public class RecordingController extends AbstractController implements Runnable {
 	public static final int RECORDING_ACTION_INFO = 1;
@@ -70,7 +75,7 @@ public class RecordingController extends AbstractController implements Runnable 
 	public static final int RECORDING_ACTION_REMOTE = 7;
 	public static final int RECORDING_ACTION_KEY_BACK = 8;
 	
-	private static final String TAG = "RecordingController";
+	private static transient Logger logger = LoggerFactory.getLogger(RecordingController.class);
 	
 	private RecordingViewItemComparer mComparer;
 	private final ListView mListView;
@@ -239,7 +244,7 @@ public class RecordingController extends AbstractController implements Runnable 
 	}
 
 	public void onPause() {
-		MyLog.v(TAG, "onPause");
+		logger.trace("onPause");
 		if (mUpdateThread != null) {
 			mUpdateThread.interrupt();
 			db.close();
@@ -251,7 +256,7 @@ public class RecordingController extends AbstractController implements Runnable 
 	}
 	
 	public void onResume() {
-		MyLog.v(TAG, "onResume");
+		logger.trace("onResume");
 		if (mUpdateThread != null)
 			mUpdateThread = new RecordingIdUpdateThread(mThreadHandler);
 	}
@@ -265,7 +270,7 @@ public class RecordingController extends AbstractController implements Runnable 
 			}
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR new Recordings(): " + e.toString());
+			logger.error("Couldn't read recordings", e);
 			lastError = e.toString();
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 		}
@@ -355,19 +360,12 @@ public class RecordingController extends AbstractController implements Runnable 
 		
 		@Override
 		protected String doIt() {
-			try {
-				String s = new Connection().doThis("DELR " + mRecording.number + "\n");
-				
-				if (s != null && s.regionMatches(0, "250 ", 0, 4)) {
-					return "";
-				}
-				else {
-					return s.replace("\n", "");
-				}
-			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR RecordingDeleteTask: " + e.toString());
-				return null;
-			}
+		    Response response = VDRConnection.send(new DELR(mRecording.number));
+		    if(response.getCode() == 250) {
+		        return "";
+		    } else {
+		        return response.getMessage();
+		    }
 		}
 		
 		@Override
@@ -396,7 +394,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		
 		@Override
 		public void run() {
-			MyLog.v(TAG, "UpdateThread started");
+			logger.trace("UpdateThread started");
 			mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_SHOW));
 			
 			if (Preferences.deleteRecordingIds && ! Preferences.useInternet) {
@@ -408,23 +406,20 @@ public class RecordingController extends AbstractController implements Runnable 
 				Preferences.store();
 			}
 			
-			Connection connection = null;
 			try {
-				connection = new Connection();
-
 				for (Recording recording: mRecordingViewItems.getAllRecordings()) {
 					if (isInterrupted()) {
-						MyLog.v(TAG, "UpdateThread interrupted");
+						logger.trace("UpdateThread interrupted");
 						return;
 					}
 					if (recording.getInfoId() == null) {
 						RecordingInfo info = VdrCommands.getRecordingInfo(recording.number);
 						if (isInterrupted()) {
-							MyLog.v(TAG, "UpdateThread interrupted");
+							logger.trace("UpdateThread interrupted");
 							return;
 						}
 						recording.setInfoId(info.id);
-						MyLog.v(TAG, recording.id + " --> " + info.id);
+						logger.trace("Set id {} --> infoId {}", recording.id, info.id);
 					}
 				}
 				
@@ -433,13 +428,11 @@ public class RecordingController extends AbstractController implements Runnable 
 					Preferences.doRecordingIdCleanUp = false;
 				}
 			} catch (IOException e) {
-				MyLog.v(TAG, e.toString());
+				logger.error("Couldn't update recording ids", e);
 			} finally {
-				if (connection != null)
-					connection.closeDelayed();
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
 			}
-			MyLog.v(TAG, "UpdateThread finished");
+			logger.trace("UpdateThread finished");
 		}
 	}
 
@@ -458,7 +451,7 @@ public class RecordingController extends AbstractController implements Runnable 
 			mRecording = mRecordingViewItem.recording;
 			try {
 				mInfo = VdrCommands.getRecordingInfo(mRecording.number);
-				MyLog.v(TAG, "MD5: " + mRecording.getInfoId() + " --- " + mInfo.id);
+				logger.trace("MD5: " + mRecording.getInfoId() + " --- " + mInfo.id);
 				
 				if (mRecording.getInfoId() != null && mRecording.getInfoId().compareTo(mInfo.id) == 0) {
 					if (mRecording.number < 0)
@@ -481,9 +474,9 @@ public class RecordingController extends AbstractController implements Runnable 
 					}
 				} 
 			} catch (IOException e) {
-				MyLog.v(TAG, "ERROR RecordingInfoTask: " + e.toString());
+				logger.error("Couldn't recording info", e);
 				return null;
-			}
+			} 
 		}
 		
 		protected String doIt() {
@@ -524,20 +517,18 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 		
 		protected String doIt() {
-			String command;
-			
-			if (mFromBeginning)
-				command = "PLAY " + mRecording.number + " begin\n";
-			else
-				command = "PLAY " + mRecording.number + "\n";
-		
-			try {
-				new Connection().doThis(command);
-				mActivity.finish();
-				return "";
-			} catch (IOException e) {
-				return null;
-			}
+		    PLAY play = new PLAY(mRecording.number);
+		    if(mFromBeginning) {
+		        play.setStartTime(PLAY.BEGIN);
+		    }
+		    
+		    Response response = VDRConnection.send(play);
+		    if(response.getCode() == 250) {
+		        mActivity.finish();
+		        return "";
+		    } else {
+		        return null;
+		    }
 		}
 	}
 	
@@ -581,7 +572,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 		
 		public void update() throws IOException {
-			MyLog.v(TAG, "updateRecordings started");
+			logger.trace("updateRecordings started");
 			// --- get recordings from vdr ---
 			Recordings recordings = new Recordings(db);
 			RecordingViewItemList recordingViewItems = new RecordingViewItemList();
@@ -595,7 +586,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				if (index >= 0) {
 					Recording src = allRecordings.get(index);
 					if (dst.number != src.number) {
-						MyLog.v(TAG, dst.fullTitle + " " + dst.number + " -> " + src.number);
+						logger.trace(dst.fullTitle + " " + dst.number + " -> " + src.number);
 					}
 					dst.number = src.number;
 					dst.isNew = src.isNew;
@@ -603,7 +594,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				else
 					dst.number = -1;
 			}
-			MyLog.v(TAG, "updateRecordings finished");
+			logger.trace("updateRecordings finished");
 		}
 	}
 

@@ -23,6 +23,21 @@
     <item>3</item>
   </string-array>
 
+  <string-array name="slf4jLevel">
+    <item>Trace</item>
+    <item>Debug</item>
+    <item>Info</item>
+    <item>Warning</item>
+    <item>Error</item>
+  </string-array>
+  <string-array name="slf4jLevel_values">
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+    <item>4</item>
+    <item>5</item>
+  </string-array>
+  
   <string-array name="textsizeoffset">
     <item>-3</item>
     <item>-2</item>

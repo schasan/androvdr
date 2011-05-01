@@ -20,6 +20,9 @@
 
 package de.androvdr.activities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -30,13 +33,12 @@ import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.LinearLayout;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.controllers.EpgsdataController;
 
 public class EpgsdataActivity extends AbstractListActivity {
-	private static final String TAG = "EpgdataActivity";
+	private static transient Logger logger = LoggerFactory.getLogger(EpgsdataActivity.class);
 	
 	private int mChannelNumber;
 	private EpgsdataController mController;
@@ -57,7 +59,7 @@ public class EpgsdataActivity extends AbstractListActivity {
 			mChannelNumber = 0;
 			mMaxItems = Preferences.getVdr().epgmax;
 		}
-		MyLog.v(TAG, "onCreate");
+		logger.trace("onCreate");
 	    mView = (LinearLayout) findViewById(R.id.epgsdata_main);
 
 		/*

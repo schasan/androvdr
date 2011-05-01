@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.GregorianCalendar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
@@ -35,7 +38,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import de.androvdr.Messages;
-import de.androvdr.MyLog;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.RecordingInfo;
@@ -43,7 +45,7 @@ import de.androvdr.StreamInfo;
 import de.androvdr.VdrCommands;
 
 public class RecordingInfoController extends AbstractController implements Runnable {
-	private static final String TAG = "RecordingInfoController";
+	private static transient Logger logger = LoggerFactory.getLogger(RecordingInfoController.class);
 	
 	private static final int reci_titleSize = 20,
 							 reci_shorttextSize = 16,
@@ -213,7 +215,7 @@ public class RecordingInfoController extends AbstractController implements Runna
 			mRecordingInfo = VdrCommands.getRecordingInfo(mRecordingNumber);
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
-			MyLog.v(TAG, "ERROR showData(): " + e.toString());
+			logger.error("Couldn't read recording info", e);
 			mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
 		}
 	}

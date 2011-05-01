@@ -22,6 +22,9 @@ package de.androvdr;
 
 import java.io.File;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -31,18 +34,21 @@ import de.androvdr.devices.Devices;
 import de.androvdr.devices.VdrDevice;
 
 public class Preferences {
+	private static transient Logger logger = LoggerFactory.getLogger(Preferences.class);
+	
 	private static final String CONFIG_ROOTDIR = "AndroVDR";
 	private static final String CONFIG_LOGODIR = "logos";
 	private static final String CONFIG_PLUGINDIR = "plugins";
 	private static final String CONFIG_MACROFILE = "macros.xml";
+	private static final String CONFIG_LOGFILE = "log.txt";
 	private static final String CONFIG_GESTUREFILE = "gestures";
 	private static final String CONFIG_SSH_KEY = "sshkey";
 	private static final String CONFIG_SSH_KNOWN_HOSTS = "known_hosts";
 	
 	private static VdrDevice sCurrentVdr = null;
 	private static long sCurrentVdrId = -1;
+	private static boolean sIsInitialized = false;
 	
-	public static SharedPreferences sharedPreferences;
 	public static String sFilesDir;
 	
 	public static boolean blackOnWhite;
@@ -73,6 +79,10 @@ public class Preferences {
 		return getExternalRootDirName() + "/" + CONFIG_GESTUREFILE;
 	}
 	
+	public static String getLogFileName() {
+		return getExternalRootDirName() + "/" + CONFIG_LOGFILE;
+	}
+	
 	public static String getLogoDirName() {
 		return getExternalRootDirName() + "/" + CONFIG_LOGODIR;
 	}
@@ -95,12 +105,15 @@ public class Preferences {
 	
 	public static VdrDevice getVdr() {
 		if (sCurrentVdr == null) {
-			sCurrentVdr = Devices.getInstance().getVdr(sCurrentVdrId);
+			Context context = AndroApplication.getAppContext();
+			Devices devices = Devices.getInstance(context);
+			sCurrentVdr = devices.getVdr(sCurrentVdrId);
 			if (sCurrentVdr == null)
-				if (Devices.getInstance().getVdrs().size() == 1)
-					if ((sCurrentVdr = Devices.getInstance().getFirstVdr()) != null) {
+				if (devices.getVdrs().size() == 1)
+					if ((sCurrentVdr = devices.getFirstVdr()) != null) {
+						SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 						sCurrentVdrId = sCurrentVdr.getId();
-						SharedPreferences.Editor editor = sharedPreferences.edit();
+						SharedPreferences.Editor editor = sp.edit();
 						editor.putLong("currentVdrId", sCurrentVdrId);
 						editor.commit();
 					}
@@ -114,13 +127,19 @@ public class Preferences {
 		Channels.clear();
 		sCurrentVdrId = id;
 		sCurrentVdr = null;
-		SharedPreferences.Editor editor = sharedPreferences.edit();
+		Context context = AndroApplication.getAppContext();
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+		SharedPreferences.Editor editor = sp.edit();
 		editor.putLong("currentVdrId", id);
 		editor.commit();
 	}
 	
-	public static void init(Context context) {
-		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+	public static void init(boolean force) {
+		if (sIsInitialized && ! force)
+			return;
+		
+		Context context = AndroApplication.getAppContext();
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 		sFilesDir = context.getFilesDir().getAbsolutePath();
 		
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -129,34 +148,47 @@ public class Preferences {
 				appDir.mkdirs();
 		}
 		
-	    MyLog.setLogLevel(Integer.parseInt(sharedPreferences.getString("logLevel", "0"))); // 2 = Logging auf SD-Karte
-	    blackOnWhite = sharedPreferences.getBoolean("blackOnWhite", false);
-	    textSizeOffset = Integer.parseInt(sharedPreferences.getString("textSizeOffset", "0"));
-	    useLogos = sharedPreferences.getBoolean("useLogos", false);
-	    deleteRecordingIds = sharedPreferences.getBoolean("deleteRecordingIds", false);
-	    sCurrentVdrId = sharedPreferences.getLong("currentVdrId", -1);
-	    alternateLayout = sharedPreferences.getBoolean("alternateLayout", true);
-	    epgsearch_title = sharedPreferences.getBoolean("epgsearch_title", true);
-	    epgsearch_subtitle = sharedPreferences.getBoolean("epgsearch_subtitle", true);
-	    epgsearch_description = sharedPreferences.getBoolean("epgsearch_description", false);
-	    epgsearch_max = Integer.parseInt(sharedPreferences.getString("epgsearch_max", "30"));
+		if (logger instanceof IFileLogger) {
+			IFileLogger filelogger = (IFileLogger) logger;
+			int logging = Integer.parseInt(sp.getString("logLevel", "0"));
+			if (logging == 0)
+				filelogger.setLogLevel(0);
+			else
+				filelogger.setLogLevel(Integer.parseInt(sp.getString("slf4jLevel", "5")));
+		}
 
-	    String colorname = sharedPreferences.getString("tabIndicatorColor", "blue");
+		logger.trace("initializing");
+
+		blackOnWhite = sp.getBoolean("blackOnWhite", false);
+	    textSizeOffset = Integer.parseInt(sp.getString("textSizeOffset", "0"));
+	    useLogos = sp.getBoolean("useLogos", false);
+	    deleteRecordingIds = sp.getBoolean("deleteRecordingIds", false);
+	    sCurrentVdrId = sp.getLong("currentVdrId", -1);
+	    alternateLayout = sp.getBoolean("alternateLayout", true);
+	    epgsearch_title = sp.getBoolean("epgsearch_title", true);
+	    epgsearch_subtitle = sp.getBoolean("epgsearch_subtitle", true);
+	    epgsearch_description = sp.getBoolean("epgsearch_description", false);
+	    epgsearch_max = Integer.parseInt(sp.getString("epgsearch_max", "30"));
+
+	    String colorname = sp.getString("tabIndicatorColor", "blue");
 	    if (!colorname.equals("none"))
 	    	tabIndicatorColor = Color.parseColor(colorname);
 	    else
 	    	tabIndicatorColor = 0;
-	    colorname = sharedPreferences.getString("logoBackgroundColor", "none");
+	    colorname = sp.getString("logoBackgroundColor", "none");
 	    if (!colorname.equals("none"))
 	    	logoBackgroundColor = Color.parseColor(colorname);
 	    else
 	    	logoBackgroundColor = 0;
 	    
 	    sCurrentVdr = null;
+	    sIsInitialized = true;
 	}
 	
 	public static void store() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+		Context context = AndroApplication.getAppContext();
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
         editor.putBoolean("deleteRecordingIds", deleteRecordingIds);
         editor.commit();		
 	}
