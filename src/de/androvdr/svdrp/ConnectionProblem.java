@@ -9,7 +9,7 @@ public class ConnectionProblem extends Response {
     public ConnectionProblem(String message) {
         super(0, (message == null) ? "Couldn't connect to VDR" : message);
         
-    	if (message.toLowerCase().contains("access denied"))
+    	if (this.message.toLowerCase().contains("access denied"))
     		this.message += " Check svdrphosts.conf.";
     }
     

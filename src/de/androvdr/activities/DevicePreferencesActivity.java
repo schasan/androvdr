@@ -53,6 +53,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
+import de.androvdr.AndroApplication;
 import de.androvdr.DevicesTable;
 import de.androvdr.ListPreferenceValueHolder;
 import de.androvdr.Preferences;
@@ -65,6 +66,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 	private static transient Logger logger = LoggerFactory.getLogger(DevicePreferencesActivity.class);
 	
 	private CursorPreferenceHack pref = null;
+	private Devices mDevices;
 	private long mId;
 	private boolean mIsVDR = false;
 	
@@ -89,6 +91,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		Preferences.init(false);
 		if (Preferences.blackOnWhite) {
 			setTheme(R.style.Theme_Light);
 			getListView().setCacheColorHint(Color.TRANSPARENT);
@@ -97,10 +100,15 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		
 		mId = getIntent().getExtras().getInt("deviceid", -1);
 		
+		/*
+		 * use ApplicationContext because of overriden getSharedPreferences
+		 */
+		mDevices = Devices.getInstance(AndroApplication.getAppContext());
+		
 		pref = new CursorPreferenceHack(mId);
 		pref.registerOnSharedPreferenceChangeListener(this);
 
-		IDevice device = Devices.getInstance(this).getDevice(mId);
+		IDevice device = mDevices.getDevice(mId);
 		if (device instanceof OnSharedPreferenceChangeListener)
 			pref.registerOnSharedPreferenceChangeListener((OnSharedPreferenceChangeListener) device);
 		
@@ -289,8 +297,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 			// fill a cursor and cache the values locally
 			// this makes sure we dont have any floating cursor to dispose later
 
-			Devices devices = Devices.getInstance();
-			Cursor cursor = devices.getCursorForDevice(id);
+			Cursor cursor = mDevices.getCursorForDevice(id);
 			if (cursor.moveToFirst()) {
 				for (int i = 0; i < cursor.getColumnCount(); i++) {
 					String key = cursor.getColumnName(i);
@@ -301,7 +308,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 				}
 			}
 			cursor.close();
-			devices.dbClose();
+			mDevices.dbClose();
 		}
 
 		public boolean contains(String key) {
@@ -322,12 +329,11 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 				// Log.d(this.getClass().toString(),
 				// "commit() changes back to database");
 				// Devices.getInstance().storeConfig(update);
-				Devices devices = Devices.getInstance();
 				if (id < 0) {
-					id = devices.dbStore(update);
+					id = mDevices.dbStore(update);
 					setResult((int) id);
 				} else {
-					devices.dbUpdate(id, update);
+					mDevices.dbUpdate(id, update);
 				}
 				
 				// make sure we refresh the parent cached values
@@ -447,8 +453,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		}
 	}
 
-
-	public static class CharsetHolder extends ListPreferenceValueHolder {
+	public class CharsetHolder extends ListPreferenceValueHolder {
 
 		@Override
 		protected void setValues(List<CharSequence> ids,
@@ -463,13 +468,12 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		}
 	}
 
-	public static class ClassHolder extends ListPreferenceValueHolder {
+	public class ClassHolder extends ListPreferenceValueHolder {
 
 		@Override
 		protected void setValues(List<CharSequence> ids,
 				List<CharSequence> names) {
-			Devices devices = Devices.getInstance();
-			for (String name : devices.getPluginNames()) {
+			for (String name : mDevices.getPluginNames()) {
 				ids.add(name);
 				names.add(name);
 			}

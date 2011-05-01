@@ -361,18 +361,18 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		removeDialog(SWITCH_DIALOG_ID);
 	}
 
-	/** Called when the activity is first created. */
+	/** Called when the activity is first created. **/
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, false);
 
-        Preferences.init(this);
+        Preferences.init(false);
+		mDevices = Devices.getInstance(this);
 
-	    mConfigurationManager = ConfigurationManager.getInstance(this);
+		mConfigurationManager = ConfigurationManager.getInstance(this);
 
         mTitle = getTitle();
         
-		mDevices = Devices.getInstance(this);
 		mDevices.setParentActivity(this);
 		mDevices.setResultHandler(mResultHandler);
 		mDevices.setOnDeviceConfigurationChangedListener(this);

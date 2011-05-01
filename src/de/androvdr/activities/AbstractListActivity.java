@@ -30,7 +30,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Window;
 import de.androvdr.ConfigurationManager;
@@ -107,7 +106,9 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		logger.trace("onCreate");
 		
+		Preferences.init(false);
 		if (Preferences.blackOnWhite)
 			setTheme(R.style.Theme_Light);
 		
@@ -115,9 +116,14 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 		mDetector = new SimpleGestureFilter(this, this);
 		mDetector.setMode(SimpleGestureFilter.MODE_TRANSPARENT);
 		mConfigurationManager = ConfigurationManager.getInstance(this);
-		Preferences.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		logger.trace("onDestroy");
+	}
+	
 	@Override
 	public void onDoubleTap() {
 	}
@@ -130,6 +136,7 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 	@Override
 	protected void onPause() {
 		super.onPause();
+		logger.trace("onPause");
 		mConfigurationManager.onPause();
 		handler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 		handler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
@@ -138,6 +145,7 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 	@Override
 	protected void onResume() {
 		super.onResume();
+		logger.trace("onResume");
 		mConfigurationManager.onResume();
 	}
 	

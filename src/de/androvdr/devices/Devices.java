@@ -57,7 +57,8 @@ import de.androvdr.Recordings;
 
 public class Devices implements OnSharedPreferenceChangeListener {
 	private static transient Logger logger = LoggerFactory.getLogger(Devices.class);
-	private static Devices sDevices;
+	
+	private static Devices sInstance;
 	
 	public static final String VDR_CLASSNAME = "VDR";
 	public static final CharSequence[] volumePrefNames = new CharSequence[] { "volumeDevice", "volumeUp", "volumeDown" };
@@ -83,7 +84,8 @@ public class Devices implements OnSharedPreferenceChangeListener {
 		mDBHelper = new DBHelper(context);
 		
 		init();
-		initVolumeCommands(PreferenceManager.getDefaultSharedPreferences(context));
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+		initVolumeCommands(sp);
 
 		mSendThread = new DeviceSendThread();
 		mSendThread.start();
@@ -167,15 +169,15 @@ public class Devices implements OnSharedPreferenceChangeListener {
 		return dbStore(storevalues);
 	}
 	
-	public static Devices getInstance() {
-		return sDevices;
-	}
+//	public static Devices getInstance() {
+//		return sDevices;
+//	}
 	
 	public static Devices getInstance(Context context) {
-		if (sDevices == null) {
-			sDevices = new Devices(context);
+		if (sInstance == null) {
+			sInstance = new Devices(context);
 		}
-		return sDevices;
+		return sInstance;
 	}
 
 	public IActuator get(String name) {
