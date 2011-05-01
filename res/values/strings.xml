@@ -156,6 +156,10 @@
     <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
     <string name="crash_dialog_ok_toast">Thank you !</string>
     <!--  Remote  -->
+    <!--
+         because of many different screen / button sizes
+         labels on remote are always in english
+    -->
     <string name="remote_schedule">Schedule</string>
     <string name="remote_schedule_short">Sched.</string>
     <string name="remote_timer">Timer</string>
