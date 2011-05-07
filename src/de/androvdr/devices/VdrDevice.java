@@ -35,7 +35,6 @@ import de.androvdr.Wol;
 import de.androvdr.svdrp.VDRConnection;
 
 public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
-	private static final String TAG = "VdrDevice";
 	private static final String DISPLAYCLASSNAME = "VDR";
 
 	private long mId;
@@ -297,7 +296,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
         });
 		
 		if (response != null && response.getCode() != 250) {
-			mLastError = response.getMessage();
+			mLastError = response.getCode() + " - " + response.getMessage();
 			return false;
 		}
 		

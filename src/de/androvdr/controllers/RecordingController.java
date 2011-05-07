@@ -92,27 +92,20 @@ public class RecordingController extends AbstractController implements Runnable 
 	private final SimpleDateFormat datetimeformatter;
 	private final GregorianCalendar calendar;
 
-	public String lastError;
-	
 	private Handler mThreadHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.arg1) {
 			case Messages.MSG_DONE:
 				// --- set adapter ---
-				mRecordingAdapter = new RecordingAdapter(mActivity, mRecordingViewItems);
+				mRecordingAdapter = new RecordingAdapter(mActivity,	mRecordingViewItems);
 				setRecordingAdapter(mRecordingAdapter, mListView);
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 				break;
-			case Messages.MSG_TITLEBAR_PROGRESS_SHOW:
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_SHOW));
-				break;
-			case Messages.MSG_TITLEBAR_PROGRESS_DISMISS:
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
-				break;
-			case Messages.MSG_VDR_ERROR:
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-				break;
+			default:
+				Message newMsg = new Message();
+				newMsg.copyFrom(msg);
+				mHandler.sendMessage(newMsg);
 			}
 		}
 	};
@@ -271,8 +264,7 @@ public class RecordingController extends AbstractController implements Runnable 
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
 			logger.error("Couldn't read recordings", e);
-			lastError = e.toString();
-			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+			sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
 		}
 	}
 	
@@ -361,16 +353,12 @@ public class RecordingController extends AbstractController implements Runnable 
 		@Override
 		protected String doIt() {
 		    Response response = VDRConnection.send(new DELR(mRecording.number));
-		    if(response.getCode() == 250) {
-		        return "";
-		    } else {
-		        return response.getMessage();
-		    }
+	        return response.getCode() + " - " + response.getMessage();
 		}
 		
 		@Override
 		protected void onPostExecute(String result) {
-			if (result != null && result == "") {
+			if (result.startsWith("250", 0)) {
 				mRecordingAdapter.remove(mRecordingViewItem);
 				if (! mRecordingsStack.empty()) {
 					RecordingViewItemList list = mRecordingsStack.lastElement();
@@ -474,8 +462,8 @@ public class RecordingController extends AbstractController implements Runnable 
 					}
 				} 
 			} catch (IOException e) {
-				logger.error("Couldn't recording info", e);
-				return null;
+				logger.error("Couldn't get recording info", e);
+				return e.getMessage();
 			} 
 		}
 		
@@ -499,13 +487,9 @@ public class RecordingController extends AbstractController implements Runnable 
 		
 		protected void onPostExecute(String result) {
 			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
-			if (result != null) {
-				mRecordingAdapter.notifyDataSetChanged();
-				if (result != "")
-					Toast.makeText(mActivity, result, Toast.LENGTH_LONG).show();
-			} else {
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-			}
+			mRecordingAdapter.notifyDataSetChanged();
+			if (result != "")
+				Toast.makeText(mActivity, result, Toast.LENGTH_LONG).show();
 		}
 	}
 	
@@ -527,7 +511,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		        mActivity.finish();
 		        return "";
 		    } else {
-		        return null;
+		        return response.getCode() + " - " + response.getMessage();
 		    }
 		}
 	}

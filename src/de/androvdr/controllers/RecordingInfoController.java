@@ -69,9 +69,6 @@ public class RecordingInfoController extends AbstractController implements Runna
 				showData(mRecordingInfo);
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 				break;
-			case Messages.MSG_VDR_ERROR:
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-				break;
 			}
 		}
 	};
@@ -216,7 +213,7 @@ public class RecordingInfoController extends AbstractController implements Runna
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
 			logger.error("Couldn't read recording info", e);
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+			sendMsg(mHandler, Messages.MSG_ERROR, e.getMessage());
 		}
 	}
 }

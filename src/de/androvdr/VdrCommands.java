@@ -28,10 +28,12 @@ import java.util.StringTokenizer;
 import org.hampelratte.svdrp.Response;
 import org.hampelratte.svdrp.commands.LSTR;
 import org.hampelratte.svdrp.commands.NEWT;
+import org.hampelratte.svdrp.responses.R250;
 import org.hampelratte.svdrp.responses.highlevel.EPGEntry;
 import org.hampelratte.svdrp.responses.highlevel.Stream;
 import org.hampelratte.svdrp.responses.highlevel.VDRTimer;
 import org.hampelratte.svdrp.util.EPGParser;
+import org.hampelratte.svdrp.util.TimerParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,20 +102,14 @@ public class VdrCommands {
                 }
                 return recordingInfo;
             } else {
-                throw new IOException("Couldn't retrieve recording details: " + response.getCode() + " " + response.getMessage());
+                throw new IOException(response.getCode() + " - " + response.getMessage());
             }
         } else {
-            throw new IOException("Couldn't retrieve recording details");
+            throw new IOException(response.getCode() + " - " + response.getMessage());
         }
 	}
 
-	public static String setTimer(Epg epg) throws IOException {
-		
-	    String result = "";
-
-		if (epg == null)
-			return result;
-
+	public static Response setTimer(Epg epg) {
 		GregorianCalendar startTime = new GregorianCalendar();
 		startTime.setTimeInMillis(epg.startzeit * 1000 - Preferences.getVdr().margin_start * 60 * 1000);
 
@@ -126,15 +122,19 @@ public class VdrCommands {
 		timer.setEndTime(endTime);
 		timer.setPriority(50);
 		timer.setLifetime(99);
-		timer.setTitle(epg.titel);
-		timer.setDescription((epg.beschreibung == null) ? "" : epg.beschreibung );
+		timer.setTitle((epg.titel == null) ? "Unknown" : epg.titel);
+		timer.setDescription(AndroApplication.getAppContext().getString(R.string.app_name));
 		timer.changeStateTo(VDRTimer.VPS, Preferences.getVdr().vps);
 
 		NEWT newt = new NEWT(timer.toNEWT());
 		Response response = VDRConnection.send(newt);
-		result = response.getMessage();
 		if(response.getCode() != 250)
 		    logger.error("Couldn't set timer: {}", response.getMessage());
-		return result;
+		else {
+			List<VDRTimer> timers = TimerParser.parse(response.getMessage());
+			if  (timers.size() > 0)
+				response = new R250("New timer \"" + timers.get(0).getID() + "\"");
+		}
+		return response;
 	}
 }

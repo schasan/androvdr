@@ -21,7 +21,10 @@
 package de.androvdr.controllers;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import de.androvdr.Messages;
 
 public abstract class AbstractController {
 	protected Activity mActivity;
@@ -30,5 +33,16 @@ public abstract class AbstractController {
 	public void onCreate(Activity activity, Handler handler) {
 		mActivity = activity;
 		mHandler = handler;
+	}
+
+	protected void sendMsg(Handler handler, int type, String msg) {
+		if (handler != null) {
+			Bundle resultBundle = new Bundle();
+			resultBundle.putString(Messages.MSG_MESSAGE, msg);
+			Message resultMessage = Message.obtain(handler);
+			resultMessage.arg1 = type;
+			resultMessage.setData(resultBundle);
+			handler.sendMessage(resultMessage);
+		}
 	}
 }

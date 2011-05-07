@@ -42,7 +42,7 @@ public class VDRConnection {
     /**
      * Sends a SVDRP command to VDR and returns a response object, which represents the vdr response
      * @param cmd The SVDRP command to send
-     * @return The SVDRP response or null, if the Command couldn't be sent
+     * @return The SVDRP response
      */
 	public synchronized static Response send(final Command cmd) {
 		VdrDevice vdr = Preferences.getVdr();

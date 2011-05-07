@@ -132,6 +132,8 @@ public class Epgs {
                     break;
                 }
             }
+		} else {
+			throw new IOException(response.getCode() + " - " + response.getMessage());
 		}
 		
 		for (int i = 0; i < result.size(); i++)

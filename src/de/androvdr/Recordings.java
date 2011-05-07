@@ -102,7 +102,7 @@ public class Recordings {
 		        }
 		    } 
 		} else {
-		    throw new IOException("Couldn't retrieve recordings: " + response.getCode() + " " + response.getMessage());
+		    throw new IOException(response.getCode() + " - " + response.getMessage());
 		}
 	}
 	
