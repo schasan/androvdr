@@ -70,7 +70,7 @@ public class VDRConnection {
 			synchronized (syncer) {
 				if (connection == null) {
 					logger.debug("New connection to {} port {}", host, port);
-					connection = new Connection(host, port, timeout, "UTF-8", vdr.characterset);
+					connection = new Connection(host, port, 1000, timeout, vdr.characterset, false);
 				} else {
 					logger.trace("old connection");
 					lastTransmissionTime = System.currentTimeMillis();

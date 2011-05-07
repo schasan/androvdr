@@ -21,19 +21,19 @@
 package de.androvdr;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.hampelratte.svdrp.Response;
 import org.hampelratte.svdrp.commands.LSTR;
 import org.hampelratte.svdrp.commands.NEWT;
+import org.hampelratte.svdrp.parsers.RecordingParser;
+import org.hampelratte.svdrp.parsers.TimerParser;
 import org.hampelratte.svdrp.responses.R250;
-import org.hampelratte.svdrp.responses.highlevel.EPGEntry;
+import org.hampelratte.svdrp.responses.highlevel.Recording;
 import org.hampelratte.svdrp.responses.highlevel.Stream;
 import org.hampelratte.svdrp.responses.highlevel.VDRTimer;
-import org.hampelratte.svdrp.util.EPGParser;
-import org.hampelratte.svdrp.util.TimerParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,36 +45,23 @@ public class VdrCommands {
 	public static RecordingInfo getRecordingInfo(int number) throws IOException {
 	    Response response = VDRConnection.send(new LSTR(number));
 	    if (response != null && response.getCode() == 215) {
-
-            // workaround for the epg parser, because LSTR does not send an 'e' as entry terminator
-            StringTokenizer st = new StringTokenizer(response.getMessage(), "\n");
-            StringBuilder mesg = new StringBuilder();
-            while (st.hasMoreElements()) {
-                String line = st.nextToken();
-                if (!st.hasMoreElements()) {
-                    mesg.append('e').append('\n');
-                }
-                mesg.append(line).append('\n');
-            }
-
-            // parse epg information
-            List<EPGEntry> epg = EPGParser.parse(mesg.toString());
-            if (epg.size() > 0) {
-                EPGEntry entry = epg.get(0);
+            try {
+                org.hampelratte.svdrp.responses.highlevel.Recording rec = new Recording();
+                new RecordingParser().parseRecording(rec, response.getMessage());
+                
                 RecordingInfo recordingInfo = new RecordingInfo();
                 recordingInfo.id = MD5.calculate(response.getMessage());
 
-                recordingInfo.channelName = entry.getChannelName();
-                recordingInfo.date = entry.getStartTime().getTimeInMillis() / 1000;
-                recordingInfo.description = entry.getDescription();
-                long end = entry.getEndTime().getTimeInMillis() / 1000;
+                recordingInfo.channelName = rec.getChannelName();
+                recordingInfo.date = rec.getStartTime().getTimeInMillis() / 1000;
+                recordingInfo.description = rec.getDescription();
+                long end = rec.getEndTime().getTimeInMillis() / 1000;
                 recordingInfo.duration = end - recordingInfo.date;
-                recordingInfo.title = entry.getTitle();
-                recordingInfo.priority = entry.getPriority();
-                recordingInfo.lifetime = entry.getLifetime();
-                
-                // add information about the muxed streams
-                for (Stream stream : entry.getStreams()) {
+                recordingInfo.title = rec.getDisplayTitle();
+                recordingInfo.priority = rec.getPriority();
+                recordingInfo.lifetime = rec.getLifetime();
+
+                for (Stream stream : rec.getStreams()) {
                     StreamInfo si = new StreamInfo();
                     // stream type
                     si.type = Integer.toString(stream.getType(), 16);
@@ -101,9 +88,10 @@ public class VdrCommands {
                     }
                 }
                 return recordingInfo;
-            } else {
-                throw new IOException(response.getCode() + " - " + response.getMessage());
-            }
+			} catch (ParseException e) {
+				logger.error("Couldn't get recording info", e);
+				throw new IOException(e.getMessage());
+			}
         } else {
             throw new IOException(response.getCode() + " - " + response.getMessage());
         }

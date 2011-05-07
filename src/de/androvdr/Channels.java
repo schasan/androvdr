@@ -30,7 +30,7 @@ import java.util.ListIterator;
 import org.hampelratte.svdrp.Response;
 import org.hampelratte.svdrp.commands.CHAN;
 import org.hampelratte.svdrp.commands.LSTC;
-import org.hampelratte.svdrp.util.ChannelParser;
+import org.hampelratte.svdrp.parsers.ChannelParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
