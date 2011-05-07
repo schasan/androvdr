@@ -28,7 +28,7 @@ import org.hampelratte.svdrp.Response;
 import org.hampelratte.svdrp.commands.LSTE;
 import org.hampelratte.svdrp.responses.highlevel.EPGEntry;
 import org.hampelratte.svdrp.responses.highlevel.Stream;
-import org.hampelratte.svdrp.util.EPGParser;
+import org.hampelratte.svdrp.parsers.EPGParser;
 
 import de.androvdr.svdrp.VDRConnection;
 
@@ -87,7 +87,7 @@ public class Epgs {
 
 		Response response = VDRConnection.send(cmd);
 		if(response.getCode() == 215) {
-		    List<EPGEntry> epgList = EPGParser.parse(response.getMessage());
+		    List<EPGEntry> epgList = new EPGParser().parse(response.getMessage());
 		    int entryCount = 0;
 		    for (EPGEntry entry : epgList) {
 		        Epg epg = new Epg();
