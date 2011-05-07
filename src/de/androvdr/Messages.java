@@ -23,16 +23,20 @@ package de.androvdr;
 import android.os.Message;
 
 public class Messages {
-	public static final int MSG_DONE = 0;
-	public static final int MSG_PROGRESS_SHOW = 1;
-	public static final int MSG_PROGRESS_DISMISS = 2;
-	public static final int MSG_PROGRESS_UPDATE = 3;
-	public static final int MSG_TITLEBAR_PROGRESS_SHOW = 4;
-	public static final int MSG_TITLEBAR_PROGRESS_DISMISS = 5;
-	public static final int MSG_VDR_ERROR = 6;
-	public static final int MSG_DATA_UPDATE_DONE = 7;
-	public static final int MSG_CONTROLLER_READY = 8;
-	public static final int MSG_EPGSEARCH_NOT_FOUND = 9;
+	public static final int MSG_DONE = 1;
+	public static final int MSG_PROGRESS_SHOW = 2;
+	public static final int MSG_PROGRESS_DISMISS = 3;
+	public static final int MSG_PROGRESS_UPDATE = 4;
+	public static final int MSG_TITLEBAR_PROGRESS_SHOW = 5;
+	public static final int MSG_TITLEBAR_PROGRESS_DISMISS = 6;
+	// public static final int MSG_VDR_ERROR = 7;
+	public static final int MSG_DATA_UPDATE_DONE = 8;
+	public static final int MSG_CONTROLLER_READY = 9;
+	public static final int MSG_EPGSEARCH_NOT_FOUND = 10;
+	public static final int MSG_ERROR = 11;
+	public static final int MSG_INFO = 12;
+	
+	public static final String MSG_MESSAGE = "message";
 	
 	public static Message obtain(int arg1) {
 		Message msg = Message.obtain();

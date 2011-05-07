@@ -32,6 +32,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
 import android.view.Window;
+import android.widget.Toast;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
 import de.androvdr.Preferences;
@@ -61,6 +62,7 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 		public void handleMessage(Message msg) {
 			logger.trace("handleMessage: arg1 = {}", msg.arg1);
 			
+			Bundle bundle;
 			switch (msg.arg1) {
 			case Messages.MSG_PROGRESS_SHOW:
 				dismiss();
@@ -85,13 +87,29 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 			case Messages.MSG_PROGRESS_DISMISS:
 				dismiss();
 				break;
-			case Messages.MSG_VDR_ERROR:
-				dismiss();
-				showError(AbstractListActivity.this.getString(R.string.connect_err_vdr));
-				break;
 			case Messages.MSG_EPGSEARCH_NOT_FOUND:
 				dismiss();
 				showError(AbstractListActivity.this.getString(R.string.epgsearch_not_installed));
+				break;
+			case Messages.MSG_ERROR:
+				bundle = msg.getData();
+				if (bundle != null) {
+					String message = bundle.getString(Messages.MSG_MESSAGE);
+					if (message != null) {
+						dismiss();
+						showError(message);
+					}
+				}
+				break;
+			case Messages.MSG_INFO:
+				bundle = msg.getData();
+				if (bundle != null) {
+					String message = bundle.getString(Messages.MSG_MESSAGE);
+					if (message != null) {
+						dismiss();
+						Toast.makeText(AbstractListActivity.this, message, Toast.LENGTH_LONG).show();
+					}
+				}
 				break;
 			}
 		}

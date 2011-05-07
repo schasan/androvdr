@@ -65,7 +65,7 @@ public class Channels {
 		}
 	    response = VDRConnection.send(new LSTC(kanal));
 		if(response.getCode() != 250) {
-		    throw new IOException("Couldn't retrieve channel details for channel " + kanal + ": " + response.getMessage());
+		    throw new IOException(response.getCode() + " - " + response.getMessage());
 		}
 		try {
 		    List<org.hampelratte.svdrp.responses.highlevel.Channel> channels = ChannelParser.parse(response.getMessage(), true);

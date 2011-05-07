@@ -27,6 +27,7 @@ import java.util.Calendar;
 import java.util.Formatter;
 import java.util.GregorianCalendar;
 
+import org.hampelratte.svdrp.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Epg;
@@ -73,7 +75,7 @@ public class EpgdataController extends AbstractController {
 			showData();
 		} catch (IOException e) {
 			logger.error("Couldn't load channels", e);
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+			sendMsg(mHandler, Messages.MSG_ERROR, e.getMessage());
 		}
 	}
 
@@ -83,13 +85,11 @@ public class EpgdataController extends AbstractController {
 		
 		switch (action) {
 		case EPGDATA_ACTION_RECORD:
-			try {
-				VdrCommands.setTimer(mChannel.viewEpg);
-			} catch (IOException e) {
-				logger.error("Couldn't set timer", e);
-				lastError = e.toString();
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-			}
+			Response response = VdrCommands.setTimer(mChannel.viewEpg);
+			if (response.getCode() != 250)
+				logger.error("Couldn't set timer: {}", response.getMessage());
+			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage(), 
+					Toast.LENGTH_LONG).show();
 			break;
 		}
 	}

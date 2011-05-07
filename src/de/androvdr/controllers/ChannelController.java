@@ -47,6 +47,7 @@ import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
@@ -78,8 +79,6 @@ public class ChannelController extends AbstractController implements Runnable {
 	private final SimpleDateFormat timeformatter;
 	private final GregorianCalendar calendar;
 
-	public String lastError = "";
-
 	private Handler mThreadHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -90,26 +89,13 @@ public class ChannelController extends AbstractController implements Runnable {
 					setChannelAdapter(new ChannelAdapter(mActivity,	mChannels.getItems()),	mListView);
 					mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 				} catch (IOException e) {
-					lastError = e.toString();
-					mHandler.sendMessage(Messages
-							.obtain(Messages.MSG_VDR_ERROR));
+					sendMsg(mHandler, Messages.MSG_ERROR, e.getMessage());
 				}
 				break;
-			case Messages.MSG_TITLEBAR_PROGRESS_SHOW:
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_SHOW));
-				break;
-			case Messages.MSG_TITLEBAR_PROGRESS_DISMISS:
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
-				break;
-			case Messages.MSG_VDR_ERROR:
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-				break;
-			case Messages.MSG_DATA_UPDATE_DONE:
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
-				break;
 			default:
-				mHandler.sendMessage(Messages
-						.obtain(Messages.MSG_PROGRESS_DISMISS));
+				Message newMsg = new Message();
+				newMsg.copyFrom(msg);
+				mHandler.sendMessage(newMsg);
 				break;
 			}
 		}
@@ -157,9 +143,8 @@ public class ChannelController extends AbstractController implements Runnable {
 		case CHANNEL_ACTION_SWITCH:
 		    Response resp = VDRConnection.send(new CHAN(Integer.toString(channel.nr)));
 		    if(resp.getCode() != 250) {
-		        logger.error("Couldn't switch channel: {}", resp.getMessage());
-		        lastError = resp.getMessage();
-		        mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+		        logger.error("Couldn't switch channel: {}", resp.getCode() + " - " + resp.getMessage());
+		        Toast.makeText(mActivity, resp.getCode() + " - " + resp.getMessage(), Toast.LENGTH_LONG).show();
 		    }
 			mActivity.finish();
 			break;
@@ -167,13 +152,11 @@ public class ChannelController extends AbstractController implements Runnable {
 			mActivity.finish();
 			break;
 		case CHANNEL_ACTION_RECORD:
-			try {
-				VdrCommands.setTimer(channel.getNow());
-			} catch (IOException e) {
-				logger.error("Couldn't set timer", e);
-				lastError = e.toString();
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-			}
+			Response response = VdrCommands.setTimer(channel.getNow());
+			if (response.getCode() != 250)
+				logger.error("Couldn't set timer: {}", response.getCode());
+			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage(), 
+					Toast.LENGTH_LONG).show();
 			break;
 		}
 	}
@@ -219,8 +202,7 @@ public class ChannelController extends AbstractController implements Runnable {
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
 			logger.error("Couldn't load channels", e);
-			lastError = e.toString();
-			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+			sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
 		}
 	}
 
@@ -388,7 +370,6 @@ public class ChannelController extends AbstractController implements Runnable {
 						break;
 					} catch (Exception e) {
 						logger.error("Couldn't update epg data", e);
-						lastError = e.toString();
 					} finally {
 						mHandler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
 						mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));

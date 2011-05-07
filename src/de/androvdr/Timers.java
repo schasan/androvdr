@@ -75,7 +75,7 @@ public class Timers {
 		        throw new IOException("Couldn't retrieve timers: " + response.getCode() + " " + response.getMessage());
 		    }
 		} else {
-		    throw new IOException("Couldn't retrieve timers: " + response.getCode() + " " + response.getMessage());
+		    throw new IOException(response.getCode() + " - " + response.getMessage());
 		}
 	}
 

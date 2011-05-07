@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.hampelratte.svdrp.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
@@ -78,8 +80,6 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	private final String[] weekdays;
 	private final GregorianCalendar calendar;
 	
-	public String lastError = "";
-	
 	private Handler mThreadHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -88,9 +88,10 @@ public class EpgsdataController extends AbstractController implements Runnable {
 				setEpgAdapter(new EpgdataAdapter(mActivity, mEpgdata), mListView);
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 				break;
-			case Messages.MSG_VDR_ERROR:
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-				break;
+			default:
+				Message newMsg = new Message();
+				newMsg.copyFrom(msg);
+				mHandler.sendMessage(newMsg);
 			}
 		}
 	};
@@ -127,13 +128,11 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		
 		switch (action) {
 		case EPGSDATA_ACTION_RECORD:
-			try {
-				VdrCommands.setTimer(epg);
-			} catch (IOException e) {
-				logger.error("Couldn't set timer", e);
-				lastError = e.toString();
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
-			}
+			Response response = VdrCommands.setTimer(epg);
+			if (response.getCode() != 250)
+				logger.error("Couldn't set timer: {}", response.getCode() + " - " + response.getMessage());
+			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage(), 
+					Toast.LENGTH_LONG).show();
 			break;
 		}
 	}
@@ -152,8 +151,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 					
 				} catch (IOException e) {
 					logger.error("Couldn't load channels", e);
-					lastError = e.toString();
-					mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+					sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
 				}
 			}
 		};
@@ -194,8 +192,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
 			logger.error("Couldn't load epg data", e);
-			lastError = e.toString();
-			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_VDR_ERROR));
+			sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
 		}
 	}
 

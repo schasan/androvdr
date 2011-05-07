@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
+import android.widget.Toast;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
 import de.androvdr.Preferences;
@@ -57,6 +58,7 @@ public class AbstractActivity extends Activity {
 		public void handleMessage(Message msg) {
 			logger.trace("handleMessage: arg1 = {}", msg.arg1);
 			
+			Bundle bundle;
 			switch (msg.arg1) {
 			case Messages.MSG_PROGRESS_SHOW:
 				dismiss();
@@ -70,9 +72,25 @@ public class AbstractActivity extends Activity {
 			case Messages.MSG_PROGRESS_DISMISS:
 				dismiss();
 				break;
-			case Messages.MSG_VDR_ERROR:
-				dismiss();
-				showError(AbstractActivity.this.getString(R.string.connect_err_vdr));
+			case Messages.MSG_ERROR:
+				bundle = msg.getData();
+				if (bundle != null) {
+					String message = bundle.getString(Messages.MSG_MESSAGE);
+					if (message != null) {
+						dismiss();
+						showError(message);
+					}
+				}
+				break;
+			case Messages.MSG_INFO:
+				bundle = msg.getData();
+				if (bundle != null) {
+					String message = bundle.getString(Messages.MSG_MESSAGE);
+					if (message != null) {
+						dismiss();
+						Toast.makeText(AbstractActivity.this, message, Toast.LENGTH_LONG).show();
+					}
+				}
 				break;
 			}
 		}
