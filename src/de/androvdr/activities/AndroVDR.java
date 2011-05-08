@@ -632,7 +632,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 							
 							notificationManager.notify(1, notification);
 						} else {
-							notificationManager.cancelAll();
+							notificationManager.cancel(1);
 						}
 						Preferences.useInternetSync.wait();
 					} catch (InterruptedException e) {
