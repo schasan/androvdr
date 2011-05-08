@@ -24,7 +24,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.Stack;
 
 import org.hampelratte.svdrp.Response;
@@ -49,6 +53,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -98,7 +103,7 @@ public class RecordingController extends AbstractController implements Runnable 
 			switch (msg.arg1) {
 			case Messages.MSG_DONE:
 				// --- set adapter ---
-				mRecordingAdapter = new RecordingAdapter(mActivity,	mRecordingViewItems);
+				mRecordingAdapter = new RecordingAdapter(mActivity,	mRecordingViewItems, mListView);
 				setRecordingAdapter(mRecordingAdapter, mListView);
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 				break;
@@ -123,7 +128,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				mRecordingViewItems.add((RecordingViewItem) recordings[i]);
 				mRecordingViewItems.get(i).recording.db = db;
 			}
-			mRecordingAdapter = new RecordingAdapter(mActivity, mRecordingViewItems);
+			mRecordingAdapter = new RecordingAdapter(mActivity, mRecordingViewItems, mListView);
 			setRecordingAdapter(mRecordingAdapter, mListView);
 		}
 		else {
@@ -278,11 +283,15 @@ public class RecordingController extends AbstractController implements Runnable 
 		mUpdateThread = new RecordingIdUpdateThread(mThreadHandler);
 	}
 
-	private class RecordingAdapter extends ArrayAdapter<RecordingViewItem> {
+	private class RecordingAdapter extends ArrayAdapter<RecordingViewItem> implements SectionIndexer {
 		private final Activity mActivity;
+		private final ListView mListView;
 		
 		private final static int recordingtitelSize = 20,
 								 recordingdefaultSize = 15;
+		
+		HashMap<String, Integer> mIndexer;
+		String[] mSections;
 		
 		private class ViewHolder {
 			private LinearLayout folder;
@@ -293,11 +302,30 @@ public class RecordingController extends AbstractController implements Runnable 
 			private TextView title;
 		}
 		
-		public RecordingAdapter(Activity activity, ArrayList<RecordingViewItem> recording) {
+		public RecordingAdapter(Activity activity, ArrayList<RecordingViewItem> recording, ListView listView) {
 			super(activity, R.layout.recordings_item, recording);
 			mActivity = activity;
+			mListView = listView;
 		}
 		
+		@Override
+		public int getPositionForSection(int section) {
+			logger.trace("getPositionForSection {} = {}", section, mIndexer.get(mSections[section]));
+			return mIndexer.get(mSections[section]);
+		}
+
+		@Override
+		public int getSectionForPosition(int position) {
+			logger.trace("getSectionForPosition {}", position);
+			return 0;
+		}
+
+		@Override
+		public Object[] getSections() {
+			logger.trace("sections = {}", mSections.length);
+			return mSections;
+		}
+
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View row;
 			if (convertView == null) {
@@ -345,6 +373,66 @@ public class RecordingController extends AbstractController implements Runnable 
 				vh.title.setText(item.recording.title);
 			}
 			return row;
+		}
+
+		private boolean FLAG_THUMB_PLUS = false;
+		private void jiggleWidth() {
+		    ListView view = mListView;
+		    if (view.getWidth() <= 0)
+		        return;
+
+		    int newWidth = FLAG_THUMB_PLUS ? view.getWidth() - 1 : view.getWidth() + 1;
+		    ViewGroup.LayoutParams params = view.getLayoutParams();
+		    params.width = newWidth;
+		    view.setLayoutParams( params );
+
+		    FLAG_THUMB_PLUS = !FLAG_THUMB_PLUS;
+		}
+		
+		@Override
+		public void sort(Comparator<? super RecordingViewItem> comparator) {
+			mListView.setFastScrollEnabled(false);
+			super.sort(comparator);
+			
+			RecordingViewItemComparer comparer = (RecordingViewItemComparer) comparator;
+			if (comparer.compareBy == RECORDING_ACTION_SORT_NAME) {
+				logger.trace("initialize indexer");
+				
+				mIndexer = new HashMap<String, Integer>();
+				int size = getCount();
+				for (int i = size - 1; i >= 0; i--) {
+					RecordingViewItem item = getItem(i);
+					if (! item.isFolder)
+						mIndexer.put(item.recording.title.substring(0, 1), i);
+					else {
+						if (comparer.ascending)
+							mIndexer.put("A", i);
+						else
+							mIndexer.put("Z", i);
+					}
+				}
+				
+				Set<String> keys = mIndexer.keySet();
+				Iterator<String> it = keys.iterator();
+				ArrayList<String> keyList = new ArrayList<String>();
+				while (it.hasNext()) {
+					keyList.add(it.next());
+				}
+				Collections.sort(keyList);
+				if (! comparer.ascending)
+					Collections.reverse(keyList);
+				
+				mSections = new String[keyList.size()];
+				keyList.toArray(mSections);
+				
+				mListView.setFastScrollEnabled(true);
+				jiggleWidth();
+				logger.trace("fastscroll with indexer enabled");
+			} else {
+				mSections = new String[0];
+				mListView.setFastScrollEnabled(true);
+				logger.trace("fastscroll enabled");
+			}
 		}
 	}
 	
