@@ -120,6 +120,9 @@
     <string name="settings_sshkey">SSH-Key</string>
     <string name="settings_sshkey_summary">Import SSH-Key from SD-Card.</string>
     <string name="settings_sshkey_delete">Delete SSH-Key</string>
+    <string name="settings_sshkey_select">Select SSH-Key</string>
+    <string name="settings_sshkey_no_files">No files found on SD-Card</string>
+    <string name="settings_sshkey_imported">%s imported</string>
     <string name="settings_remote_local_port">Local Forwarding Port</string>
     <string name="settings_remote_local_port_summary">Local port used by forwarding.</string>
     <string name="settings_timeout">Timeout (in ms)</string>
