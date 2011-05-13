@@ -296,7 +296,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
         });
 		
 		if (response != null && response.getCode() != 250) {
-			mLastError = response.getCode() + " - " + response.getMessage();
+			mLastError = response.getCode() + " - " + response.getMessage().replaceAll("\n$", "");
 			return false;
 		}
 		

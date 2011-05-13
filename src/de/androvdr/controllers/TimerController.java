@@ -147,7 +147,8 @@ public class TimerController extends AbstractController implements Runnable {
 							    for (int i = 0; i < mTimer.size(); i++)
 							        mTimer.get(i).lastUpdate = 0;
 							}
-						    Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage(), Toast.LENGTH_LONG).show();
+						    Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
+						    		Toast.LENGTH_LONG).show();
 						}
 						else
 							Toast.makeText(mActivity, R.string.timer_not_found, Toast.LENGTH_LONG).show();
@@ -185,7 +186,7 @@ public class TimerController extends AbstractController implements Runnable {
 			Response response = VdrCommands.setTimer(epg);
 			if (response.getCode() != 250)
 				logger.error("Couldn't set timer: {}", response.getCode() + " - " + response.getMessage());
-			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage(), 
+			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
 					Toast.LENGTH_LONG).show();
 			break;
 		case TIMER_ACTION_SHOW_EPG:
@@ -214,7 +215,8 @@ public class TimerController extends AbstractController implements Runnable {
 								update();
 							}
 							else
-								Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage(), Toast.LENGTH_LONG).show();
+								Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
+										Toast.LENGTH_LONG).show();
 						}
 						else
 							Toast.makeText(mActivity, R.string.timer_not_found, Toast.LENGTH_LONG).show();

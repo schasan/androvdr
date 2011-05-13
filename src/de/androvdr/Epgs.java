@@ -133,7 +133,7 @@ public class Epgs {
                 }
             }
 		} else {
-			throw new IOException(response.getCode() + " - " + response.getMessage());
+			throw new IOException(response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""));
 		}
 		
 		for (int i = 0; i < result.size(); i++)

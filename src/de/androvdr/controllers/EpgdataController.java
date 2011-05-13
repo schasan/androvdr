@@ -88,7 +88,7 @@ public class EpgdataController extends AbstractController {
 			Response response = VdrCommands.setTimer(mChannel.viewEpg);
 			if (response.getCode() != 250)
 				logger.error("Couldn't set timer: {}", response.getMessage());
-			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage(), 
+			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
 					Toast.LENGTH_LONG).show();
 			break;
 		}

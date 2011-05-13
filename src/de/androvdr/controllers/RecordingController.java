@@ -441,7 +441,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		@Override
 		protected String doIt() {
 		    Response response = VDRConnection.send(new DELR(mRecording.number));
-	        return response.getCode() + " - " + response.getMessage();
+	        return response.getCode() + " - " + response.getMessage().replaceAll("\n$", "");
 		}
 		
 		@Override
@@ -599,7 +599,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		        mActivity.finish();
 		        return "";
 		    } else {
-		        return response.getCode() + " - " + response.getMessage();
+		        return response.getCode() + " - " + response.getMessage().replaceAll("\n$", "");
 		    }
 		}
 	}

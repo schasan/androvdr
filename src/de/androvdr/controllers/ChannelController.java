@@ -144,7 +144,8 @@ public class ChannelController extends AbstractController implements Runnable {
 		    Response resp = VDRConnection.send(new CHAN(Integer.toString(channel.nr)));
 		    if(resp.getCode() != 250) {
 		        logger.error("Couldn't switch channel: {}", resp.getCode() + " - " + resp.getMessage());
-		        Toast.makeText(mActivity, resp.getCode() + " - " + resp.getMessage(), Toast.LENGTH_LONG).show();
+		        Toast.makeText(mActivity, resp.getCode() + " - " + resp.getMessage().replaceAll("\n$", ""), 
+		        		Toast.LENGTH_LONG).show();
 		    }
 			mActivity.finish();
 			break;
@@ -155,7 +156,7 @@ public class ChannelController extends AbstractController implements Runnable {
 			Response response = VdrCommands.setTimer(channel.getNow());
 			if (response.getCode() != 250)
 				logger.error("Couldn't set timer: {}", response.getCode());
-			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage(), 
+			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
 					Toast.LENGTH_LONG).show();
 			break;
 		}
