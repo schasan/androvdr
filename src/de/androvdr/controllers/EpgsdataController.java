@@ -131,7 +131,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			Response response = VdrCommands.setTimer(epg);
 			if (response.getCode() != 250)
 				logger.error("Couldn't set timer: {}", response.getCode() + " - " + response.getMessage());
-			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage(), 
+			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
 					Toast.LENGTH_LONG).show();
 			break;
 		}

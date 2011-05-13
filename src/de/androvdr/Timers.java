@@ -72,10 +72,11 @@ public class Timers {
 		    Collections.sort(mItems, new TimerComparer());
 		} else if(response.getCode() == 550) {
 		    if(!"No timers defined".equals(response.getMessage().trim())) {
-		        throw new IOException("Couldn't retrieve timers: " + response.getCode() + " " + response.getMessage());
+		        throw new IOException("Couldn't retrieve timers: " 
+		        		+ response.getCode() + " " + response.getMessage().replaceAll("\n$", ""));
 		    }
 		} else {
-		    throw new IOException(response.getCode() + " - " + response.getMessage());
+		    throw new IOException(response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""));
 		}
 	}
 
