@@ -148,7 +148,7 @@ public class TimerController extends AbstractController implements Runnable {
 							        mTimer.get(i).lastUpdate = 0;
 							}
 						    Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
-						    		Toast.LENGTH_LONG).show();
+						    		Toast.LENGTH_SHORT).show();
 						}
 						else
 							Toast.makeText(mActivity, R.string.timer_not_found, Toast.LENGTH_LONG).show();
@@ -187,7 +187,7 @@ public class TimerController extends AbstractController implements Runnable {
 			if (response.getCode() != 250)
 				logger.error("Couldn't set timer: {}", response.getCode() + " - " + response.getMessage());
 			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
-					Toast.LENGTH_LONG).show();
+					Toast.LENGTH_SHORT).show();
 			break;
 		case TIMER_ACTION_SHOW_EPG:
 			new GetEpgTask().execute(item);

@@ -577,7 +577,7 @@ public class RecordingController extends AbstractController implements Runnable 
 			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 			mRecordingAdapter.notifyDataSetChanged();
 			if (result != "")
-				Toast.makeText(mActivity, result, Toast.LENGTH_LONG).show();
+				Toast.makeText(mActivity, result, Toast.LENGTH_SHORT).show();
 		}
 	}
 	
