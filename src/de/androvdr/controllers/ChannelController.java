@@ -55,6 +55,7 @@ import de.androvdr.Messages;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.VdrCommands;
+import de.androvdr.activities.ChannelsActivity;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.activities.EpgsdataActivity;
 import de.androvdr.devices.VdrDevice;
@@ -69,11 +70,13 @@ public class ChannelController extends AbstractController implements Runnable {
 	public static final int CHANNEL_ACTION_SWITCH = 4;
 	public static final int CHANNEL_ACTION_REMOTECONTROL = 5;
 	public static final int CHANNEL_ACTION_RECORD = 6;
+	public static final int CHANNEL_ACTION_WHATS_ON = 7;
 
 	private Channels mChannels = null;
 	private final ListView mListView;
 	private ChannelAdapter mChannelAdapter;
 	private UpdateThread mUpdateThread;
+	private long mSearchTime;
 	
 	// --- needed by each row ---
 	private final SimpleDateFormat timeformatter;
@@ -102,17 +105,24 @@ public class ChannelController extends AbstractController implements Runnable {
 	};
 
 	public ChannelController(Activity activity, Handler handler,
-			ListView listView) {
+			ListView listView, long time) {
 		super.onCreate(activity, handler);
 		
 		calendar = new GregorianCalendar();
 		timeformatter = new SimpleDateFormat(Preferences.timeformat);
 		
 		mListView = listView;
+		mSearchTime = time;
 
 		if (!Channels.isInitialized()) {
 			Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
 			msg.arg2 = R.string.loading_channels;
+			mHandler.sendMessage(msg);
+		}
+		
+		if (mSearchTime > 0) {
+			Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
+			msg.arg2 = R.string.loading;
 			mHandler.sendMessage(msg);
 		}
 
@@ -127,7 +137,10 @@ public class ChannelController extends AbstractController implements Runnable {
 		case CHANNEL_ACTION_PROGRAMINFO:
 			intent = new Intent(mActivity, EpgdataActivity.class);
 			intent.putExtra("channelnumber", channel.nr);
-			channel.viewEpg = channel.getNow();
+			if (mSearchTime == 0)
+				channel.viewEpg = channel.getNow();
+			else
+				channel.viewEpg = channel.getSearchResult();
 			mActivity.startActivityForResult(intent, 1);
 			break;
 		case CHANNEL_ACTION_PROGRAMINFOS:
@@ -153,7 +166,12 @@ public class ChannelController extends AbstractController implements Runnable {
 			mActivity.finish();
 			break;
 		case CHANNEL_ACTION_RECORD:
-			Response response = VdrCommands.setTimer(channel.getNow());
+			Response response;
+			if (mSearchTime == 0)
+				response = VdrCommands.setTimer(channel.getNow());
+			else
+				response = VdrCommands.setTimer(channel.getSearchResult());
+				
 			if (response.getCode() != 250)
 				logger.error("Couldn't set timer: {}", response.getCode());
 			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
@@ -199,7 +217,11 @@ public class ChannelController extends AbstractController implements Runnable {
 			VdrDevice vdr = Preferences.getVdr();
 			if (vdr == null)
 				throw new IOException("No VDR defined");
-			new Channels(Preferences.getVdr().channellist).getItems();
+			ArrayList<Channel> channels = new Channels(Preferences.getVdr().channellist).getItems();
+			if (mSearchTime > 0) {
+				for (Channel channel : channels)
+					channel.searchEpgAt(mSearchTime);
+			}
 			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
 		} catch (IOException e) {
 			logger.error("Couldn't load channels", e);
@@ -214,10 +236,16 @@ public class ChannelController extends AbstractController implements Runnable {
 		listView.setSelected(true);
 		listView.setSelection(0);
 		mActivity.registerForContextMenu(mListView);
-		if (! Preferences.useInternet && (mChannelAdapter.getCount() > 0))
+		if (! Preferences.useInternet && (mChannelAdapter.getCount() > 0) && (mSearchTime == 0))
 			mUpdateThread = new UpdateThread(mThreadHandler);
 	}
 
+	public void whatsOn(long time) {
+		Intent intent = new Intent(mActivity, ChannelsActivity.class);
+		intent.putExtra(ChannelsActivity.SEARCHTIME, time);
+		mActivity.startActivityForResult(intent, 1);
+	}
+	
 	private class ChannelAdapter extends ArrayAdapter<Channel> {
 		private final Activity mActivity;
 		
@@ -244,7 +272,7 @@ public class ChannelController extends AbstractController implements Runnable {
 			mActivity = activity;
 		}
 
-		public View getView(int position, View convertView, ViewGroup parent) {
+		private View getNormalView(int position, View convertView, ViewGroup parent) {
 			View row;
 			if (convertView == null) {
 				LayoutInflater inflater = mActivity.getLayoutInflater();
@@ -330,6 +358,73 @@ public class ChannelController extends AbstractController implements Runnable {
 			}
 
 			return row;
+		}
+
+		private View getSearchResultView(int position, View convertView, ViewGroup parent) {
+			View row;
+			if (convertView == null) {
+				LayoutInflater inflater = mActivity.getLayoutInflater();
+				row = inflater.inflate(R.layout.extendedchannels_searchresult_item, null);
+
+				ViewHolder vh = new ViewHolder();
+				vh.logoHolder = (LinearLayout) row.findViewById(R.id.csr_channellogoholder);
+				vh.logo = (ImageView) row.findViewById(R.id.csr_channellogo);
+				vh.number = (TextView) row.findViewById(R.id.csr_channelnumber);
+				vh.text = (TextView) row.findViewById(R.id.csr_channeltext);
+				vh.nowPlaying = (TextView) row.findViewById(R.id.csr_title);
+				vh.nowPlayingTime = (TextView) row.findViewById(R.id.csr_time);
+
+				vh.number.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
+						channelnumberSize + Preferences.textSizeOffset);
+				vh.text.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
+						channelnowplayingSize + Preferences.textSizeOffset);
+				vh.nowPlayingTime.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
+						channelnowplayingSize + Preferences.textSizeOffset);
+				vh.nowPlaying.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
+						channelnumberSize + Preferences.textSizeOffset);
+			
+				row.setTag(vh);				
+			} else {
+				row = convertView;
+			}
+
+			Channel item = this.getItem(position);
+			ViewHolder vh = (ViewHolder) row.getTag();
+			
+			if (Preferences.logoBackgroundColor != 0)
+				vh.logoHolder.setBackgroundColor(Preferences.logoBackgroundColor);
+			
+			if (Preferences.useLogos) {
+					vh.logo.setVisibility(View.VISIBLE);
+					vh.number.setVisibility(View.GONE);
+
+				if (item.hasLogo())
+					vh.logo.setImageBitmap(item.logo);
+				else
+					vh.logo.setImageBitmap(null);
+			} else {
+				vh.logoHolder.setVisibility(View.GONE);
+				vh.number.setVisibility(View.VISIBLE);
+				
+				vh.number.setText(String.valueOf(item.nr));
+			}
+			
+			vh.text.setText(item.name);
+
+			if (! item.getSearchResult().isEmpty) {
+				calendar.setTimeInMillis(item.getSearchResult().startzeit * 1000);
+				vh.nowPlayingTime.setText(timeformatter.format(calendar.getTime()));
+				vh.nowPlaying.setText(item.getSearchResult().titel);
+			}
+				
+			return row;
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if (mSearchTime == 0)
+				return getNormalView(position, convertView, parent);
+			else
+				return getSearchResultView(position, convertView, parent);
 		}
 	}
 	

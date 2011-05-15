@@ -38,7 +38,8 @@ public class Channel implements Comparable<Channel> {
 	private long mLastEpgUpdate = 0;
 	private Epg mNext = null;
 	private Epg mNow = null;
-
+	private Epg mSearchResult = null;
+	
 	public String name;
 	public String zusatz;
 	public int nr;
@@ -96,6 +97,10 @@ public class Channel implements Comparable<Channel> {
 		return mNow;
 	}
 
+	public Epg getSearchResult() {
+		return mSearchResult;
+	}
+	
 	public boolean hasLogo() {
 		return (logo != null);
 	}
@@ -111,6 +116,10 @@ public class Channel implements Comparable<Channel> {
 			image = BitmapFactory.decodeFile(filename);
 		}
 		return image;
+	}
+	
+	public void searchEpgAt(long time) throws IOException {
+		mSearchResult = new Epgs(nr).getAt(time);
 	}
 	
 	public void updateEpg(boolean next) throws IOException {
