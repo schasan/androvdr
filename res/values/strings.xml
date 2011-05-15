@@ -43,6 +43,7 @@
     <string name="notification_connected">Connected with</string>
     <!-- ChannelsActivity -->
     <string name="channels">Channels</string>
+    <string name="channels_whats_on">What\'s on ...</string>
 	<!-- RecordingsActivity -->
     <string name="rec_recordings">Recordings</string>
 	<string name="rec_sortbyname">Name</string>

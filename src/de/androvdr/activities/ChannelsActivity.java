@@ -20,13 +20,21 @@
 
 package de.androvdr.activities;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.app.Dialog;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -34,8 +42,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import de.androvdr.Messages;
 import de.androvdr.Preferences;
@@ -45,10 +57,14 @@ import de.androvdr.controllers.ChannelController;
 public class ChannelsActivity extends AbstractListActivity {
 	private static transient Logger logger = LoggerFactory.getLogger(ChannelsActivity.class);
 	private static final int HEADER_TEXT_SIZE = 15;
+	private static final int DIALOG_WHATS_ON = 1;
+	
+	public static final String SEARCHTIME = "searchtime";
 	
 	private ChannelController mController;
 	private ListView mListView;
-
+	private long mSearchTime;
+	
 	private Handler mHandler = new Handler () {
 
 		@Override
@@ -85,7 +101,8 @@ public class ChannelsActivity extends AbstractListActivity {
 		if (Preferences.blackOnWhite)
 			mListView.setBackgroundColor(Color.WHITE);
 		
-	    mController = new ChannelController(this, mHandler, mListView);
+		mSearchTime = getIntent().getLongExtra(SEARCHTIME, 0);
+	    mController = new ChannelController(this, mHandler, mListView, mSearchTime);
 	}
 	
 	@Override
@@ -98,11 +115,63 @@ public class ChannelsActivity extends AbstractListActivity {
 	}
 
 	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case DIALOG_WHATS_ON:
+			final Dialog dialog = new Dialog(this);
+			dialog.setContentView(R.layout.extendedchannels_whats_on);
+			dialog.setTitle(R.string.channels_whats_on);
+			
+			final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+			final DatePicker dp = (DatePicker) dialog.findViewById(R.id.channels_datePicker);
+			final TimePicker tp = (TimePicker) dialog.findViewById(R.id.channels_timePicker);
+			tp.setIs24HourView(DateFormat.is24HourFormat(getApplicationContext()));
+			if (sp.contains("whats_on_hour")) {
+				tp.setCurrentHour(sp.getInt("whats_on_hour", 0));
+				tp.setCurrentMinute(sp.getInt("whats_on_minute", 0));
+			}
+			
+			Button button = (Button) dialog.findViewById(R.id.channels_cancel);
+			button.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					dialog.dismiss();
+				}
+			});
+
+			button = (Button) dialog.findViewById(R.id.channels_search);
+			button.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Editor editor = sp.edit();
+					editor.putInt("whats_on_hour", tp.getCurrentHour());
+					editor.putInt("whats_on_minute", tp.getCurrentMinute());
+					editor.commit();
+					
+					SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+					try {
+						long time = df.parse(
+								dp.getDayOfMonth() + "." + (dp.getMonth() + 1) + "." + dp.getYear() + " " +
+								tp.getCurrentHour() + ":" + tp.getCurrentMinute()).getTime() / 1000;
+						mController.whatsOn(time);
+					} catch (ParseException e) {
+						logger.error("Couldn't get date from pickers", e);
+					}
+					dialog.dismiss();
+				}
+			});
+			return dialog;
+		default:
+			return super.onCreateDialog(id);
+		}
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.channels_option_menu, menu);
-		return true;
+		return (mSearchTime == 0);
 	}
 	
 	@Override
@@ -135,6 +204,9 @@ public class ChannelsActivity extends AbstractListActivity {
 		switch (item.getItemId()) {
 		case R.id.cm_search:
 			onSearchRequested();
+			break;
+		case R.id.cm_whats_on:
+			showDialog(DIALOG_WHATS_ON);
 			break;
 		default:
 			super.onContextItemSelected(item);
