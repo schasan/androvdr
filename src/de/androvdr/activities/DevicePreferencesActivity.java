@@ -284,9 +284,6 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 
 		protected Map<String, String> values = new HashMap<String, String>();
 
-		// protected Map<String, String> pubkeys = new HashMap<String,
-		// String>();
-
 		public CursorPreferenceHack(long id) {
 			this.id = id;
 
@@ -326,9 +323,6 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 			}
 
 			public boolean commit() {
-				// Log.d(this.getClass().toString(),
-				// "commit() changes back to database");
-				// Devices.getInstance().storeConfig(update);
 				if (id < 0) {
 					id = mDevices.dbStore(update);
 					setResult((int) id);
@@ -370,16 +364,11 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 
 			public android.content.SharedPreferences.Editor putString(
 					String key, String value) {
-				// Log.d(this.getClass().toString(),
-				// String.format("Editor.putString(key=%s, value=%s)", key,
-				// value));
 				update.put(key, value);
 				return this;
 			}
 
 			public android.content.SharedPreferences.Editor remove(String key) {
-				// Log.d(this.getClass().toString(),
-				// String.format("Editor.remove(key=%s)", key));
 				update.remove(key);
 				return this;
 			}
@@ -399,7 +388,6 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		}
 
 		public Editor edit() {
-			// Log.d(this.getClass().toString(), "edit()");
 			return new Editor();
 		}
 
@@ -413,22 +401,34 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		}
 
 		public float getFloat(String key, float defValue) {
-			return Float.valueOf(this.getString(key, Float.toString(defValue)));
+			try {
+				return Float.valueOf(this.getString(key, Float.toString(defValue)));
+			} catch (NumberFormatException e) {
+				logger.error("key: " + key , e);
+				return defValue;
+			}
 		}
 
 		public int getInt(String key, int defValue) {
-			return Integer.valueOf(this.getString(key, Integer
-					.toString(defValue)));
+			try {
+				return Integer.valueOf(this.getString(key, Integer
+						.toString(defValue)));
+			} catch (NumberFormatException e) {
+				logger.error("key: " + key, e);
+				return defValue;
+			}
 		}
 
 		public long getLong(String key, long defValue) {
-			return Long.valueOf(this.getString(key, Long.toString(defValue)));
+			try {
+				return Long.valueOf(this.getString(key, Long.toString(defValue)));
+			} catch (NumberFormatException e) {
+				logger.error("key: " + key, e);
+				return defValue;
+			}
 		}
 
 		public String getString(String key, String defValue) {
-			// Log.d(this.getClass().toString(),
-			// String.format("getString(key=%s, defValue=%s)", key, defValue));
-
 			if (!values.containsKey(key))
 				return defValue;
 			return values.get(key);
