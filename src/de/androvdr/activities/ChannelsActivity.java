@@ -114,9 +114,15 @@ public class ChannelsActivity extends AbstractListActivity {
 		menu.setHeaderTitle(mController.getChannelName(mi.position));
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-		if (!sp.getBoolean("livetv_enabled", false)) {
+		if (mSearchTime != 0) {
+			menu.removeItem(R.id.cm_remote);
 			menu.removeItem(R.id.cm_livetv);
-		} else if (Preferences.useInternet) {
+		}
+		else if (!sp.getBoolean("livetv_enabled", false)) {
+			menu.removeItem(R.id.cm_livetv);
+		}
+		
+		if (Preferences.useInternet) {
 			MenuItem menuitem = menu.findItem(R.id.cm_livetv);
 			if (menuitem != null)
 				menuitem.setEnabled(false);

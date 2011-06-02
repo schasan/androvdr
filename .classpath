@@ -5,6 +5,7 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar" sourcepath="lib/jsch-0.1.44-sources.jar"/>
 	<classpathentry kind="lib" path="lib/acra-3.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-androvdr-1.5.8.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/svdrp4j"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
