@@ -61,6 +61,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 	public int margin_start;
 	public int margin_stop;
 	public String sshkey;
+	public int streamingport;
 	
 	public VdrDevice() {
 		initCommands();
@@ -215,6 +216,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 		margin_start = sp.getInt("margin_start", 5);
 		margin_stop	= sp.getInt("margin_stop", 10);
 		sshkey = sp.getString("sshkey", null);
+		streamingport = sp.getInt("streamingport", 3000);
 		
 		VdrDevice currentVdr = Preferences.getVdr();
 		if ((currentVdr != null) && (currentVdr.getId() == mId)) {

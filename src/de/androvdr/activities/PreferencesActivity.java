@@ -80,11 +80,11 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 					Long.parseLong(volumeDeviceListPref.getValue()));
 			initVolumeUpDownPref((ListPreference) findPreference("volumeDown"),
 					Long.parseLong(volumeDeviceListPref.getValue()));
-			SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-			pref.registerOnSharedPreferenceChangeListener(this);
-			updateSummaries();
 			updateVolumePreferences(!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("volumeVDR", false));
 		}
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+		pref.registerOnSharedPreferenceChangeListener(this);
+		updateSummaries();
 	}
 
 	@Override
@@ -113,14 +113,19 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 	}
 
 	public void updateSummaries() {
-		for (CharSequence prefName : Devices.volumePrefNames) {
-			ListPreference pref = (ListPreference) findPreference(prefName);
-			pref.setSummary(pref.getEntry());
+		if (mDevices.hasPlugins()) {
+			for (CharSequence prefName : Devices.volumePrefNames) {
+				ListPreference pref = (ListPreference) findPreference(prefName);
+				pref.setSummary(pref.getEntry());
+			}
 		}
 		ListPreference pref = (ListPreference) findPreference("tabIndicatorColor");
 		pref.setSummary(pref.getEntry());
 		
 		pref = (ListPreference) findPreference("logoBackgroundColor");
+		pref.setSummary(pref.getEntry());
+		
+		pref = (ListPreference) findPreference("livetv_streamformat");
 		pref.setSummary(pref.getEntry());
 	}
 	

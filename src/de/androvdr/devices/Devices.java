@@ -112,6 +112,7 @@ public class Devices implements OnSharedPreferenceChangeListener {
 			vdr.vps = cursor.getString(18).equals("true");
 			vdr.timeout = cursor.getInt(19);
 			vdr.sshkey = cursor.getString(20);
+			vdr.streamingport = cursor.getInt(21);
 			mDevices.put(vdr.getName(), vdr);
 		} else {
 			try {

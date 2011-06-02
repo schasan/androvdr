@@ -29,6 +29,9 @@ public class RecordingIdsTable {
 	public static final String UPDATED = "updated";
 	public static final String[] ALL_COLUMNS = new String[] { ID, VDR_ID, INFO_ID, UPDATED };
 	
+	public static final String SQL_CLEAR =
+		"DELETE FROM " + TABLE_NAME;
+	
 	public static final String SQL_CREATE = 
 		"CREATE TABLE recordingids (" +
 		"_id TEXT NOT NULL," +

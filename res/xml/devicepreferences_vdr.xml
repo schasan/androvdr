@@ -28,6 +28,12 @@
       android:title="@string/settings_macaddress"
       android:summary="@string/settings_macaddress_summary"
       android:defaultValue="" />
+    <EditTextPreference
+      android:key="streamingport"
+      android:inputType="number"
+      android:title="@string/settings_livetv_port"
+      android:summary="@string/settings_livetv_port_summary"
+      android:defaultValue="3000" />
   </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/settings_miscellaneous">

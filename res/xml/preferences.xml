@@ -115,6 +115,21 @@
       android:defaultValue="30" />
   </PreferenceCategory>
   <PreferenceCategory
+    android:title="@string/livetv">
+    <CheckBoxPreference
+      android:key="livetv_enabled"
+      android:title="@string/settings_livetv"
+      android:summary="@string/settings_livetv_summary"
+      android:defaultValue="false" />
+    <ListPreference
+      android:key="livetv_streamformat"
+      android:title="@string/settings_livetv_streamformat"
+      android:defaultValue="PES"
+      android:dependency="livetv_enabled"
+      android:entries="@array/livetv_streamformat"
+      android:entryValues="@array/livetv_streamformat_values" />
+  </PreferenceCategory>
+  <PreferenceCategory
     android:title="@string/settings_miscellaneous">
     <ListPreference
       android:key="logLevel"

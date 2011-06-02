@@ -44,6 +44,7 @@
     <!-- ChannelsActivity -->
     <string name="channels">Sender</string>
     <string name="channels_whats_on">Was läuft ...</string>
+    <string name="livetv">Live TV</string>
 	<!-- RecordingsActivity -->
     <string name="rec_recordings">Aufnahmen</string>
 	<string name="rec_sortbyname">Name</string>
@@ -92,6 +93,9 @@
     <string name="settings_textsizeoffset">Schriftgröße</string>
     <string name="settings_textsizeoffset_summary">Änderung der Schriftgröße, relativ zur Vorgabe.</string>
     <string name="settings_tabindicatorcolor">Farbe Tabindikator</string>
+    <string name="settings_livetv">Aktiviere Live-TV</string>
+    <string name="settings_livetv_summary">Benötigt streamdev-server auf dem VDR und einen externe Abspieler wie z.B. VPlayer</string>
+    <string name="settings_livetv_streamformat">Streamformat</string>
     <string name="settings_miscellaneous">Verschiedenes</string>
     <string name="settings_logging">Logging</string>
     <string name="settings_logging_summary">Wo werden Log-Meldungen gespeichert.</string>
@@ -108,6 +112,8 @@
     <string name="settings_port_summary">SVDRP-Port (ab 1.7.15 6419).</string>
     <string name="settings_macaddress">MAC-Adresse</string>
     <string name="settings_macaddress_summary">Erforderlich für WakeOnLan. Format 00:00:00:00:00:00</string>
+    <string name="settings_livetv_port">Streaming Port</string>
+    <string name="settings_livetv_port_summary">Normalerweise 3000. Freigabe in streamdevhosts.conf.</string>
     <string name="settings_channellist">Senderliste</string>
     <string name="settings_channellist_summary">Komma separierte Liste von Bereichen oder Werten ohne Leerzeichen.</string>
     <string name="settings_epgmax">Max. EPG Einträge</string>
