@@ -44,11 +44,12 @@ public class DevicesTable {
 	public static final String MARGIN_STOP = "margin_stop";
 	public static final String VPS = "vps";
 	public static final String SSHKEY = "sshkey";
+	public static final String STREAMINGPORT = "streamingport";
 	
 	public static final String[] ALL_COLUMNS = new String[] { ID, CLASS, NAME, HOST,
 		PORT, USER,	PASSWORD, MACADDRESS, REMOTE_HOST, REMOTE_USER, REMOTE_PORT,
 		REMOTE_LOCAL_PORT, REMOTE_TIMEOUT, CHANNELLIST, EPGMAX, CHARACTERSET,
-		MARGIN_START, MARGIN_STOP, VPS, TIMEOUT, SSHKEY };
+		MARGIN_START, MARGIN_STOP, VPS, TIMEOUT, SSHKEY, STREAMINGPORT };
 	
 	public static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_NAME + " ("
@@ -71,8 +72,9 @@ public class DevicesTable {
 		+ MARGIN_START + " INT,"
 		+ MARGIN_STOP + " INT,"
 		+ VPS + " STRING DEFAULT 'false',"
-		+ TIMEOUT + " INT,"
-		+ SSHKEY + " BLOB DEFAULT NULL"
+		+ TIMEOUT + " INT DEFAULT 7500,"
+		+ SSHKEY + " BLOB DEFAULT NULL,"
+		+ STREAMINGPORT + " INT DEFAULT 3000"
 		+ ")";
 	
 	public static final String SQL_DROP =

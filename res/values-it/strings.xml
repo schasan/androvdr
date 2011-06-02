@@ -44,6 +44,7 @@
     <!-- ChannelsActivity -->
     <string name="channels">Canali</string>
     <string name="channels_whats_on">What\'s on ...</string>
+    <string name="livetv">Live TV</string>
     <!-- RecordingsActivity -->
     <string name="rec_recordings">Registrazioni</string>
     <string name="rec_sortbyname">Nome</string>
@@ -92,6 +93,9 @@
     <string name="settings_textsizeoffset">Dimensione testo</string>
     <string name="settings_textsizeoffset_summary">Cambia la dimensione del testo relativa al predefinito.</string>
     <string name="settings_tabindicatorcolor">Colore indicatore scheda</string>
+    <string name="settings_livetv">Enable Live-TV</string>
+    <string name="settings_livetv_summary">Needs streamdev-server on VDR and an external player such as VPlayer</string>
+    <string name="settings_livetv_streamformat">Streamformat</string>
     <string name="settings_miscellaneous">Altro</string>
     <string name="settings_logging">Registro</string>
     <string name="settings_logging_summary">Salvataggio messaggi di registro.</string>
@@ -104,6 +108,8 @@
     <string name="settings_host_summary">Nome sistema o indirizzo IP (raccomandato). Deve essere abilitato in "svdrphosts.conf".</string>
     <string name="settings_port">Porta</string>
     <string name="settings_port_summary">Porta SVDRP (da 1.7.15 la 6419).</string>
+    <string name="settings_livetv_port">Streaming Port</string>
+    <string name="settings_livetv_port_summary">Default 3000. Must be enabled in streamdevhosts.conf.</string>
     <string name="settings_macaddress">Indirizzo MAC</string>
     <string name="settings_macaddress_summary">Richiesto per WakeOnLan. Formato 00:00:00:00:00:00</string>
     <string name="settings_channellist">Lista canali</string>

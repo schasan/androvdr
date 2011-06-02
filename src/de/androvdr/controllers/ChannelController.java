@@ -32,8 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,6 +74,7 @@ public class ChannelController extends AbstractController implements Runnable {
 	public static final int CHANNEL_ACTION_REMOTECONTROL = 5;
 	public static final int CHANNEL_ACTION_RECORD = 6;
 	public static final int CHANNEL_ACTION_WHATS_ON = 7;
+	public static final int CHANNEL_ACTION_LIVETV = 8;
 
 	private Channels mChannels = null;
 	private final ListView mListView;
@@ -176,6 +180,17 @@ public class ChannelController extends AbstractController implements Runnable {
 				logger.error("Couldn't set timer: {}", response.getCode());
 			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
 					Toast.LENGTH_LONG).show();
+			break;
+		case CHANNEL_ACTION_LIVETV:
+			VdrDevice vdr = Preferences.getVdr();
+			SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mActivity);
+			String url = "http://" + vdr.getIP() + ":" + vdr.streamingport 
+				+ "/" + sp.getString("livetv_streamformat", "PES") 
+				+ "/" + channel.nr;
+			logger.debug("Streaming URL: {}", url);
+			intent = new Intent(Intent.ACTION_VIEW);
+			intent.setDataAndType(Uri.parse(url),"video/*");
+			mActivity.startActivityForResult(intent, 1);
 			break;
 		}
 	}

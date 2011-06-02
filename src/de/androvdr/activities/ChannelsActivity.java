@@ -112,6 +112,15 @@ public class ChannelsActivity extends AbstractListActivity {
 		inflater.inflate(R.menu.channels_menu, menu);
 		AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfo;
 		menu.setHeaderTitle(mController.getChannelName(mi.position));
+		
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		if (!sp.getBoolean("livetv_enabled", false)) {
+			menu.removeItem(R.id.cm_livetv);
+		} else if (Preferences.useInternet) {
+			MenuItem menuitem = menu.findItem(R.id.cm_livetv);
+			if (menuitem != null)
+				menuitem.setEnabled(false);
+		}
 	}
 
 	@Override
@@ -192,6 +201,9 @@ public class ChannelsActivity extends AbstractListActivity {
 			break;
 		case R.id.cm_record:
 			mController.action(ChannelController.CHANNEL_ACTION_RECORD, info.position);
+			break;
+		case R.id.cm_livetv:
+			mController.action(ChannelController.CHANNEL_ACTION_LIVETV, info.position);
 			break;
 		default:
 			super.onContextItemSelected(item);
