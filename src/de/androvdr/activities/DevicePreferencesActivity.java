@@ -164,7 +164,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 					final CharSequence[] items = filenames.toArray(new CharSequence[filenames.size()]);
 					if (filenames.size() > 0) {
 						AlertDialog.Builder builder = new AlertDialog.Builder(DevicePreferencesActivity.this);
-						builder.setTitle("Select SSH-Key");
+						builder.setTitle(getString(R.string.settings_sshkey_select));
 						builder.setItems(items, new DialogInterface.OnClickListener() {
 						    public void onClick(DialogInterface dialog, int item) {
 						    	File file = new File(Environment.getExternalStorageDirectory() + "/" + items[item]);
@@ -189,13 +189,16 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 						    	editor.putString("sshkey", sb.toString());
 						    	editor.commit();
 						        
-						    	Toast.makeText(getApplicationContext(), items[item] + " imported", Toast.LENGTH_SHORT).show();
+						    	Toast.makeText(getApplicationContext(), 
+						    			String.format(getString(R.string.settings_sshkey_imported), items[item]), 
+						    			Toast.LENGTH_SHORT).show();
 						    }
 						});
 						AlertDialog dialog = builder.create();
 						dialog.show();
 					} else {
-						Toast.makeText(DevicePreferencesActivity.this, "No files available", Toast.LENGTH_LONG).show();
+						Toast.makeText(DevicePreferencesActivity.this, 
+								getString(R.string.settings_sshkey_no_files), Toast.LENGTH_LONG).show();
 					}
 					return true;
 				}
