@@ -34,6 +34,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -158,28 +159,13 @@ public class ChannelController extends AbstractController implements Runnable {
 			mActivity.startActivityForResult(intent, 1);
 			break;
 		case CHANNEL_ACTION_SWITCH:
-		    Response resp = VDRConnection.send(new CHAN(Integer.toString(channel.nr)));
-		    if(resp.getCode() != 250) {
-		        logger.error("Couldn't switch channel: {}", resp.getCode() + " - " + resp.getMessage());
-		        Toast.makeText(mActivity, resp.getCode() + " - " + resp.getMessage().replaceAll("\n$", ""), 
-		        		Toast.LENGTH_LONG).show();
-		    }
-			mActivity.finish();
+			new SwitchChannelTask().execute(channel);
 			break;
 		case CHANNEL_ACTION_REMOTECONTROL:
 			mActivity.finish();
 			break;
 		case CHANNEL_ACTION_RECORD:
-			Response response;
-			if (mSearchTime == 0)
-				response = VdrCommands.setTimer(channel.getNow());
-			else
-				response = VdrCommands.setTimer(channel.getSearchResult());
-				
-			if (response.getCode() != 250)
-				logger.error("Couldn't set timer: {}", response.getCode());
-			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
-					Toast.LENGTH_LONG).show();
+			new SetTimerTask().execute(channel);
 			break;
 		case CHANNEL_ACTION_LIVETV:
 			VdrDevice vdr = Preferences.getVdr();
@@ -440,6 +426,48 @@ public class ChannelController extends AbstractController implements Runnable {
 				return getNormalView(position, convertView, parent);
 			else
 				return getSearchResultView(position, convertView, parent);
+		}
+	}
+	
+	private class SetTimerTask extends AsyncTask<Channel, Void, Response> {
+
+		@Override
+		protected Response doInBackground(Channel... params) {
+			if (mSearchTime == 0)
+				return VdrCommands.setTimer(params[0].getNow());
+			else
+				return VdrCommands.setTimer(params[0].getSearchResult());
+		}
+		
+		@Override
+		protected void onPostExecute(Response result) {
+			if (result.getCode() != 250)
+				logger.error("Couldn't set timer: {}", result.getCode());
+			
+			if (! mActivity.isFinishing())
+				Toast.makeText(mActivity, result.getCode() + " - " + result.getMessage().replaceAll("\n$", ""), 
+						Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	private class SwitchChannelTask extends AsyncTask<Channel, Void, Response> {
+
+		@Override
+		protected Response doInBackground(Channel... params) {
+			return VDRConnection.send(new CHAN(Integer.toString(params[0].nr)));
+		}
+		
+		@Override
+		protected void onPostExecute(Response result) {
+		    if(result.getCode() == 250) {
+		    	mActivity.finish();
+		    } else {
+		        logger.error("Couldn't switch channel: {}", result.getCode() + " - " + result.getMessage());
+		        
+		        if (! mActivity.isFinishing())
+			        Toast.makeText(mActivity, result.getCode() + " - " + result.getMessage().replaceAll("\n$", ""), 
+			        		Toast.LENGTH_LONG).show();
+		    }
 		}
 	}
 	

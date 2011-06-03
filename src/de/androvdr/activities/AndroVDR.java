@@ -44,6 +44,7 @@ import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -84,6 +85,10 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	private static final int PREFERENCEACTIVITY_ID = 1;
 	private static final int ACTIVITY_ID = 2;
 	private static transient Logger logger = LoggerFactory.getLogger(AndroVDR.class);
+	
+	private static final int CLOSE_CONNECTION = 0;
+	private static final int CLOSE_CONNECTION_PORTFORWARDING = 1;
+	private static final int CLOSE_CONNECTION_TERMINATE = 2;
 	
 	private final File usertabFile = new File(Preferences.getExternalRootDirName() + "/mytab");
 
@@ -444,9 +449,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		VDRConnection.close();
-		if (portForwarding != null)
-			portForwarding.disconnect();
+		new CloseConnectionTask().execute(CLOSE_CONNECTION_PORTFORWARDING);
 	}
 	
     @Override
@@ -458,10 +461,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.androvdr_exit:
-			VDRConnection.close();
-			if (portForwarding != null)
-				portForwarding.disconnect();
-			android.os.Process.killProcess(android.os.Process.myPid());
+			new CloseConnectionTask().execute(CLOSE_CONNECTION_TERMINATE);
 			return true;
 		case R.id.androvdr_about:
 			startActivity(new Intent(this, AboutActivity.class));
@@ -502,9 +502,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		if (key.equals("alternateLayout"))
 			mLayoutChanged = true;
 		if (key.equals("currentVdrId")) {
-			VDRConnection.close();
-			if (portForwarding != null)
-				portForwarding.disconnect();
+			new CloseConnectionTask().execute(CLOSE_CONNECTION_PORTFORWARDING);
 		}
 		if (key.equals("logLevel"))
 			initLogging(sharedPreferences);
@@ -518,7 +516,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	};
     
 	private void togglePortforwarding() {
-		VDRConnection.close();
+		new CloseConnectionTask().execute(CLOSE_CONNECTION);
 
 		if (Preferences.useInternet == false) {
 			String connectionState = "";
@@ -552,6 +550,29 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     		setTitle(mTitle);
     }
     
+	private class CloseConnectionTask extends AsyncTask<Integer, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Integer... params) {
+			logger.trace("CloseConnection: {}", params[0]);
+			logger.trace("  --> Closing");
+			VDRConnection.close();
+
+			if (params[0] >= CLOSE_CONNECTION_PORTFORWARDING) {
+				logger.trace("  --> Disconnecting PortForward");
+				if (portForwarding != null)
+					portForwarding.disconnect();
+			}
+			
+			if (params[0] >= CLOSE_CONNECTION_TERMINATE) {
+				logger.trace("  --> Kill Process");
+				android.os.Process.killProcess(android.os.Process.myPid());
+			}
+			return null;
+		}
+		
+	}
+	
     public class MyTabContentFactory implements TabContentFactory {
 
     	Context context;
