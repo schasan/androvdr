@@ -310,6 +310,9 @@ public class RecordingController extends AbstractController implements Runnable 
 		
 		@Override
 		public int getPositionForSection(int section) {
+			if (mSections.length == 0)
+				return 0;
+			
 			logger.trace("getPositionForSection {} = {}", section, mIndexer.get(mSections[section]));
 			return mIndexer.get(mSections[section]);
 		}
