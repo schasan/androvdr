@@ -132,7 +132,8 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 	private void updateVolumePreferences(boolean state) {
 		for (CharSequence prefName : Devices.volumePrefNames) {
 			Preference pref = findPreference(prefName);
-			pref.setEnabled(state);
+			if (pref != null)
+				pref.setEnabled(state);
 		}
 	}
 
