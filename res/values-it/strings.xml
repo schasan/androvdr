@@ -43,14 +43,14 @@
     <string name="notification_connected">Connesso a</string>
     <!-- ChannelsActivity -->
     <string name="channels">Canali</string>
-    <string name="channels_whats_on">What\'s on ...</string>
-    <string name="livetv">Live TV</string>
+    <string name="channels_whats_on">In programmazione adesso</string>
+    <string name="livetv">Trasmissione dal vivo</string>
     <!-- RecordingsActivity -->
     <string name="rec_recordings">Registrazioni</string>
     <string name="rec_sortbyname">Nome</string>
     <string name="rec_sortbydate">Data</string>
     <string name="rec_play">Riproduci</string>
-    <string name="rec_play_start">Riproduci (Avvio)</string>
+    <string name="rec_play_start">Riproduci (Inizio)</string>
     <string name="rec_delete">Elimina</string>
     <string name="rec_delete_recording">Eliminare la registrazione?</string>
     <string name="rec_not_found">Registrazione non trovata</string>
@@ -91,25 +91,27 @@
     <string name="settings_logos_summary">Usa i file PNG nel percorso \'/AndroVDR/logos/\' della scheda SD.</string>
     <string name="settings_logo_backgroundcolor">Colore sfondo</string>
     <string name="settings_textsizeoffset">Dimensione testo</string>
-    <string name="settings_textsizeoffset_summary">Cambia la dimensione del testo relativa al predefinito.</string>
+    <string name="settings_textsizeoffset_summary">Cambia la dimensione del testo relativa al valore predefinito.</string>
     <string name="settings_tabindicatorcolor">Colore indicatore scheda</string>
-    <string name="settings_livetv">Enable Live-TV</string>
-    <string name="settings_livetv_summary">Needs streamdev-server on VDR and an external player such as VPlayer</string>
-    <string name="settings_livetv_streamformat">Streamformat</string>
+    <string name="settings_livetv">Abilita trasmissione dal vivo</string>
+    <string name="settings_livetv_summary">Sono necessari streamdev-server sulla VDR e un lettore esterno come VPlayer</string>
+    <string name="settings_livetv_streamformat">Formato trasmissione</string>
     <string name="settings_miscellaneous">Altro</string>
     <string name="settings_logging">Registro</string>
     <string name="settings_logging_summary">Salvataggio messaggi di registro.</string>
+    <string name="settings_logging_level">Livello registro</string>
+    <string name="settings_logging_level_summary">Cosa dovrebbe essere registrato.</string>
     <string name="settings_recordingindex">Indice registrazione</string>
     <string name="settings_recordingindex_summary">Ricrea indice al prossimo avvio.</string>
-    <string name="settings_acra">Bug Report</string>
-    <string name="settings_acra_summary">Send bug report after crash.</string>
+    <string name="settings_acra">Segnala problemi</string>
+    <string name="settings_acra_summary">Invia una segnalazione di errore dopo un blocco.</string>
     <string name="settings_name">Nome</string>
     <string name="settings_host">Sistema</string>
     <string name="settings_host_summary">Nome sistema o indirizzo IP (raccomandato). Deve essere abilitato in "svdrphosts.conf".</string>
     <string name="settings_port">Porta</string>
     <string name="settings_port_summary">Porta SVDRP (da 1.7.15 la 6419).</string>
-    <string name="settings_livetv_port">Streaming Port</string>
-    <string name="settings_livetv_port_summary">Default 3000. Must be enabled in streamdevhosts.conf.</string>
+    <string name="settings_livetv_port">Porta trasmissione</string>
+    <string name="settings_livetv_port_summary">Predefinita 3000. Deve essere abilitata in "streamdevhosts.conf".</string>
     <string name="settings_macaddress">Indirizzo MAC</string>
     <string name="settings_macaddress_summary">Richiesto per WakeOnLan. Formato 00:00:00:00:00:00</string>
     <string name="settings_channellist">Lista canali</string>
@@ -129,9 +131,9 @@
     <string name="settings_sshkey">Chiave SSH</string>
     <string name="settings_sshkey_summary">Importa chiave SSH dalla scheda SD.</string>
     <string name="settings_sshkey_delete">Elimina chiave SSH</string>
-    <string name="settings_sshkey_select">Select SSH-Key</string>
-    <string name="settings_sshkey_no_files">No files found on SD-Card</string>
-    <string name="settings_sshkey_imported">%s imported</string>
+    <string name="settings_sshkey_select">Seleziona chiave SSH</string>
+    <string name="settings_sshkey_no_files">Nessun file trovato nella scheda SD</string>
+    <string name="settings_sshkey_imported">%s importata</string>
     <string name="settings_remote_local_port">Porta locale inoltro</string>
     <string name="settings_remote_local_port_summary">Porta locale usata per inoltro.</string>
     <string name="settings_timeout">Scadenza (in ms)</string>
@@ -154,15 +156,16 @@
     <string name="main_about">Info</string>
     <string name="main_gestures">Gesti</string>
     <!-- Crash -->
-    <string name="crash_notif_ticker_text">Unexpected error, please send a report ...</string>
-    <string name="crash_notif_title">AndroVDR has crashed ...</string>
-    <string name="crash_notif_text">Please click here to help fix the issue.</string>
-    <string name="crash_dialog_title">AndroVDR has crashed</string>
-    <string name="crash_dialog_text">An unexpected error occurred forcing the
-        application to stop. Please help us fix this by sending us error data,
-        all you have to do is click \'OK\'.</string>
-    <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
-    <string name="crash_dialog_ok_toast">Thank you !</string>
+    <string name="crash_notif_ticker_text">Errore inaspettato, invio segnalazione...</string>
+    <string name="crash_notif_title">AndroVDR si è bloccato...</string>
+    <string name="crash_notif_text">Fai click qui per aiutarci a risolvere il problema.</string>
+    <string name="crash_dialog_title">AndroVDR si è bloccato</string>
+    <string name="crash_dialog_text">Si è verificato un errore inaspettato che ha forzato la 
+      chiusura dell\'applicazione. Aiutaci a sistemarlo inviando i dati di errore, tutto 
+      quello che devi fare è cliccare su \'OK\'.</string>
+    <string name="crash_dialog_comment_prompt">Dovresti aggiungere sotto i tuoi commenti sul tipo 
+      di problema:</string>
+    <string name="crash_dialog_ok_toast">Grazie!!!</string>
     <!--  Remote  -->
     <!--
          because of many different screen / button sizes
