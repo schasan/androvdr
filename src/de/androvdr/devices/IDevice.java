@@ -20,7 +20,6 @@
 
 package de.androvdr.devices;
 
-import java.util.ArrayList;
 
 public interface IDevice {
 	public String getDisplayClassName();
@@ -43,7 +42,7 @@ public interface IDevice {
 	public String getPassword();
 	public void setPassword(String password);
 
-	public ArrayList<String> getCommands();
+	public String getLastError();
 
 	public void disconnect();
 }

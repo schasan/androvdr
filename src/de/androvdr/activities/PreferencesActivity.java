@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -66,6 +67,9 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		
 		addPreferencesFromResource(R.xml.preferences);
 
+		CheckBoxPreference cbf = (CheckBoxPreference) findPreference("showDiskStatus");
+		cbf.setDefaultValue(Preferences.showDiskStatus);
+		
 		mDevices = Devices.getInstance(this);
 		if (!mDevices.hasPlugins()) {
 			PreferenceGroup volumeCategory = (PreferenceGroup) findPreference("category_volume");

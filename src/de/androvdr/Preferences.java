@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -62,6 +63,7 @@ public class Preferences {
 	public static boolean epgsearch_subtitle;
 	public static boolean epgsearch_description;
 	public static int epgsearch_max;
+	public static boolean showDiskStatus;
 	
 	public static String dateformat = "dd.MM.";
 	public static String dateformatLong = "dd.MM.yyyy HH:mm";
@@ -170,6 +172,13 @@ public class Preferences {
 	    epgsearch_description = sp.getBoolean("epgsearch_description", false);
 	    epgsearch_max = Integer.parseInt(sp.getString("epgsearch_max", "30"));
 
+	    Configuration conf = context.getResources().getConfiguration();
+	    if ((conf.screenLayout & 
+	    		Configuration.SCREENLAYOUT_SIZE_SMALL) == Configuration.SCREENLAYOUT_SIZE_SMALL)
+	    	showDiskStatus = sp.getBoolean("showDiskStatus", false);
+	    else
+	    	showDiskStatus = sp.getBoolean("showDiskStatus", true);
+	    
 	    String colorname = sp.getString("tabIndicatorColor", "blue");
 	    if (!colorname.equals("none"))
 	    	tabIndicatorColor = Color.parseColor(colorname);

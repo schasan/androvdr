@@ -34,7 +34,7 @@ import de.androvdr.Preferences;
 import de.androvdr.Wol;
 import de.androvdr.svdrp.VDRConnection;
 
-public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
+public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeListener {
 	private static final String DISPLAYCLASSNAME = "VDR";
 
 	private long mId;
@@ -45,6 +45,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 	private String mPassword;
 	private Hashtable<String, String> mCommands = new Hashtable<String, String>();
 	private Hashtable<String, String> mCommandsCompat = new Hashtable<String, String>();
+	private Hashtable<String, String> mSensors = new Hashtable<String, String>();
 	private String mLastError;
 
 	public int timeout;
@@ -65,6 +66,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 	
 	public VdrDevice() {
 		initCommands();
+		initSensors();
 	}
 
 	@Override
@@ -107,6 +109,15 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 	}
 
 	@Override
+	public ArrayList<String> getSensors() {
+		ArrayList<String> result = new ArrayList<String>();
+		Enumeration<String> e = mSensors.keys();
+		while (e.hasMoreElements())
+			result.add(e.nextElement());
+		return result;
+	}
+	
+	@Override
 	public String getPassword() {
 		return mPassword;
 	}
@@ -121,7 +132,7 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 		return mUser;
 	}
 
-	public void initCommands() {
+	private void initCommands() {
     	mCommands.put("up", "HITK Up");
     	mCommands.put("down", "HITK Down");
     	mCommands.put("menu", "HITK Menu");
@@ -185,6 +196,11 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
     	mCommandsCompat.put("rec", "HITK Record");
 	}
 
+	private void initSensors() {
+		mSensors.put("disk", "STAT disk");
+		mSensors.put("channel", "CHAN");
+	}
+	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sp,
 			String key) {
@@ -226,6 +242,37 @@ public class VdrDevice implements IActuator, OnSharedPreferenceChangeListener {
 		}
 	}
 
+	@Override
+	public String read(String command) {
+
+		final String vdrsensor = (String) mSensors.get(command);
+		if (vdrsensor == null) {
+			mLastError = "Unknown command: " + command;
+			return null;
+		}
+		
+		Response response = VDRConnection.send(new Command() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+            public String toString() {
+                return vdrsensor;
+            }
+            
+            @Override
+            public String getCommand() {
+                return vdrsensor;
+            }
+        });
+		
+		if (response != null && response.getCode() != 250) {
+			mLastError = response.getCode() + " - " + response.getMessage().replaceAll("\n$", "");
+			return null;
+		}
+		
+		return response.getMessage().replaceAll("\n$", "");
+	}
+	
 	@Override
 	public void setId(long id) {
 		mId = id;

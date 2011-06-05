@@ -92,6 +92,10 @@
       android:defaultValue="blue"
       android:entries="@array/colors"
       android:entryValues="@array/color_values" />
+    <CheckBoxPreference
+      android:key="showDiskStatus"
+      android:title="@string/settings_diskstatus"
+      android:summary="@string/settings_diskstatus_summary" />
   </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/settings_epgsearch">

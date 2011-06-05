@@ -52,6 +52,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
@@ -281,6 +282,30 @@ public class RecordingController extends AbstractController implements Runnable 
 		listView.setSelection(0);
 		mActivity.registerForContextMenu(listView);
 		mUpdateThread = new RecordingIdUpdateThread(mThreadHandler);
+		
+		// --- disk status ---
+		LinearLayout lay = (LinearLayout) listView.getParent();
+		if (lay != null && lay.findViewById(R.id.recdiskstatus) != null) {
+			TextView tv = (TextView) lay.findViewById(R.id.recdiskstatus_values);
+			String result = Preferences.getVdr().read("disk");
+			if (result != null) {
+				try {
+					String[] sa = result.split(" ");
+					Integer total = Integer.parseInt(sa[0].replaceAll("MB$", "")) / 1024;
+					Integer free = Integer.parseInt(sa[1].replaceAll("MB$", "")) / 1024;
+					tv.setText(free.toString() + " GB / " + total.toString() + " GB");
+					
+					ProgressBar pg = (ProgressBar) lay.findViewById(R.id.recdiskstatus_progressbar);
+					pg.setMax(total);
+					pg.setProgress(free);
+				} catch (Exception e) {
+					logger.error("Couldn't parse disk status: {}", result);
+					tv.setText("N/A");
+				}
+			} else {
+				tv.setText("N/A");
+			}
+		}
 	}
 
 	private class RecordingAdapter extends ArrayAdapter<RecordingViewItem> implements SectionIndexer {
