@@ -20,9 +20,11 @@
 
 package de.androvdr.devices;
 
+import java.util.ArrayList;
+
 public interface IActuator extends IDevice {
 	
-	public String getLastError();
+	public ArrayList<String> getCommands();
 	public boolean write(String command);
 	
 }

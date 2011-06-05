@@ -93,6 +93,8 @@
     <string name="settings_textsizeoffset">Schriftgröße</string>
     <string name="settings_textsizeoffset_summary">Änderung der Schriftgröße, relativ zur Vorgabe.</string>
     <string name="settings_tabindicatorcolor">Farbe Tabindikator</string>
+    <string name="settings_diskstatus">Diskstatus</string>
+    <string name="settings_diskstatus_summary">Zeige Diskstatus in der Aufnahmenansicht.</string>
     <string name="settings_livetv">Aktiviere Live-TV</string>
     <string name="settings_livetv_summary">Benötigt streamdev-server auf dem VDR und einen externe Abspieler wie z.B. VPlayer</string>
     <string name="settings_livetv_streamformat">Streamformat</string>

@@ -32,6 +32,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -50,9 +51,17 @@ public class RecordingsActivity extends AbstractListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.recordings);
 
+		if (! Preferences.showDiskStatus) {
+			LinearLayout lay = (LinearLayout) findViewById(R.id.recdiskstatus);
+			lay.setVisibility(View.GONE);
+		}
+		
 		TextView tv = (TextView) findViewById(R.id.recheader);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
-		
+		tv = (TextView) findViewById(R.id.recdiskstatus_values);
+		if (tv != null)
+			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
+			
 		mListView = (ListView) findViewById(android.R.id.list);
 
 		/*
