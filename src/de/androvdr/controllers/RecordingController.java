@@ -405,9 +405,12 @@ public class RecordingController extends AbstractController implements Runnable 
 				int size = getCount();
 				for (int i = size - 1; i >= 0; i--) {
 					RecordingViewItem item = getItem(i);
-					if (! item.isFolder)
-						mIndexer.put(item.recording.title.substring(0, 1), i);
-					else {
+					if (! item.isFolder) {
+						if (item.recording.title.length() > 0)
+							mIndexer.put(item.recording.title.substring(0, 1), i);
+						else
+							mIndexer.put(" ", i);
+					} else {
 						if (comparer.ascending)
 							mIndexer.put("A", i);
 						else
