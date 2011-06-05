@@ -67,8 +67,12 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		
 		addPreferencesFromResource(R.xml.preferences);
 
-		CheckBoxPreference cbf = (CheckBoxPreference) findPreference("showDiskStatus");
-		cbf.setDefaultValue(Preferences.showDiskStatus);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+		if (! prefs.contains("showDiskStatus")) {
+			CheckBoxPreference cbf = (CheckBoxPreference) findPreference("showDiskStatus");
+			cbf.setChecked(Preferences.showDiskStatus);
+		}
 		
 		mDevices = Devices.getInstance(this);
 		if (!mDevices.hasPlugins()) {
@@ -86,8 +90,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 					Long.parseLong(volumeDeviceListPref.getValue()));
 			updateVolumePreferences(!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("volumeVDR", false));
 		}
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-		pref.registerOnSharedPreferenceChangeListener(this);
+		prefs.registerOnSharedPreferenceChangeListener(this);
 		updateSummaries();
 	}
 
