@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/rec"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:orientation="vertical">
+  <TextView
+    style="?header"
+    android:id="@+id/recheader"
+    android:text="@string/rec_recordings" />
+  <ListView
+    android:id="@android:id/list"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="1" />
+  <LinearLayout
+    style="?header"
+    android:id="@+id/recdiskstatus"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView
+      style="?header"
+      android:id="@+id/recdiskstatus_values"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center" />
+      <ProgressBar
+        android:id="@+id/recdiskstatus_progressbar"
+        android:layout_width="fill_parent"
+        android:layout_height="12dip"
+        android:indeterminate="false"
+        style="?android:attr/progressBarStyleHorizontal" />
+  </LinearLayout>
+</LinearLayout>
