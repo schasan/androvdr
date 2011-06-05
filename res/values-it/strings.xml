@@ -93,8 +93,8 @@
     <string name="settings_textsizeoffset">Dimensione testo</string>
     <string name="settings_textsizeoffset_summary">Cambia la dimensione del testo relativa al valore predefinito.</string>
     <string name="settings_tabindicatorcolor">Colore indicatore scheda</string>
-    <string name="settings_diskstatus">Disk Status</string>
-    <string name="settings_diskstatus_summary">Show disk status in recordings view</string>
+    <string name="settings_diskstatus">Stato disco</string>
+    <string name="settings_diskstatus_summary">Mostra stato disco nel menu registrazioni.</string>
     <string name="settings_livetv">Abilita trasmissione dal vivo</string>
     <string name="settings_livetv_summary">Sono necessari streamdev-server sulla VDR e un lettore esterno come VPlayer</string>
     <string name="settings_livetv_streamformat">Formato trasmissione</string>
