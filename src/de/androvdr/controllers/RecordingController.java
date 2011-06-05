@@ -84,6 +84,7 @@ public class RecordingController extends AbstractController implements Runnable 
 	private static transient Logger logger = LoggerFactory.getLogger(RecordingController.class);
 	
 	private RecordingViewItemComparer mComparer;
+	private String mDiskStatusResponse;
 	private final ListView mListView;
 	private RecordingViewItemList mRecordingViewItems = new RecordingViewItemList();
 	private RecordingAdapter mRecordingAdapter;
@@ -272,6 +273,7 @@ public class RecordingController extends AbstractController implements Runnable 
 			logger.error("Couldn't read recordings", e);
 			sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
 		}
+		mDiskStatusResponse = Preferences.getVdr().read("disk");
 	}
 	
 	private void setRecordingAdapter(RecordingAdapter adapter, ListView listView) {
@@ -287,7 +289,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		LinearLayout lay = (LinearLayout) listView.getParent();
 		if (lay != null && lay.findViewById(R.id.recdiskstatus) != null) {
 			TextView tv = (TextView) lay.findViewById(R.id.recdiskstatus_values);
-			String result = Preferences.getVdr().read("disk");
+			String result = mDiskStatusResponse;
 			if (result != null) {
 				try {
 					String[] sa = result.split(" ");
