@@ -173,8 +173,8 @@ public class Preferences {
 	    epgsearch_max = Integer.parseInt(sp.getString("epgsearch_max", "30"));
 
 	    Configuration conf = context.getResources().getConfiguration();
-	    if ((conf.screenLayout & 
-	    		Configuration.SCREENLAYOUT_SIZE_SMALL) == Configuration.SCREENLAYOUT_SIZE_SMALL)
+	    if (((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_SMALL) == Configuration.SCREENLAYOUT_SIZE_SMALL) 
+	    	&& ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_NORMAL) != Configuration.SCREENLAYOUT_SIZE_NORMAL))
 	    	showDiskStatus = sp.getBoolean("showDiskStatus", false);
 	    else
 	    	showDiskStatus = sp.getBoolean("showDiskStatus", true);
