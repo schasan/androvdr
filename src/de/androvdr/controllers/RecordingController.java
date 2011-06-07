@@ -124,6 +124,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		datetimeformatter = new SimpleDateFormat(Preferences.dateformatLong);
 		calendar = new GregorianCalendar();
 		db = new DBHelper(mActivity);
+		mComparer = new RecordingViewItemComparer(RECORDING_ACTION_SORT_NAME);
 		
 		if (recordings != null && recordings.length > 0) {
 			mRecordingViewItems = new RecordingViewItemList();
@@ -168,14 +169,14 @@ public class RecordingController extends AbstractController implements Runnable 
 			mActivity.finish();
 			break;
 		case RECORDING_ACTION_SORT_DATE:
-			if (mComparer == null || mComparer.compareBy != RECORDING_ACTION_SORT_DATE)
+			if (mComparer.compareBy != RECORDING_ACTION_SORT_DATE)
 				mComparer =  new RecordingViewItemComparer(RECORDING_ACTION_SORT_DATE);
 			else
 				mComparer.ascending = ! mComparer.ascending;
 			mRecordingAdapter.sort(mComparer);
 			break;
 		case RECORDING_ACTION_SORT_NAME:
-			if (mComparer == null || mComparer.compareBy != RECORDING_ACTION_SORT_NAME)
+			if (mComparer.compareBy != RECORDING_ACTION_SORT_NAME)
 				mComparer =  new RecordingViewItemComparer(RECORDING_ACTION_SORT_NAME);
 			else
 				mComparer.ascending = ! mComparer.ascending;
@@ -322,8 +323,9 @@ public class RecordingController extends AbstractController implements Runnable 
 		private final static int recordingtitelSize = 20,
 								 recordingdefaultSize = 15;
 		
-		HashMap<String, Integer> mIndexer;
-		String[] mSections;
+		private RecordingViewItemComparer mComparer;
+		private HashMap<String, Integer> mIndexer;
+		private String[] mSections;
 		
 		private class ViewHolder {
 			private LinearLayout folder;
@@ -410,6 +412,50 @@ public class RecordingController extends AbstractController implements Runnable 
 			return row;
 		}
 
+		private void initIndexer() {
+			if (mComparer.compareBy == RECORDING_ACTION_SORT_NAME) {
+				logger.trace("initialize indexer");
+				
+				mIndexer = new HashMap<String, Integer>();
+				int size = getCount();
+				for (int i = size - 1; i >= 0; i--) {
+					RecordingViewItem item = getItem(i);
+					if (! item.isFolder) {
+						if (item.recording.title.length() > 0)
+							mIndexer.put(item.recording.title.substring(0, 1), i);
+						else
+							mIndexer.put(" ", i);
+					} else {
+						if (mComparer.ascending)
+							mIndexer.put("A", i);
+						else
+							mIndexer.put("Z", i);
+					}
+				}
+				
+				Set<String> keys = mIndexer.keySet();
+				Iterator<String> it = keys.iterator();
+				ArrayList<String> keyList = new ArrayList<String>();
+				while (it.hasNext()) {
+					keyList.add(it.next());
+				}
+				Collections.sort(keyList);
+				if (! mComparer.ascending)
+					Collections.reverse(keyList);
+				
+				mSections = new String[keyList.size()];
+				keyList.toArray(mSections);
+				
+				mListView.setFastScrollEnabled(true);
+				jiggleWidth();
+				logger.trace("fastscroll with indexer enabled");
+			} else {
+				mSections = new String[0];
+				mListView.setFastScrollEnabled(true);
+				logger.trace("fastscroll enabled");
+			}
+		}
+
 		private boolean FLAG_THUMB_PLUS = false;
 		private void jiggleWidth() {
 		    ListView view = mListView;
@@ -425,52 +471,21 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 		
 		@Override
+		public void remove(RecordingViewItem object) {
+			mListView.setFastScrollEnabled(false);
+			super.remove(object);
+			logger.trace("RecordingAdapter.remove: {}", object.recording.number);
+			initIndexer();
+		}
+		
+		@Override
 		public void sort(Comparator<? super RecordingViewItem> comparator) {
 			mListView.setFastScrollEnabled(false);
 			super.sort(comparator);
-			
+
 			RecordingViewItemComparer comparer = (RecordingViewItemComparer) comparator;
-			if (comparer.compareBy == RECORDING_ACTION_SORT_NAME) {
-				logger.trace("initialize indexer");
-				
-				mIndexer = new HashMap<String, Integer>();
-				int size = getCount();
-				for (int i = size - 1; i >= 0; i--) {
-					RecordingViewItem item = getItem(i);
-					if (! item.isFolder) {
-						if (item.recording.title.length() > 0)
-							mIndexer.put(item.recording.title.substring(0, 1), i);
-						else
-							mIndexer.put(" ", i);
-					} else {
-						if (comparer.ascending)
-							mIndexer.put("A", i);
-						else
-							mIndexer.put("Z", i);
-					}
-				}
-				
-				Set<String> keys = mIndexer.keySet();
-				Iterator<String> it = keys.iterator();
-				ArrayList<String> keyList = new ArrayList<String>();
-				while (it.hasNext()) {
-					keyList.add(it.next());
-				}
-				Collections.sort(keyList);
-				if (! comparer.ascending)
-					Collections.reverse(keyList);
-				
-				mSections = new String[keyList.size()];
-				keyList.toArray(mSections);
-				
-				mListView.setFastScrollEnabled(true);
-				jiggleWidth();
-				logger.trace("fastscroll with indexer enabled");
-			} else {
-				mSections = new String[0];
-				mListView.setFastScrollEnabled(true);
-				logger.trace("fastscroll enabled");
-			}
+			mComparer = comparer;
+			initIndexer();
 		}
 	}
 	
