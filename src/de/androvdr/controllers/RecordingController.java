@@ -124,7 +124,6 @@ public class RecordingController extends AbstractController implements Runnable 
 		datetimeformatter = new SimpleDateFormat(Preferences.dateformatLong);
 		calendar = new GregorianCalendar();
 		db = new DBHelper(mActivity);
-		mComparer = new RecordingViewItemComparer(RECORDING_ACTION_SORT_NAME);
 		
 		if (recordings != null && recordings.length > 0) {
 			mRecordingViewItems = new RecordingViewItemList();
@@ -169,14 +168,14 @@ public class RecordingController extends AbstractController implements Runnable 
 			mActivity.finish();
 			break;
 		case RECORDING_ACTION_SORT_DATE:
-			if (mComparer.compareBy != RECORDING_ACTION_SORT_DATE)
+			if (mComparer == null || mComparer.compareBy != RECORDING_ACTION_SORT_DATE)
 				mComparer =  new RecordingViewItemComparer(RECORDING_ACTION_SORT_DATE);
 			else
 				mComparer.ascending = ! mComparer.ascending;
 			mRecordingAdapter.sort(mComparer);
 			break;
 		case RECORDING_ACTION_SORT_NAME:
-			if (mComparer.compareBy != RECORDING_ACTION_SORT_NAME)
+			if (mComparer == null || mComparer.compareBy != RECORDING_ACTION_SORT_NAME)
 				mComparer =  new RecordingViewItemComparer(RECORDING_ACTION_SORT_NAME);
 			else
 				mComparer.ascending = ! mComparer.ascending;
