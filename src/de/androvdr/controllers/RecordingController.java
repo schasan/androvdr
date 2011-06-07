@@ -85,6 +85,7 @@ public class RecordingController extends AbstractController implements Runnable 
 	
 	private RecordingViewItemComparer mComparer;
 	private String mDiskStatusResponse;
+	private Boolean mDiskStatusResponseSync = true;
 	private final ListView mListView;
 	private RecordingViewItemList mRecordingViewItems = new RecordingViewItemList();
 	private RecordingAdapter mRecordingAdapter;
@@ -273,7 +274,10 @@ public class RecordingController extends AbstractController implements Runnable 
 			logger.error("Couldn't read recordings", e);
 			sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
 		}
-		mDiskStatusResponse = Preferences.getVdr().read("disk");
+		
+		synchronized (mDiskStatusResponseSync) {
+			mDiskStatusResponse = Preferences.getVdr().read("disk");
+		}
 	}
 	
 	private void setRecordingAdapter(RecordingAdapter adapter, ListView listView) {
@@ -289,23 +293,24 @@ public class RecordingController extends AbstractController implements Runnable 
 		LinearLayout lay = (LinearLayout) listView.getParent();
 		if (lay != null && lay.findViewById(R.id.recdiskstatus) != null) {
 			TextView tv = (TextView) lay.findViewById(R.id.recdiskstatus_values);
-			String result = mDiskStatusResponse;
-			if (result != null) {
-				try {
-					String[] sa = result.split(" ");
-					Integer total = Integer.parseInt(sa[0].replaceAll("MB$", "")) / 1024;
-					Integer free = Integer.parseInt(sa[1].replaceAll("MB$", "")) / 1024;
-					tv.setText(free.toString() + " GB / " + total.toString() + " GB");
-					
-					ProgressBar pg = (ProgressBar) lay.findViewById(R.id.recdiskstatus_progressbar);
-					pg.setMax(total);
-					pg.setProgress(free);
-				} catch (Exception e) {
-					logger.error("Couldn't parse disk status: {}", result);
+			synchronized (mDiskStatusResponseSync) {
+				if (mDiskStatusResponse != null) {
+					try {
+						String[] sa = mDiskStatusResponse.split(" ");
+						Integer total = Integer.parseInt(sa[0].replaceAll("MB$", "")) / 1024;
+						Integer free = Integer.parseInt(sa[1].replaceAll("MB$", "")) / 1024;
+						tv.setText(free.toString() + " GB / " + total.toString() + " GB");
+						
+						ProgressBar pg = (ProgressBar) lay.findViewById(R.id.recdiskstatus_progressbar);
+						pg.setMax(total);
+						pg.setProgress(free);
+					} catch (Exception e) {
+						logger.error("Couldn't parse disk status: {}", mDiskStatusResponse);
+						tv.setText("N/A");
+					}
+				} else {
 					tv.setText("N/A");
 				}
-			} else {
-				tv.setText("N/A");
 			}
 		}
 	}
