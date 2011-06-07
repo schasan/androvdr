@@ -19,17 +19,22 @@
     android:id="@+id/recdiskstatus"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:padding="0dip"
     android:orientation="vertical">
     <TextView
       style="?header"
       android:id="@+id/recdiskstatus_values"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_gravity="center" />
+      android:layout_gravity="center"
+      android:padding="0dip" />
       <ProgressBar
         android:id="@+id/recdiskstatus_progressbar"
         android:layout_width="fill_parent"
         android:layout_height="12dip"
+        android:paddingLeft="4dip"
+        android:paddingRight="4dip"
+        android:paddingBottom="4dip"
         android:indeterminate="false"
         style="?android:attr/progressBarStyleHorizontal" />
   </LinearLayout>
