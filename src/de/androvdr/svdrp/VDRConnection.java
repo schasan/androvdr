@@ -37,7 +37,7 @@ public class VDRConnection {
      * the last request. {@link #persistentConnection} has to be
      * set to true.
      */
-    private static final int CONNECTION_KEEP_ALIVE = 10000;
+    private static final int CONNECTION_KEEP_ALIVE = 15000;
     
     /**
      * Sends a SVDRP command to VDR and returns a response object, which represents the vdr response
