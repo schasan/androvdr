@@ -65,6 +65,7 @@ import de.androvdr.VdrCommands;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.activities.EpgsdataActivity;
 import de.androvdr.devices.VdrDevice;
+import de.androvdr.svdrp.ConnectionProblem;
 import de.androvdr.svdrp.VDRConnection;
 
 public class TimerController extends AbstractController implements Runnable {
@@ -128,43 +129,10 @@ public class TimerController extends AbstractController implements Runnable {
 	
 	public void action(int action, int position) {
 		final Timer item = mAdapter.getItem(position);
-		Handler handler;
-		int lastUpdate = (int) (new Date().getTime() / 60000);
-		
+
 		switch (action) {
 		case TIMER_ACTION_DELETE:
-			handler = new Handler() {
-				@Override
-				public void handleMessage(Message msg) {
-					switch (msg.arg1) {
-					case Messages.MSG_DATA_UPDATE_DONE:
-						mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
-						mAdapter.notifyDataSetChanged();
-						if (item.lastUpdate > 0) {
-							Response response = VDRConnection.send(new DELT(item.number));
-							if(response.getCode() == 250) {
-							    mAdapter.remove(item);
-							    for (int i = 0; i < mTimer.size(); i++)
-							        mTimer.get(i).lastUpdate = 0;
-							}
-						    Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
-						    		Toast.LENGTH_SHORT).show();
-						}
-						else
-							Toast.makeText(mActivity, R.string.timer_not_found, Toast.LENGTH_LONG).show();
-						break;
-					}
-				}
-			};
-			
-			if (item.lastUpdate < lastUpdate) {
-				Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
-				msg.arg2 = R.string.updating;
-				mHandler.sendMessage(msg);
-				new Thread(new TimerUpdater(handler)).start();
-			}
-			else
-				handler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
+			new TimerDeleteTask().execute(item);
 			break;
 		case TIMER_ACTION_PROGRAMINFOS:
 		case TIMER_ACTION_PROGRAMINFOS_ALL:
@@ -177,17 +145,7 @@ public class TimerController extends AbstractController implements Runnable {
 			mActivity.startActivityForResult(intent, 1);
 			break;
 		case TIMER_ACTION_RECORD:
-			Epg epg = new Epg();
-			epg.kanal = item.channel;
-			epg.startzeit = item.start;
-			Long l = (item.end - item.start);
-			epg.dauer = l.intValue();
-			epg.titel = item.title;
-			Response response = VdrCommands.setTimer(epg);
-			if (response.getCode() != 250)
-				logger.error("Couldn't set timer: {}", response.getCode() + " - " + response.getMessage());
-			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
-					Toast.LENGTH_SHORT).show();
+			new TimerRecordTask().execute(item);
 			break;
 		case TIMER_ACTION_SHOW_EPG:
 			new GetEpgTask().execute(item);
@@ -196,43 +154,7 @@ public class TimerController extends AbstractController implements Runnable {
 		    VDRConnection.send(new CHAN(item.channel));
 			break;
 		case TIMER_ACTION_TOGGLE:
-			handler = new Handler() {
-				@Override
-				public void handleMessage(Message msg) {
-					switch (msg.arg1) {
-					case Messages.MSG_DATA_UPDATE_DONE:
-						mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
-						mAdapter.notifyDataSetChanged();
-						if (item.lastUpdate > 0) {
-							String s;
-							if (item.isActive())
-								s = " OFF";
-							else
-								s = " ON";
-							MODT modt = new MODT(item.number, s);
-							Response response = VDRConnection.send(modt);
-							if(response.getCode() == 250) {
-								update();
-							}
-							else
-								Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
-										Toast.LENGTH_LONG).show();
-						}
-						else
-							Toast.makeText(mActivity, R.string.timer_not_found, Toast.LENGTH_LONG).show();
-						break;
-					}
-				}
-			};
-
-			if (item.lastUpdate < lastUpdate) {
-				Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
-				msg.arg2 = R.string.updating;
-				mHandler.sendMessage(msg);
-				new Thread(new TimerUpdater(handler)).start();
-			}
-			else
-				handler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
+			new TimerToggleTask().execute(item);
 			break;
 		}
 	}
@@ -275,25 +197,6 @@ public class TimerController extends AbstractController implements Runnable {
 		listView.setSelected(true);
 		listView.setSelection(0);
 		mActivity.registerForContextMenu(listView);
-	}
-	
-	private void update() {
-		Handler threadHandler = new Handler() {
-			@Override
-			public void dispatchMessage(Message msg) {
-				switch (msg.arg1) {
-				case Messages.MSG_DATA_UPDATE_DONE:
-					mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
-					mAdapter.notifyDataSetChanged();
-					break;
-				}
-			}
-		};
-		
-		Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
-		msg.arg2 = R.string.updating;
-		mHandler.sendMessage(msg);
-		new Thread(new TimerUpdater(threadHandler)).start();
 	}
 	
 	private class GetEpgTask extends AsyncTask<Timer, Void, String> {
@@ -445,6 +348,91 @@ public class TimerController extends AbstractController implements Runnable {
 		}
 	}
 	
+	private class TimerBaseTask extends AsyncTask<Timer, Void, String> {
+
+		@Override
+		protected String doInBackground(Timer... params) {
+			Timer timer = params[0];
+			String result = null;
+			
+			int lastUpdate = (int) (new Date().getTime() / 60000);
+			if (timer.lastUpdate < lastUpdate) {
+				result = update();
+				if (result != null)
+					return result;
+			}
+			
+			Response response =  doIt(timer);
+			
+			if (response.getCode() == 250) {
+				VDRConnection.close();
+				result = update();
+			}
+			else
+				result = response.getCode() + " - " + response.getMessage().replaceAll("\n$", "");
+			
+			return result;
+		}
+		
+		protected Response doIt(Timer timer) {
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
+			
+			for (int i = mAdapter.getCount() -1; i >= 0; i--)
+				if (mAdapter.getItem(i).lastUpdate < 0)
+					mAdapter.remove(mAdapter.getItem(i));
+			mAdapter.notifyDataSetChanged();
+			
+			if(result != null && ! mActivity.isFinishing())
+				Toast.makeText(mActivity, result, Toast.LENGTH_SHORT).show();
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_SHOW, R.string.updating));
+		}
+		
+		private String update() {
+			logger.trace("update start");
+			String result = null;
+			
+			int lastUpdate = (int) (new Date().getTime() / 60000);
+			ArrayList<Timer> timers = null;
+			
+			// --- get timers from vdr ---
+			try {
+				timers = new Timers().getItems();
+				TimerComparer comparator = new TimerComparer();
+				Collections.sort(timers, comparator);
+				// --- update timers ---
+				for (int i = 0; i < mTimer.size(); i++) {
+					Timer dst = mTimer.get(i);
+					int index = Collections.binarySearch(timers, dst, comparator);
+					if (index >= 0) {
+						Timer src = timers.get(index);
+						if (dst.number != src.number) {
+							logger.trace(dst.title + " " + dst.number + " -> " + src.number);
+						}
+						dst.number = src.number;
+						dst.status = src.status;
+						dst.lastUpdate = lastUpdate;
+					}
+					else
+						dst.lastUpdate = -1;
+				}
+				logger.trace("update done");
+			} catch (IOException e) {
+				logger.error("Couldn't update timers", e);
+				result = e.getMessage();
+			}
+			return result;
+		}
+	}
+	
 	private class TimerComparer implements Comparator<Timer> {
 
 		@Override
@@ -480,47 +468,56 @@ public class TimerController extends AbstractController implements Runnable {
 		
 	}
 	
-	private class TimerUpdater implements Runnable {
-		private final Handler mHandler;
+	private class TimerDeleteTask extends TimerBaseTask {
 		
-		public TimerUpdater(Handler handler) {
-			mHandler = handler;
+		@Override
+		protected Response doIt(Timer timer) {
+			if (timer.lastUpdate > 0) {
+				Response response = VDRConnection.send(new DELT(timer.number));
+				return response;
+			}
+			else
+				return new ConnectionProblem(mActivity.getString(R.string.timer_not_found));
+		}
+	}
+	
+	private class TimerRecordTask extends AsyncTask<Timer, Void, Response> {
+		
+		@Override
+		protected Response doInBackground(Timer... params) {
+			Timer timer = params[0];
+			Epg epg = new Epg();
+			epg.kanal = timer.channel;
+			epg.startzeit = timer.start;
+			Long l = (timer.end - timer.start);
+			epg.dauer = l.intValue();
+			epg.titel = timer.title;
+			return VdrCommands.setTimer(epg);
 		}
 		
 		@Override
-		public void run() {
-			logger.trace("update start");
-			
-			int lastUpdate = (int) (new Date().getTime() / 60000);
-			ArrayList<Timer> timers = null;
-			
-			// --- get timers from vdr ---
-			try {
-				timers = new Timers().getItems();
-				TimerComparer comparator = new TimerComparer();
-				Collections.sort(timers, comparator);
-				// --- update timers ---
-				for (int i = 0; i < mTimer.size(); i++) {
-					Timer dst = mTimer.get(i);
-					int index = Collections.binarySearch(timers, dst, comparator);
-					if (index >= 0) {
-						Timer src = timers.get(index);
-						if (dst.number != src.number) {
-							logger.trace(dst.title + " " + dst.number + " -> " + src.number);
-						}
-						dst.number = src.number;
-						dst.status = src.status;
-						dst.lastUpdate = lastUpdate;
-					}
-					else
-						dst.lastUpdate = -1;
-				}
-				logger.trace("update done");
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
-			} catch (IOException e) {
-				logger.error("Couldn't update timers", e);
-				sendMsg(mThreadHandler, Messages.MSG_INFO, e.getMessage());
-			}
+		protected void onPostExecute(Response result) {
+			if (result.getCode() != 250)
+				logger.error("Couldn't set timer: {}", result.getCode() + " - " + result.getMessage());
+			Toast.makeText(mActivity, result.getCode() + " - " + result.getMessage().replaceAll("\n$", ""), 
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	private class TimerToggleTask extends TimerBaseTask {
+
+		@Override
+		protected Response doIt(Timer timer) {
+			if (timer.lastUpdate > 0) {
+				String s;
+				if (timer.isActive())
+					s = " OFF";
+				else
+					s = " ON";
+				MODT modt = new MODT(timer.number, s);
+				return VDRConnection.send(modt);
+			} else
+				return new ConnectionProblem(mActivity.getString(R.string.timer_not_found));
 		}
 	}
 }

@@ -42,6 +42,10 @@ public class GesturesFind extends AbstractActivity implements OnGesturePerformed
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        if (Preferences.blackOnWhite)
+        	setTheme(R.style.Theme);
+        
         setContentView(R.layout.gestures);
         
         GestureOverlayView gestures = (GestureOverlayView) findViewById(R.id.gestures);

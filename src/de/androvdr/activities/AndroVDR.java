@@ -487,12 +487,12 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
+		MenuItem mi = menu.findItem(R.id.androvdr_internet);
 		if (Preferences.useInternet)
-			menu.getItem(1).setTitle(R.string.main_forwarding_off);
+			mi.setTitle(R.string.main_forwarding_off);
 		else
-			menu.getItem(1).setTitle(R.string.main_forwarding_on);
-		if (Integer.parseInt(Build.VERSION.SDK) < 4)
-			menu.getItem(5).setEnabled(false);
+			mi.setTitle(R.string.main_forwarding_on);
+		
 		return true;
 	}
 	
