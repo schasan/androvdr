@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.util.TypedValue;
@@ -128,11 +129,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		
 		switch (action) {
 		case EPGSDATA_ACTION_RECORD:
-			Response response = VdrCommands.setTimer(epg);
-			if (response.getCode() != 250)
-				logger.error("Couldn't set timer: {}", response.getCode() + " - " + response.getMessage());
-			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
-					Toast.LENGTH_LONG).show();
+			new SetTimerTask().execute(epg);
 			break;
 		}
 	}
@@ -292,6 +289,22 @@ public class EpgsdataController extends AbstractController implements Runnable {
        		}
 
 			return row;
+		}
+	}
+	
+	private class SetTimerTask extends AsyncTask<Epg, Void, Response> {
+
+		@Override
+		protected Response doInBackground(Epg... params) {
+			return VdrCommands.setTimer(params[0]);
+		}
+		
+		@Override
+		protected void onPostExecute(Response result) {
+			if (result.getCode() != 250)
+				logger.error("Couldn't set timer: {}", result.getCode() + " - " + result.getMessage());
+			Toast.makeText(mActivity, result.getCode() + " - " + result.getMessage().replaceAll("\n$", ""), 
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 }

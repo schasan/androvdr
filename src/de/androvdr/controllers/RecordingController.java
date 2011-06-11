@@ -299,11 +299,13 @@ public class RecordingController extends AbstractController implements Runnable 
 						String[] sa = mDiskStatusResponse.split(" ");
 						Integer total = Integer.parseInt(sa[0].replaceAll("MB$", "")) / 1024;
 						Integer free = Integer.parseInt(sa[1].replaceAll("MB$", "")) / 1024;
-						tv.setText(free.toString() + " GB / " + total.toString() + " GB");
+						Integer used = total - free;
+						
+						tv.setText(used.toString() + " GB / " + total.toString() + " GB");
 						
 						ProgressBar pg = (ProgressBar) lay.findViewById(R.id.recdiskstatus_progressbar);
 						pg.setMax(total);
-						pg.setProgress(free);
+						pg.setProgress(used);
 					} catch (Exception e) {
 						logger.error("Couldn't parse disk status: {}", mDiskStatusResponse);
 						tv.setText("N/A");

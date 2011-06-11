@@ -141,6 +141,14 @@ public class AbstractActivity extends Activity {
 		mConfigurationManager.onResume();
 	}
 
+	@Override
+	public void setContentView(int layoutResID) {
+		super.setContentView(layoutResID);
+		
+		// --- on Honeycomb progress in ActionBar starts visible ---
+		setProgressBarIndeterminateVisibility(false);
+	}
+	
 	protected void showError(String message) {
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		alert.setTitle(this.getText(R.string.error));

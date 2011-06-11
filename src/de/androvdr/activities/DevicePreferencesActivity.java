@@ -43,6 +43,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.ListPreference;
@@ -92,7 +93,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		super.onCreate(savedInstanceState);
 		
 		Preferences.init(false);
-		if (Preferences.blackOnWhite) {
+		if (Preferences.blackOnWhite && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			setTheme(R.style.Theme_Light);
 			getListView().setCacheColorHint(Color.TRANSPARENT);
 			getWindow().setBackgroundDrawable(getResources().getDrawable(android.R.drawable.screen_background_light));
