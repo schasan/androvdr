@@ -108,7 +108,7 @@ public class EpgsdataActivity extends AbstractListActivity {
 			onSearchRequested();
 			break;
 		default:
-			super.onContextItemSelected(item);
+			super.onOptionsItemSelected(item);
 		}
 		return true;
 	}

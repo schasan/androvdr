@@ -152,7 +152,7 @@ public class RecordingsActivity extends AbstractListActivity {
 			mController.action(RecordingController.RECORDING_ACTION_SORT_NAME);
 			break;
 		default:
-			super.onContextItemSelected(item);
+			super.onOptionsItemSelected(item);
 		}
 		return true;
 	}
