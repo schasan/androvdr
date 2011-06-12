@@ -186,10 +186,16 @@
     <string name="remote_info">Info</string>
     <string name="remote_subtitles">Subtitles</string>
     <string name="remote_setup">Setup</string>
+    <string name="remote_user0">User 0</string>
     <string name="remote_user1">User 1</string>
     <string name="remote_user2">User 2</string>
     <string name="remote_user3">User 3</string>
     <string name="remote_user4">User 4</string>
+    <string name="remote_user5">User 5</string>
+    <string name="remote_user6">User 6</string>
+    <string name="remote_user7">User 7</string>
+    <string name="remote_user8">User 8</string>
+    <string name="remote_user9">User 9</string>
     <string name="remote_play">Play</string>
     <string name="remote_cut">Cut</string>
     <string name="remote_audio">Audio</string>
