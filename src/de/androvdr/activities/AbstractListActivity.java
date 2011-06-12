@@ -27,10 +27,12 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
 import de.androvdr.ConfigurationManager;
@@ -149,6 +151,19 @@ public class AbstractListActivity extends ListActivity implements SimpleGestureL
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		return mConfigurationManager.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+            Intent intent = new Intent(this, AndroVDR.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 	
 	@Override

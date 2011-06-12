@@ -227,7 +227,7 @@ public class ChannelsActivity extends AbstractListActivity {
 			showDialog(DIALOG_WHATS_ON);
 			break;
 		default:
-			super.onContextItemSelected(item);
+			super.onOptionsItemSelected(item);
 		}
 		return true;
 	}
