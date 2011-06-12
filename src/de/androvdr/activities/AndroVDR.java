@@ -38,6 +38,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -265,6 +266,9 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			 * devices with Android > 1.6
 			 */
 			
+			logger.trace("setting SCREEN_ORIENTATION_PORTRAIT");
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 			mWorkspace = new WorkspaceView(this, null);
 			mWorkspace.setTouchSlop(32);
 			mWorkspace.setOnLoadListener(this);
@@ -309,6 +313,9 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			 * devices with Android 1.6
 			 */
 			
+			logger.trace("setting SCREEN_ORIENTATION_PORTRAIT");
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 			setContentView(R.layout.main);
 		    MyTabContentFactory tab = new MyTabContentFactory(this);
 		    TabHost mTabHost = (TabHost) findViewById(R.id.tabhost);
