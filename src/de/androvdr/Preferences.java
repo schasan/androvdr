@@ -46,6 +46,13 @@ public class Preferences {
 	private static final String CONFIG_SSH_KEY = "sshkey";
 	private static final String CONFIG_SSH_KNOWN_HOSTS = "known_hosts";
 	
+	public static final int SCREENSIZE_NOT_DEFINED = 0;
+	public static final int SCREENSIZE_SMALL = 1;
+	public static final int SCREENSIZE_NORMAL = 2;
+	public static final int SCREENSIZE_LONG = 3;
+	public static final int SCREENSIZE_LARGE = 4;
+	public static final int SCREENSIZE_XLARGE = 5;
+	
 	private static VdrDevice sCurrentVdr = null;
 	private static long sCurrentVdrId = -1;
 	private static boolean sIsInitialized = false;
@@ -64,6 +71,7 @@ public class Preferences {
 	public static boolean epgsearch_description;
 	public static int epgsearch_max;
 	public static boolean showDiskStatus;
+	public static int screenSize = SCREENSIZE_NOT_DEFINED;
 	
 	public static String dateformat = "dd.MM.";
 	public static String dateformatLong = "dd.MM.yyyy HH:mm";

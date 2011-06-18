@@ -2,6 +2,7 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   style="?body"
+  android:id="@+id/remote_vdr_main_id"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical">
@@ -294,7 +295,6 @@
     <TableLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:paddingRight="2dip"
       android:layout_weight="1">
       <TableRow>
         <Button
@@ -329,7 +329,6 @@
     <TableLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:paddingLeft="2dip"
       android:layout_weight="1">
       <TableRow>
         <ImageButton
@@ -369,21 +368,147 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
+
+    <!-- Info Area -->
     <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
+      android:layout_height="match_parent"
       android:layout_weight="1"
-      android:paddingRight="2dip"
-      android:orientation="horizontal">
+      android:background="@drawable/btn_keyboard_key_normal"
+      android:orientation="vertical"
+      android:onClick="onButtonClick"
+      android:tag="Activity.de.androvdr.activities.EpgsdataActivity">
+
+      <!-- Sensors -->
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:paddingLeft="6dip"
+        android:paddingRight="6dip">
+        <LinearLayout
+          android:id="@+id/remote_channel_info"
+          android:orientation="horizontal"
+          android:layout_width="wrap_content"
+          android:layout_height="fill_parent"
+          android:visibility="gone">
+          <TextView
+            android:id="@+id/channelnumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:gravity="right"
+            android:paddingTop="6dip"
+            android:minWidth="30dip"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+          <LinearLayout
+            android:id="@+id/channellogoholder"
+            android:layout_width="56dip"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:padding="6dip">
+            <ImageView
+              android:id="@+id/channellogo"
+              android:layout_height="wrap_content"
+              android:layout_width="wrap_content" />
+          </LinearLayout>
+          <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dip"
+            android:paddingTop="6dip"
+            android:paddingBottom="6dip"
+            android:paddingLeft="6dip">
+            <TextView
+              android:id="@+id/channeltext"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:gravity="left"
+              android:text="N/A"
+              android:textSize="32sp"
+              android:textStyle="bold" />
+            <ProgressBar
+              android:id="@+id/channelprogress"
+              android:layout_width="fill_parent"
+              android:layout_height="4dip"
+              android:layout_below="@id/channeltext"
+              android:indeterminate="false"
+              style="?android:attr/progressBarStyleHorizontal" />
+            <TableLayout
+              android:id="@+id/channelprogram"
+              android:layout_height="wrap_content"
+              android:layout_width="fill_parent"
+              android:layout_below="@id/channelprogress"
+              android:paddingTop="2dip">
+              <TableRow
+                android:id="@+id/channelnowplayingrow">
+                <TextView
+                  android:id="@+id/channelnowplayingtime"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textSize="14sp"
+                  android:textStyle="bold" />
+                <TextView
+                  android:id="@+id/channelnowplaying"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="6dip"
+                  android:textSize="14sp"
+                  android:textStyle="bold" />
+              </TableRow>
+              <TableRow
+                android:id="@+id/channelnextplayingrow">
+                <TextView
+                  android:id="@+id/channelnextplayingtime"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textSize="14sp"
+                  android:textStyle="bold" />
+                <TextView
+                  android:id="@+id/channelnextplaying"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="6dip"
+                  android:textSize="14sp"
+                  android:textStyle="bold" />
+              </TableRow>
+            </TableLayout>
+          </RelativeLayout>
+        </LinearLayout>
+      </LinearLayout>
+
+      <!-- Disk Status -->
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:paddingLeft="6dip"
+        android:paddingRight="6dip">
+        <ProgressBar
+          style="?android:attr/progressBarStyleHorizontal"
+          android:id="@+id/remote_diskstatus_progressbar"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentBottom="true"
+          android:paddingLeft="2dip" />
+        <TextView
+          android:id="@+id/remote_diskstatus_values"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerHorizontal="true"
+          android:layout_above="@id/remote_diskstatus_progressbar"
+          android:text="N/A"
+          android:textSize="14dip"
+          android:textStyle="bold" />
+      </RelativeLayout>
     </LinearLayout>
 
     <!-- Play -->
     <TableLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:paddingLeft="2dip"
-      android:paddingRight="1dip">
+      android:layout_weight="1">
       <TableRow>
         <ImageButton
           style="?buttonRewind"

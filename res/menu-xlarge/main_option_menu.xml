@@ -4,8 +4,7 @@
   <item
     android:id="@+id/androvdr_settings"
     android:title="@string/main_settings"
-    android:icon="@drawable/ic_menu_preferences"
-    android:showAsAction="ifRoom" />
+    android:icon="@drawable/ic_menu_preferences" />
   <item
     android:id="@+id/androvdr_switch_vdr"
     android:title="VDR"

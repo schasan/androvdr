@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import de.androvdr.activities.AndroVDR;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -297,6 +299,19 @@ out:        for (String name : entries) {
         Toast.makeText(this, R.string.gestures_delete_success, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+		case android.R.id.home:
+			Intent intent = new Intent(this, AndroVDR.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+    	}
+    }
+    
     private class GesturesLoadTask extends AsyncTask<Void, NamedGesture, Integer> {
         private int mThumbnailSize;
         private int mThumbnailInset;

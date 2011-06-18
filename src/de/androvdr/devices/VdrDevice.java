@@ -22,6 +22,7 @@ package de.androvdr.devices;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 
 import org.hampelratte.svdrp.Command;
@@ -30,6 +31,7 @@ import org.hampelratte.svdrp.Response;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import de.androvdr.Channels;
+import de.androvdr.EventListenerList;
 import de.androvdr.Preferences;
 import de.androvdr.Wol;
 import de.androvdr.svdrp.VDRConnection;
@@ -43,8 +45,10 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 	private int mPort;
 	private String mUser;
 	private String mPassword;
+	private HashSet<String> mChannelChangers = new HashSet<String>();
 	private Hashtable<String, String> mCommands = new Hashtable<String, String>();
 	private Hashtable<String, String> mCommandsCompat = new Hashtable<String, String>();
+	private EventListenerList mListensers = new EventListenerList();
 	private Hashtable<String, String> mSensors = new Hashtable<String, String>();
 	private String mLastError;
 
@@ -74,6 +78,10 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 
 	}
 
+	public void addChannelChangedListener(OnChannelChangedListener listener) {
+		mListensers.add(OnChannelChangedListener.class, listener);
+	}
+	
 	@Override
 	public ArrayList<String> getCommands() {
 		ArrayList<String> result = new ArrayList<String>();
@@ -194,11 +202,37 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
     	mCommandsCompat.put("programm", "HITK Schedule");
     	mCommandsCompat.put("off", "HITK Power");
     	mCommandsCompat.put("rec", "HITK Record");
+
+    	mChannelChangers.add("up");
+    	mChannelChangers.add("down");
+    	mChannelChangers.add("0");
+    	mChannelChangers.add("1");
+    	mChannelChangers.add("2");
+    	mChannelChangers.add("3");
+    	mChannelChangers.add("4");
+    	mChannelChangers.add("5");
+    	mChannelChangers.add("6");
+    	mChannelChangers.add("7");
+    	mChannelChangers.add("8");
+    	mChannelChangers.add("9");
+    	mChannelChangers.add("chan_up");
+    	mChannelChangers.add("chan_down");
+    	mChannelChangers.add("prev_chan");
 	}
 
 	private void initSensors() {
 		mSensors.put("disk", "STAT disk");
 		mSensors.put("channel", "CHAN");
+	}
+	
+	public static boolean isChannelSensor(String command) {
+		return command.equalsIgnoreCase("vdr.channel");
+	}
+
+	private synchronized void notifyChannelChanged() {
+		for (OnChannelChangedListener l : mListensers.getListeners(OnChannelChangedListener.class)) {
+			l.onChannelChanged();
+		}
 	}
 	
 	@Override
@@ -271,6 +305,10 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 		}
 		
 		return response.getMessage().replaceAll("\n$", "");
+	}
+	
+	public void removeChannelChangedListener(OnChannelChangedListener listener) {
+		mListensers.remove(OnChannelChangedListener.class, listener);
 	}
 	
 	@Override
@@ -348,6 +386,9 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 			mLastError = response.getCode() + " - " + response.getMessage().replaceAll("\n$", "");
 			return false;
 		}
+		
+		if (mChannelChangers.contains(command))
+			notifyChannelChanged();
 		
 		return true;
 	}
