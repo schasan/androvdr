@@ -329,32 +329,6 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			setContentView(R.layout.remote_vdr_main);
 			addLongClickListener(findViewById(R.id.remote_vdr_main_id));
 
-			mDevices.addOnSensorChangeListener("VDR.disk", 5, new OnSensorChangeListener() {
-				@Override
-				public void onChange(String result) {
-					logger.trace("DiskStatus: {}", result);
-					Message msg = Message.obtain(mSensorHandler, SENSOR_DISKSTATUS);
-					Bundle bundle = new Bundle();
-					bundle.putString(MSG_RESULT, result);
-					msg.setData(bundle);
-					msg.sendToTarget();
-				}
-			});
-
-			mDevices.addOnSensorChangeListener("VDR.channel", 1, new OnSensorChangeListener() {
-				@Override
-				public void onChange(String result) {
-					logger.trace("Channel: {}", result);
-					Message msg = Message.obtain(mSensorHandler, SENSOR_CHANNEL);
-					Bundle bundle = new Bundle();
-					bundle.putString(MSG_RESULT, result);
-					msg.setData(bundle);
-					msg.sendToTarget();
-				}
-			});
-			
-			mDevices.startSensorUpdater(0);
-
 		} else if (Build.VERSION.SDK_INT > 4) {
 
 			/*
@@ -449,6 +423,36 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		        mTabHost.getTabWidget().getChildAt(i).getLayoutParams().height = tabheight;
 	        
 	        mTabHost.setCurrentTab(0);        
+		}
+
+		if (Preferences.screenSize >= Preferences.SCREENSIZE_XLARGE) {
+			mDevices.addOnSensorChangeListener("VDR.disk", 5,
+					new OnSensorChangeListener() {
+						@Override
+						public void onChange(String result) {
+							logger.trace("DiskStatus: {}", result);
+							Message msg = Message.obtain(mSensorHandler,
+									SENSOR_DISKSTATUS);
+							Bundle bundle = new Bundle();
+							bundle.putString(MSG_RESULT, result);
+							msg.setData(bundle);
+							msg.sendToTarget();
+						}
+					});
+			mDevices.addOnSensorChangeListener("VDR.channel", 1,
+					new OnSensorChangeListener() {
+						@Override
+						public void onChange(String result) {
+							logger.trace("Channel: {}", result);
+							Message msg = Message.obtain(mSensorHandler,
+									SENSOR_CHANNEL);
+							Bundle bundle = new Bundle();
+							bundle.putString(MSG_RESULT, result);
+							msg.setData(bundle);
+							msg.sendToTarget();
+						}
+					});
+			mDevices.startSensorUpdater(0);
 		}
 	}
 
