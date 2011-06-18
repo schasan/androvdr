@@ -9,7 +9,11 @@ package de.androvdr;
      * License.
      */
 
-    import android.content.Context;
+    import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.androvdr.activities.AndroVDR;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Bitmap;
@@ -36,6 +40,7 @@ import android.widget.Scroller;
      * This code has been done by using com.android.launcher.Workspace.java
      */
     public class WorkspaceView extends ViewGroup implements OnSharedPreferenceChangeListener {
+    	private static transient Logger logger = LoggerFactory.getLogger(AndroVDR.class);
 
         private static final int INVALID_POINTER = -1;
 
@@ -479,32 +484,36 @@ import android.widget.Scroller;
         }
 
         private void handleInterceptMove(MotionEvent ev) {
-            final int pointerIndex = ev.findPointerIndex(mActivePointerId);
-            final float x = ev.getX(pointerIndex);
-            final float y = ev.getY(pointerIndex);
-            final int xDiff = (int) Math.abs(x - lastMotionX);
-            final int yDiff = (int) Math.abs(y - lastMotionY);
-            boolean xMoved = xDiff > touchSlop;
-            boolean yMoved = yDiff > touchSlop;
+            try {
+				final int pointerIndex = ev.findPointerIndex(mActivePointerId);
+				final float x = ev.getX(pointerIndex);
+				final float y = ev.getY(pointerIndex);
+				final int xDiff = (int) Math.abs(x - lastMotionX);
+				final int yDiff = (int) Math.abs(y - lastMotionY);
+				boolean xMoved = xDiff > touchSlop;
+				boolean yMoved = yDiff > touchSlop;
 
-            if (xMoved || yMoved) {
-                //Log.d("workspace","Detected move.  Checking to scroll.");
-                if (xMoved && !yMoved) {
-                    //Log.d("workspace","Detected X move.  Scrolling.");
-                    // Scroll if the user moved far enough along the X axis
-                    touchState = TOUCH_STATE_SCROLLING;
-                    lastMotionX = x;
-                }
-                // Either way, cancel any pending longpress
-                if (allowLongPress) {
-                    allowLongPress = false;
-                    // Try canceling the long press. It could also have been scheduled
-                    // by a distant descendant, so use the mAllowLongPress flag to block
-                    // everything
-                    final View currentView = getChildAt(currentScreen);
-                    currentView.cancelLongPress();
-                }
-            }
+				if (xMoved || yMoved) {
+				    //Log.d("workspace","Detected move.  Checking to scroll.");
+				    if (xMoved && !yMoved) {
+				        //Log.d("workspace","Detected X move.  Scrolling.");
+				        // Scroll if the user moved far enough along the X axis
+				        touchState = TOUCH_STATE_SCROLLING;
+				        lastMotionX = x;
+				    }
+				    // Either way, cancel any pending longpress
+				    if (allowLongPress) {
+				        allowLongPress = false;
+				        // Try canceling the long press. It could also have been scheduled
+				        // by a distant descendant, so use the mAllowLongPress flag to block
+				        // everything
+				        final View currentView = getChildAt(currentScreen);
+				        currentView.cancelLongPress();
+				    }
+				}
+			} catch (ArrayIndexOutOfBoundsException e) {
+				logger.error("handleInterceptMove", e);
+			}
         }
 
         private void onSecondaryPointerUp(MotionEvent ev) {
@@ -624,27 +633,31 @@ import android.widget.Scroller;
         }
 
         private void handleScrollMove(MotionEvent ev){
-            // Scroll to follow the motion event
-            final int pointerIndex = ev.findPointerIndex(mActivePointerId);
-            final float x1 = ev.getX(pointerIndex);
-            final int deltaX = (int) (lastMotionX - x1);
-            lastMotionX = x1;
+            try {
+				// Scroll to follow the motion event
+				final int pointerIndex = ev.findPointerIndex(mActivePointerId);
+				final float x1 = ev.getX(pointerIndex);
+				final int deltaX = (int) (lastMotionX - x1);
+				lastMotionX = x1;
 
-            if (deltaX < 0) {
-                if (getScrollX() > 0) {
-                    //Scrollby invalidates automatically
-                    scrollBy(Math.max(-getScrollX(), deltaX), 0);
-                }
-            }
-            else if (deltaX > 0) {
-                final int availableToScroll = getChildAt(getChildCount() - 1).getRight() - getScrollX() - getWidth();
-                if (availableToScroll > 0) {
-                    //Scrollby invalidates automatically
-                    scrollBy(Math.min(availableToScroll, deltaX), 0);
-                }
-            } else {
-                awakenScrollBars();
-            }
+				if (deltaX < 0) {
+				    if (getScrollX() > 0) {
+				        //Scrollby invalidates automatically
+				        scrollBy(Math.max(-getScrollX(), deltaX), 0);
+				    }
+				}
+				else if (deltaX > 0) {
+				    final int availableToScroll = getChildAt(getChildCount() - 1).getRight() - getScrollX() - getWidth();
+				    if (availableToScroll > 0) {
+				        //Scrollby invalidates automatically
+				        scrollBy(Math.min(availableToScroll, deltaX), 0);
+				    }
+				} else {
+				    awakenScrollBars();
+				}
+			} catch (ArrayIndexOutOfBoundsException e) {
+				logger.error("handleScrollMove", e);
+			}
         }
 
         /**
