@@ -21,10 +21,18 @@
 package de.androvdr.activities;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
+import java.util.List;
 
+import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.commands.LSTC;
+import org.hampelratte.svdrp.parsers.ChannelParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,11 +69,16 @@ import android.view.ViewGroup;
 import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TabHost.TabContentFactory;
+import de.androvdr.Channel;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.GesturesFind;
 import de.androvdr.IFileLogger;
@@ -78,10 +91,12 @@ import de.androvdr.WorkspaceView;
 import de.androvdr.devices.Devices;
 import de.androvdr.devices.IActuator;
 import de.androvdr.devices.OnChangeListener;
+import de.androvdr.devices.OnSensorChangeListener;
 import de.androvdr.devices.VdrDevice;
 import de.androvdr.svdrp.VDRConnection;
 
-public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLoadListener, OnSharedPreferenceChangeListener {
+public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLoadListener, 
+		OnSharedPreferenceChangeListener {
     
 	private static final int PREFERENCEACTIVITY_ID = 1;
 	private static final int ACTIVITY_ID = 2;
@@ -90,6 +105,9 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	private static final int CLOSE_CONNECTION = 0;
 	private static final int CLOSE_CONNECTION_PORTFORWARDING = 1;
 	private static final int CLOSE_CONNECTION_TERMINATE = 2;
+	
+	private static final int SENSOR_DISKSTATUS = 1;
+	private static final int SENSOR_CHANNEL = 2;
 	
 	private final File usertabFile = new File(Preferences.getExternalRootDirName() + "/mytab");
 
@@ -100,7 +118,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     };
 
 	public static PortForwarding portForwarding = null;
-
+	
 	private static final int SWITCH_DIALOG_ID = 0;
 	
 	private Devices mDevices;
@@ -124,6 +142,43 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 					Toast.makeText(AndroVDR.this, result, Toast.LENGTH_LONG).show();
 			}
 		}
+	};
+	
+	private Handler mSensorHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			int type = msg.what;
+			String result = msg.getData().getString(MSG_RESULT);
+			TextView tv;
+			
+			switch (type) {
+			case SENSOR_DISKSTATUS:
+				tv = (TextView) findViewById(R.id.remote_diskstatus_values);
+				if (tv != null && ! result.equals("N/A")) {
+					try {
+						String[] sa = result.split(" ");
+						Integer total = Integer.parseInt(sa[0].replaceAll("MB$", "")) / 1024;
+						int free = Integer.parseInt(sa[1].replaceAll("MB$", "")) / 1024;
+						Integer used = total - free;
+
+						tv.setText(used.toString() + " GB / " + total.toString() + " GB");
+
+						ProgressBar pg = (ProgressBar) findViewById(R.id.remote_diskstatus_progressbar);
+						pg.setMax(total);
+						pg.setProgress(used);
+					} catch (Exception e) {
+						logger.error("Couldn't parse disk status: {}", e);
+						tv.setText("N/A");
+					}
+				}
+				break;
+			case SENSOR_CHANNEL:
+				tv = (TextView) findViewById(R.id.channeltext);
+				if (tv != null) {
+					new ChannelViewUpdater().execute(result);
+				}
+				break;
+			}
+		};
 	};
 	
 	private void addLongClickListener(View view) {
@@ -248,10 +303,24 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    logger.debug("Screen Large: {}", screenLarge);
 	    logger.debug("Screen XLarge: {}", screenXLarge);
 
+	    if (screenSmall)
+	    	Preferences.screenSize = Preferences.SCREENSIZE_SMALL;
+	    if (screenNormal)
+	    	Preferences.screenSize = Preferences.SCREENSIZE_NORMAL;
+	    if (screenLong)
+	    	Preferences.screenSize = Preferences.SCREENSIZE_LONG;
+	    if (screenLarge)
+	    	Preferences.screenSize = Preferences.SCREENSIZE_LARGE;
+	    if (screenXLarge)
+	    	Preferences.screenSize = Preferences.SCREENSIZE_XLARGE;
+	    logger.trace("Screen size: {}", Preferences.screenSize);
+	    
 	    /*
 	     * device dependant layout initilization
 	     */
-		if (!usertabFile.exists() && Preferences.alternateLayout && (screenLarge || screenXLarge)) {
+		if (!usertabFile.exists() 
+				&& Preferences.alternateLayout 
+				&& Preferences.screenSize >= Preferences.SCREENSIZE_LARGE) {
 			
 			/*
 			 * tablets with large screen and no usertab
@@ -259,7 +328,33 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			
 			setContentView(R.layout.remote_vdr_main);
 			addLongClickListener(findViewById(R.id.remote_vdr_main_id));
+
+			mDevices.addOnSensorChangeListener("VDR.disk", 5, new OnSensorChangeListener() {
+				@Override
+				public void onChange(String result) {
+					logger.trace("DiskStatus: {}", result);
+					Message msg = Message.obtain(mSensorHandler, SENSOR_DISKSTATUS);
+					Bundle bundle = new Bundle();
+					bundle.putString(MSG_RESULT, result);
+					msg.setData(bundle);
+					msg.sendToTarget();
+				}
+			});
+
+			mDevices.addOnSensorChangeListener("VDR.channel", 1, new OnSensorChangeListener() {
+				@Override
+				public void onChange(String result) {
+					logger.trace("Channel: {}", result);
+					Message msg = Message.obtain(mSensorHandler, SENSOR_CHANNEL);
+					Bundle bundle = new Bundle();
+					bundle.putString(MSG_RESULT, result);
+					msg.setData(bundle);
+					msg.sendToTarget();
+				}
+			});
 			
+			mDevices.startSensorUpdater(0);
+
 		} else if (Build.VERSION.SDK_INT > 4) {
 
 			/*
@@ -278,19 +373,26 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 
 			int[] screens;
 			if (Preferences.alternateLayout) {
-				if (screenLarge || screenXLarge) {
+				switch (Preferences.screenSize) {
+				case Preferences.SCREENSIZE_SMALL:
+					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics, 
+							R.layout.remote_vdr_play };
+					break;
+				case Preferences.SCREENSIZE_NORMAL:
+				case Preferences.SCREENSIZE_LONG:
+					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics };
+					break;
+				case Preferences.SCREENSIZE_LARGE:
+				case Preferences.SCREENSIZE_XLARGE:
 					screens = new int[] { R.layout.remote_vdr_main };
-				} else if (screenNormal)
+					break;
+				default:
 					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics };
-				else if (screenSmall)
-					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics, R.layout.remote_vdr_play };
-				else
-					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics };
+				}
 	
 				mWorkspace.setDefaultScreen(0);
 			} else {
-				screens = new int[] { R.layout.tab1, R.layout.tab2,
-						R.layout.tab3 };
+				screens = new int[] { R.layout.tab1, R.layout.tab2,	R.layout.tab3 };
 				mWorkspace.setDefaultScreen(0);
 			}
 
@@ -324,10 +426,13 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		    if (Preferences.alternateLayout) {
 			    mTabHost.addTab(mTabHost.newTabSpec("tab_main").setIndicator(getString(R.string.tab_main_text)).setContent(tab));
 		        mTabHost.addTab(mTabHost.newTabSpec("tab_numerics").setIndicator(getString(R.string.tab_numerics_text)).setContent(tab));
-		        
-				if (screenSmall || (screenNormal && !screenLong)) {
+
+		        switch (Preferences.screenSize) {
+		        case Preferences.SCREENSIZE_SMALL:
+		        case Preferences.SCREENSIZE_NORMAL:
 			        mTabHost.addTab(mTabHost.newTabSpec("tab_play").setIndicator(getString(R.string.tab_play_text)).setContent(tab));
-				}
+		        	break;
+		        }
 		    } else {
 			    mTabHost.addTab(mTabHost.newTabSpec("tab_rc1").setIndicator(getString(R.string.tab1_text)).setContent(tab));
 		        mTabHost.addTab(mTabHost.newTabSpec("tab_rc2").setIndicator(getString(R.string.tab2_text)).setContent(tab));
@@ -386,7 +491,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		mDevices.setParentActivity(this);
 		mDevices.setResultHandler(mResultHandler);
 		mDevices.setOnDeviceConfigurationChangedListener(this);
-
+		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 	    sp.registerOnSharedPreferenceChangeListener(this);
 	    sp.registerOnSharedPreferenceChangeListener(mDevices);
@@ -456,6 +561,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		mDevices.clearOnSensorChangeListeners();
 		new CloseConnectionTask().execute(CLOSE_CONNECTION_PORTFORWARDING);
 	}
 	
@@ -492,6 +598,12 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		mDevices.stopSensorUpdater();
+	}
+	
+	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 		MenuItem mi = menu.findItem(R.id.androvdr_internet);
@@ -501,6 +613,12 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			mi.setTitle(R.string.main_forwarding_on);
 		
 		return true;
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mDevices.startSensorUpdater(1);
 	}
 	
 	@Override
@@ -557,6 +675,113 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     		setTitle(mTitle);
     }
     
+	private class ChannelViewUpdater extends AsyncTask<String, Void, Channel> {
+
+		@Override
+		protected Channel doInBackground(String... params) {
+			int channelNumber;
+			
+			if (params[0].equalsIgnoreCase("N/A"))
+				return null;
+			
+			try {
+				String[] sa = params[0].split(" ");
+				channelNumber = Integer.parseInt(sa[0]);
+			} catch (Exception e) {
+				logger.error("Couldn't parse channel: {}", e);
+				return null;
+			}
+
+		    Response response = VDRConnection.send(new LSTC(channelNumber));
+			if(response.getCode() != 250) {
+				logger.error("Couldn't get channel: {} {}", response.getCode(), response.getMessage());
+				return null;
+			}
+			
+			Channel channel;
+			try {
+				List<org.hampelratte.svdrp.responses.highlevel.Channel> channels = ChannelParser.parse(response.getMessage(), true);
+				if (channels.size() > 0) {
+				channel = new Channel(channels.get(0));
+				channel.updateEpg(true);
+				return channel;
+				} else {
+					logger.error("No channel found");
+					return null;
+				}
+			} catch(ParseException pe) {
+			    logger.error("Couldn't parse channel details", pe);
+			    return null;
+			} catch(IOException e) {
+				logger.error("Couldn't get channel", e);
+				return null;
+			}
+			
+		}
+		
+		@Override
+		protected void onPostExecute(Channel channel) {
+			LinearLayout channelInfo = (LinearLayout) findViewById(R.id.remote_channel_info);
+			
+			if (channelInfo == null)
+				return;
+			
+			if (channel == null) {
+				channelInfo.setVisibility(View.GONE);
+			} else {
+				channelInfo.setVisibility(View.VISIBLE);
+				final SimpleDateFormat timeformatter = new SimpleDateFormat(
+						Preferences.timeformat);
+				final GregorianCalendar calendar = new GregorianCalendar();
+
+				TextView tv = (TextView) findViewById(R.id.channelnumber);
+				ImageView iv = (ImageView) findViewById(R.id.channellogo);
+
+				if (Preferences.useLogos) {
+					tv.setVisibility(View.GONE);
+					iv.setVisibility(View.VISIBLE);
+					iv.setImageBitmap(channel.logo);
+				} else {
+					tv.setVisibility(View.VISIBLE);
+					iv.setVisibility(View.GONE);
+					tv.setText(String.valueOf(channel.nr));
+				}
+
+				tv = (TextView) findViewById(R.id.channeltext);
+				tv.setText(channel.name);
+
+				ProgressBar pb = (ProgressBar) findViewById(R.id.channelprogress);
+				if (channel.getNow().isEmpty) {
+					pb.setProgress(0);
+					tv = (TextView) findViewById(R.id.channelnowplayingtime);
+					tv.setText("");
+					tv = (TextView) findViewById(R.id.channelnowplaying);
+					tv.setText("");
+				} else {
+					calendar.setTimeInMillis(channel.getNow().startzeit * 1000);
+					pb.setProgress(channel.getNow().getActualPercentDone());
+					tv = (TextView) findViewById(R.id.channelnowplayingtime);
+					tv.setText(timeformatter.format(calendar.getTime()));
+					tv = (TextView) findViewById(R.id.channelnowplaying);
+					tv.setText(channel.getNow().titel);
+				}
+
+				if (channel.getNext().isEmpty) {
+					tv = (TextView) findViewById(R.id.channelnextplayingtime);
+					tv.setText("");
+					tv = (TextView) findViewById(R.id.channelnextplaying);
+					tv.setText("");
+				} else {
+					calendar.setTimeInMillis(channel.getNext().startzeit * 1000);
+					tv = (TextView) findViewById(R.id.channelnextplayingtime);
+					tv.setText(timeformatter.format(calendar.getTime()));
+					tv = (TextView) findViewById(R.id.channelnextplaying);
+					tv.setText(channel.getNext().titel);
+				}
+			}
+		}
+	}
+	
 	private class CloseConnectionTask extends AsyncTask<Integer, Void, Void> {
 
 		@Override

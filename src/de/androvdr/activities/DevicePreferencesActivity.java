@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
@@ -245,6 +246,11 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 			       });
 			AlertDialog alert = builder.create();
 			alert.show();
+			return true;
+		case android.R.id.home:
+			Intent intent = new Intent(this, AndroVDR.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

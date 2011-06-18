@@ -22,6 +22,7 @@ package de.androvdr.activities;
 
 import java.util.List;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
@@ -33,6 +34,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
+import android.view.MenuItem;
 import de.androvdr.ListPreferenceValueHolder;
 import de.androvdr.Preferences;
 import de.androvdr.R;
@@ -95,6 +97,19 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		updateSummaries();
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+		case android.R.id.home:
+			Intent intent = new Intent(this, AndroVDR.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+    	}
+	}
+	
 	@Override
 	protected void onPause() {
 		super.onPause();

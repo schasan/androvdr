@@ -62,6 +62,7 @@ import de.androvdr.VdrCommands;
 import de.androvdr.activities.ChannelsActivity;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.activities.EpgsdataActivity;
+import de.androvdr.devices.Devices;
 import de.androvdr.devices.VdrDevice;
 import de.androvdr.svdrp.VDRConnection;
 
@@ -460,6 +461,8 @@ public class ChannelController extends AbstractController implements Runnable {
 		@Override
 		protected void onPostExecute(Response result) {
 		    if(result.getCode() == 250) {
+		    	Devices devices = Devices.getInstance(mActivity);
+		    	devices.updateChannelSensor();
 		    	mActivity.finish();
 		    } else {
 		        logger.error("Couldn't switch channel: {}", result.getCode() + " - " + result.getMessage());

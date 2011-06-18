@@ -25,11 +25,15 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -55,7 +59,7 @@ import de.androvdr.DevicesTable;
 import de.androvdr.Preferences;
 import de.androvdr.Recordings;
 
-public class Devices implements OnSharedPreferenceChangeListener {
+public class Devices implements OnSharedPreferenceChangeListener, OnChannelChangedListener {
 	private static transient Logger logger = LoggerFactory.getLogger(Devices.class);
 	
 	private static Devices sInstance;
@@ -64,6 +68,7 @@ public class Devices implements OnSharedPreferenceChangeListener {
 	public static final CharSequence[] volumePrefNames = new CharSequence[] { "volumeDevice", "volumeUp", "volumeDown" };
 
 	private ActivityDevice mActivity;
+	private SensorJob mChannelSensorJob;
 	private final DBHelper mDBHelper;
 	private int mDatabaseIsExternalOpen = 0;
 	private Hashtable<String, IActuator> mDevices = new Hashtable<String, IActuator>();
@@ -72,6 +77,10 @@ public class Devices implements OnSharedPreferenceChangeListener {
 	private Hashtable<String, Class<?>> mPlugins = new Hashtable<String, Class<?>>();
 	private Handler mResultHandler = null;
 	private DeviceSendThread mSendThread = null;
+	private ArrayList<SensorJob> mSensorJobs = new ArrayList<SensorJob>();
+	private Hashtable<String, ISensor> mSensors = new Hashtable<String, ISensor>();
+	private Timer mSensorUpdateTimer;
+	private SensorReceiveThread mReceiveThread = null;
 	private String mVolumeDownCommand = "";
 	private String mVolumeUpCommand = "";
 
@@ -81,14 +90,17 @@ public class Devices implements OnSharedPreferenceChangeListener {
 	public static String pluginDir = Preferences.getPluginDirName();
 	
 	private Devices(Context context) {
+		mReceiveThread = new SensorReceiveThread();
+		mReceiveThread.start();
+
+		mSendThread = new DeviceSendThread();
+		mSendThread.start();
+		
 		mDBHelper = new DBHelper(context);
 		
 		init();
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 		initVolumeCommands(sp);
-
-		mSendThread = new DeviceSendThread();
-		mSendThread.start();
 	}
 
 	public void addDevice(Cursor cursor) {
@@ -114,11 +126,13 @@ public class Devices implements OnSharedPreferenceChangeListener {
 			vdr.sshkey = cursor.getString(20);
 			vdr.streamingport = cursor.getInt(21);
 			mDevices.put(vdr.getName(), vdr);
+			mSensors.put(vdr.getName(), vdr);
 		} else {
 			try {
 				if (mPlugins.containsKey(cursor.getString(1))) {
-					IActuator actuator = (IActuator) mPlugins.get(cursor.getString(1)).newInstance();
-					if (actuator != null) {
+					IDevice c = (IDevice) mPlugins.get(cursor.getString(1)).newInstance();
+					if (c != null && c instanceof IActuator) { 
+						IActuator actuator = (IActuator) c;
 						actuator.setId(cursor.getLong(0));
 						actuator.setName(cursor.getString(2));
 						actuator.setIP(cursor.getString(3));
@@ -127,11 +141,43 @@ public class Devices implements OnSharedPreferenceChangeListener {
 						actuator.setPassword(cursor.getString(6));
 						mDevices.put(actuator.getName(), actuator);
 					}
+					if (c != null && c instanceof ISensor) {
+						ISensor sensor = (ISensor) c;
+						sensor.setId(cursor.getLong(0));
+						sensor.setName(cursor.getString(2));
+						sensor.setIP(cursor.getString(3));
+						sensor.setPort(cursor.getInt(4));
+						sensor.setUser(cursor.getString(5));
+						sensor.setPassword(cursor.getString(6));
+						mSensors.put(sensor.getName(), sensor);
+
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void addOnSensorChangeListener(String command, int interval, OnSensorChangeListener listener) {
+		SensorJob job = new SensorJob(command, interval, listener);
+		synchronized (mSensorJobs) {
+			mSensorJobs.add(job);
+		}
+		
+		if (VdrDevice.isChannelSensor(command)) {
+			mChannelSensorJob = job;
+			VdrDevice vdr = Preferences.getVdr();
+			if (vdr != null)
+				vdr.addChannelChangedListener(this);
+		}
+	}
+	
+	public void clearOnSensorChangeListeners() {
+		synchronized (mSensorJobs) {
+			mSensorJobs.clear();
+		}
+		logger.trace("SensorJobs cleared");
 	}
 	
 	public void dbClose() {
@@ -231,7 +277,8 @@ public class Devices implements OnSharedPreferenceChangeListener {
 		Enumeration<String> e = mPlugins.keys();
 		while (e.hasMoreElements()) {
 			String key = e.nextElement();
-			list.add(key); 
+			if (IActuator.class.isAssignableFrom(mPlugins.get(key)))
+				list.add(key); 
 		}
 		return list.toArray(new String[list.size()]);
 	}
@@ -391,8 +438,8 @@ public class Devices implements OnSharedPreferenceChangeListener {
 								.getAbsolutePath(), dexpath.getAbsolutePath(),
 								null, getClass().getClassLoader());
 						Class<?> c = loader.loadClass(className);
-						if (IActuator.class.isAssignableFrom(c)) {
-							IActuator ac = (IActuator) c.newInstance();
+						if (IDevice.class.isAssignableFrom(c)) {
+							IDevice ac = (IDevice) c.newInstance();
 							mPlugins.put(ac.getDisplayClassName(), c);
 							logger.debug("Plugin: {}", 
 									(ac.getDisplayClassName() + " (" + c.getName() + ")"));
@@ -406,8 +453,14 @@ public class Devices implements OnSharedPreferenceChangeListener {
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-			String key) {
+	public void onChannelChanged() {
+		if (mChannelSensorJob != null) {
+			mReceiveThread.updateChannel(mChannelSensorJob);
+		}
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		boolean isVolumePref = false;
 		for (CharSequence s : volumePrefNames)
 			if (s.equals(key)) {
@@ -416,6 +469,11 @@ public class Devices implements OnSharedPreferenceChangeListener {
 			}
 		if (key.equals("volumeVDR") || isVolumePref)
 			initVolumeCommands(sharedPreferences);
+		if (key.equals("currentVdrId")) {
+			VdrDevice vdr = Preferences.getVdr();
+			if (vdr != null)
+				vdr.addChannelChangedListener(this);
+		}
 	}
 
 	public void onPause() {
@@ -426,6 +484,17 @@ public class Devices implements OnSharedPreferenceChangeListener {
 		}
 	}
 
+	public void onResume() {
+		// --- next full minute --
+		long now = new Date().getTime();
+		long delay = (now / 1000 / 60 + 1) * 60000 - now;
+
+		// --- run SensorUpdate every minute ---
+		mSensorUpdateTimer = new Timer();
+		mSensorUpdateTimer.schedule(new SensorUpdater(), delay + 2000, 60000);
+		logger.trace("Sensor update timer started");
+	}
+	
 	public void send(String command) {
 		logger.debug("send: {}", command);
 		String sa[] = command.split("\\.");
@@ -467,8 +536,8 @@ public class Devices implements OnSharedPreferenceChangeListener {
 
 	public void setOnDeviceConfigurationChangedListener(OnChangeListener listener) {
 		mOnDeviceConfigurationChangedListener = listener;
-		
 	}
+
 	public void setParentActivity(Activity activity) {
 		mActivity.setParentActivity(activity);
 	}
@@ -477,6 +546,31 @@ public class Devices implements OnSharedPreferenceChangeListener {
 		mResultHandler = resultHandler;
 	}
 
+	public void startSensorUpdater(int delaySeconds) {
+		if (mSensorJobs.size() > 0 && mSensorUpdateTimer == null) {
+			new Timer().schedule(new SensorUpdater(), delaySeconds * 1000);
+			
+			mSensorUpdateTimer = new Timer();
+			long now = new Date().getTime();
+			long delay = (now / 60000 + 1) * 60000 - now;
+			mSensorUpdateTimer.schedule(new SensorUpdater(), delay + 2000, 60000);
+			logger.trace("Sensor update timer started (delay = {} sec)", delay / 1000 + 2 );
+		}
+	}
+	
+	public void stopSensorUpdater() {
+		if (mSensorUpdateTimer != null) {
+			mSensorUpdateTimer.cancel();
+			mSensorUpdateTimer = null;
+			logger.trace("Sensor update timer stopped");
+		}
+	}
+
+	public void updateChannelSensor() {
+		if (mChannelSensorJob != null)
+			mReceiveThread.updateChannel(mChannelSensorJob);
+	}
+	
 	public boolean volumeControl() {
 		return (mVolumeDownCommand.length() > 0) || (mVolumeUpCommand.length() > 0);
 	}
@@ -506,8 +600,9 @@ public class Devices implements OnSharedPreferenceChangeListener {
 						IActuator ac = null;
 						if (sa[0].equals(VDR_CLASSNAME))
 							ac = Preferences.getVdr();
-						else
+						else {
 							ac = mDevices.get(sa[0]);
+						}
 						String result = null;
 						if (ac != null && sa.length > 1) {
 							if (!ac.write(sa[1])) {
@@ -521,6 +616,7 @@ public class Devices implements OnSharedPreferenceChangeListener {
 					}
 				}
 			};
+			logger.trace("DeviceSendThread started");
 			Looper.loop();
 		}
 
@@ -532,7 +628,7 @@ public class Devices implements OnSharedPreferenceChangeListener {
 			mHandler.sendMessage(msg);
 		}
 	}
-
+	
 	private class MacroThread extends Thread {
 		private final Macro mMacro;
 
@@ -555,6 +651,96 @@ public class Devices implements OnSharedPreferenceChangeListener {
 					}
 				} else {
 					send(command);
+				}
+			}
+		}
+	}
+
+	private class SensorJob {
+		public String command;
+		public int interval;
+		public long lastReceiveTime = 0;
+		public OnSensorChangeListener listener;
+		
+		public SensorJob(String command, int interval, OnSensorChangeListener listener) {
+			this.command = command;
+			this.interval = interval;
+			this.listener = listener;
+		}
+	}
+	
+	private class SensorReceiveThread extends Thread {
+		private Handler mHandler;
+		private Boolean isUpdating = false;
+		
+		public void run() {
+			Looper.prepare();
+			mHandler = new Handler() {
+				@Override
+				public void handleMessage(Message msg) {
+					SensorJob job = (SensorJob) msg.obj;
+					logger.trace("SensorReceiveThread: {}", job.command);
+					ISensor sensor = null;
+					String[] sa = job.command.split("\\.");
+					if (sa[0].equals(VDR_CLASSNAME))
+						sensor = Preferences.getVdr();
+					else {
+						sensor = mSensors.get(sa[0]);
+					}
+					String result = null;
+					if (sensor != null && sa.length > 1) {
+						result = sensor.read(sa[1]);
+						if (result != null) {
+							job.listener.onChange(result);
+						} else {
+							logger.error("SensorReceiveThread: {}", sensor.getLastError());
+							job.listener.onChange("N/A");
+						}
+					} else {
+						logger.error("SensorReceiveThread: Error in command: {}", job.command);
+					}
+					job.lastReceiveTime = new Date().getTime() / 60000;
+				}
+			};
+			logger.trace("SensorReceiveThread started");
+			Looper.loop();
+		}
+		
+		public void receive(SensorJob job) {
+			Message msg = new Message();
+			msg.obj = job;
+			mHandler.sendMessage(msg);
+		}
+		
+		public void updateChannel(final SensorJob job) {
+			synchronized (isUpdating) {
+				if (! isUpdating) {
+					TimerTask tt = new TimerTask() {
+						@Override
+						public void run() {
+							synchronized (isUpdating) {
+								mReceiveThread.receive(job);
+								isUpdating = false;
+							}
+						}
+					};
+					isUpdating = true;
+					new Timer().schedule(tt, 2000);
+				}
+			}
+		}
+	}
+
+	private class SensorUpdater extends TimerTask {
+		
+		@Override
+		public void run() {
+			long timeInMinutes = new Date().getTime() / 60000;
+			logger.trace("SensorUpdater: {}", new SimpleDateFormat("HH:mm:ss").format(new Date()));
+			synchronized (mSensorJobs) {
+				for (SensorJob job : mSensorJobs) {
+					if (job.lastReceiveTime + job.interval <= timeInMinutes)
+						mReceiveThread.receive(job);
 				}
 			}
 		}

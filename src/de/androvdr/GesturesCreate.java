@@ -1,11 +1,15 @@
 package de.androvdr;
 import java.io.File;
 
+import de.androvdr.activities.AndroVDR;
+
 import android.app.Activity;
+import android.content.Intent;
 import android.gesture.Gesture;
 import android.gesture.GestureLibrary;
 import android.gesture.GestureOverlayView;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -85,6 +89,19 @@ public class GesturesCreate extends Activity {
     public void cancelGesture(View v) {
         setResult(RESULT_CANCELED);
         finish();
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+		case android.R.id.home:
+            Intent intent = new Intent(this, AndroVDR.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            return true;
+    	default:
+    		return super.onOptionsItemSelected(item);
+    	}
     }
     
     private class GesturesProcessor implements GestureOverlayView.OnGestureListener {
