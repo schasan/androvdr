@@ -10,6 +10,7 @@ import android.gesture.GestureLibrary;
 import android.gesture.GestureOverlayView;
 import android.gesture.Prediction;
 import android.gesture.GestureOverlayView.OnGesturePerformedListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -69,14 +70,7 @@ public class GesturesFind extends AbstractActivity implements OnGesturePerformed
 			Prediction prediction = predictions.get(0);
 			// We want at least some confidence in the result
 			if (prediction.score > 1.0) {
-				VdrDevice vdr = Preferences.getVdr();
-				if (vdr != null) {
-					if (!vdr.write(prediction.name)) {
-						Toast.makeText(this, vdr.getLastError(), Toast.LENGTH_LONG);
-					}
-				}
-				// Show the spell
-				Toast.makeText(this, prediction.name, Toast.LENGTH_SHORT).show();
+				new SendTask().execute(prediction.name);
 			}
 		}
 	}
@@ -99,5 +93,31 @@ public class GesturesFind extends AbstractActivity implements OnGesturePerformed
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+	
+	private class SendTask extends AsyncTask<String, Void, String> {
+
+		@Override
+		protected String doInBackground(String... params) {
+			String result = null;
+			VdrDevice vdr = Preferences.getVdr();
+			if (vdr != null) {
+				if (! vdr.write(params[0])) {
+					result = vdr.getLastError();
+				} else {
+					result = params[0];
+				}
+			} else {
+				result = "No VDR defined";
+			}
+			return result;
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+			if (result != null)
+				Toast.makeText(GesturesFind.this, result, Toast.LENGTH_SHORT).show();
+		}
+		
 	}
 }

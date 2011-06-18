@@ -61,18 +61,28 @@ public class Channels {
 		    if(response.getCode() != 250) {
 		        throw new IOException("Couldn't determine current channel number");
 		    }
-		    kanal = Integer.parseInt(response.getMessage().split(" ")[0]);
+		    try {
+				kanal = Integer.parseInt(response.getMessage().split(" ")[0]);
+			} catch (NumberFormatException e) {
+				logger.error("Couldn't determine channel number", e);
+				throw new IOException("Couldn't determine channel number");
+			}
 		}
 	    response = VDRConnection.send(new LSTC(kanal));
 		if(response.getCode() != 250) {
 		    throw new IOException(response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""));
 		}
 		try {
-		    List<org.hampelratte.svdrp.responses.highlevel.Channel> channels = ChannelParser.parse(response.getMessage(), true);
-			channel = new Channel(channels.get(0));
-			channel.isTemp = isTempChannel;
-			if (getChannel(channel.nr) == null)
-				mItems.add(channel);
+			List<org.hampelratte.svdrp.responses.highlevel.Channel> channels = ChannelParser
+					.parse(response.getMessage(), true);
+			if (channels.size() > 0) {
+				channel = new Channel(channels.get(0));
+				channel.isTemp = isTempChannel;
+				if (getChannel(channel.nr) == null)
+					mItems.add(channel);
+			} else {
+				logger.error("No channel found");
+			}
 		} catch (IOException e) {
 			logger.error("ungueltiger Kanaldatensatz",e);
 			// faengt u A NumberformatExceptions ab

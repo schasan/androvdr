@@ -700,11 +700,12 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			
 			Channel channel;
 			try {
-				List<org.hampelratte.svdrp.responses.highlevel.Channel> channels = ChannelParser.parse(response.getMessage(), true);
+				List<org.hampelratte.svdrp.responses.highlevel.Channel> channels = ChannelParser
+						.parse(response.getMessage(), true);
 				if (channels.size() > 0) {
-				channel = new Channel(channels.get(0));
-				channel.updateEpg(true);
-				return channel;
+					channel = new Channel(channels.get(0));
+					channel.updateEpg(true);
+					return channel;
 				} else {
 					logger.error("No channel found");
 					return null;
