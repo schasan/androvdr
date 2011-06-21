@@ -58,7 +58,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -628,12 +627,10 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 
 	@Override
 	protected void onStart() {
-		super.onRestart();
-		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		if (pm.isScreenOn())
-			mDevices.startSensorUpdater(1);
+		super.onStart();
+		mDevices.startSensorUpdater(1);
 	}
-	
+
 	@Override
 	protected void onStop() {
 		super.onStop();
