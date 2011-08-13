@@ -38,20 +38,21 @@ import android.database.sqlite.SQLiteStatement;
 
 public class Recordings {
 	private static transient Logger logger = LoggerFactory.getLogger(Recordings.class);
+	private static final DBHelper sDBHelper = new DBHelper(AndroApplication.getAppContext());
 	
 	private ArrayList<RecordingViewItem> mItems = new ArrayList<RecordingViewItem>();
 	
-	public Recordings(DBHelper db) throws IOException {
-		init(db);
+	public Recordings() throws IOException {
+		init();
 	}
 	
-	public static void clearIds(DBHelper db) {
-		clearIds(db, Preferences.getVdr().getId());
+	public static void clearIds() {
+		clearIds(Preferences.getVdr().getId());
 	}
 	
-	public static void clearIds(DBHelper db, long vdrid) {
-		SQLiteDatabase database = db.getWritableDatabase();
-		synchronized (db) {
+	public static void clearIds(long vdrid) {
+		SQLiteDatabase database = sDBHelper.getWritableDatabase();
+		synchronized (sDBHelper) {
 			int i = database.delete(RecordingIdsTable.TABLE_NAME,
 					RecordingIdsTable.VDR_ID + "=?", 
 					new String[] { Long.toString(vdrid) });
@@ -75,14 +76,14 @@ public class Recordings {
 		return result;
 	}
 	
-	private void init(DBHelper db) throws IOException {
+	private void init() throws IOException {
 		Response response = VDRConnection.send(new LSTR());
 		if(response.getCode() == 250) {
 		    String message = response.getMessage();
 		    StringTokenizer st = new StringTokenizer(message, "\n");
 		    while(st.hasMoreTokens()) {
 		        try {
-		            Recording recording = new Recording(st.nextToken(), db);
+		            Recording recording = new Recording(st.nextToken());
 		            RecordingViewItem item;
 		            if (recording.inFolder()) {
 		                if ((item = getFolder(recording.folders.get(0))) == null) {
@@ -106,12 +107,12 @@ public class Recordings {
 		}
 	}
 	
-	public static void deleteUnusedIds(DBHelper db, ArrayList<Recording> currentRecordings) {
-		SQLiteDatabase database = db.getWritableDatabase();
+	public static void deleteUnusedIds(ArrayList<Recording> currentRecordings) {
+		SQLiteDatabase database = sDBHelper.getWritableDatabase();
 		Cursor cursor = null;
 		Recording searchRecording = new Recording();
 		Collections.sort(currentRecordings);
-		synchronized (db) {
+		synchronized (sDBHelper) {
 			try {
 				SQLiteStatement deleteStmt = database
 						.compileStatement("DELETE FROM " + RecordingIdsTable.TABLE_NAME

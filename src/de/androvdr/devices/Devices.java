@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
@@ -54,6 +53,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import dalvik.system.DexClassLoader;
+import de.androvdr.AndroApplication;
 import de.androvdr.DBHelper;
 import de.androvdr.DevicesTable;
 import de.androvdr.Preferences;
@@ -89,17 +89,18 @@ public class Devices implements OnSharedPreferenceChangeListener, OnChannelChang
 	public static String macroConfig = Preferences.getMacroFileName();
 	public static String pluginDir = Preferences.getPluginDirName();
 	
-	private Devices(Context context) {
+	private Devices() {
 		mReceiveThread = new SensorReceiveThread();
 		mReceiveThread.start();
 
 		mSendThread = new DeviceSendThread();
 		mSendThread.start();
 		
-		mDBHelper = new DBHelper(context);
+		mDBHelper = new DBHelper(AndroApplication.getAppContext());
 		
 		init();
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(AndroApplication.getAppContext());
 		initVolumeCommands(sp);
 	}
 
@@ -191,7 +192,7 @@ public class Devices implements OnSharedPreferenceChangeListener, OnChannelChang
 		int result = db.delete(DevicesTable.TABLE_NAME, "_id = ?", new String[] { Long.toString(id) });
 		if (mDatabaseIsExternalOpen == 0)
 			db.close();
-		Recordings.clearIds(mDBHelper, id);
+		Recordings.clearIds(id);
 		initDevices();
 		return result;
 	}
@@ -220,9 +221,9 @@ public class Devices implements OnSharedPreferenceChangeListener, OnChannelChang
 //		return sDevices;
 //	}
 	
-	public static Devices getInstance(Context context) {
+	public static Devices getInstance() {
 		if (sInstance == null) {
-			sInstance = new Devices(context);
+			sInstance = new Devices();
 		}
 		return sInstance;
 	}

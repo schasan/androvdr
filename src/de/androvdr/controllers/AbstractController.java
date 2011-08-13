@@ -29,20 +29,30 @@ import de.androvdr.Messages;
 public abstract class AbstractController {
 	protected Activity mActivity;
 	protected Handler mHandler;
-	
+
 	public void onCreate(Activity activity, Handler handler) {
 		mActivity = activity;
 		mHandler = handler;
 	}
 
+	protected void sendMsg(Handler handler, int type, int stringId) {
+		Message resultMessage = Messages.obtain(type, stringId);
+		synchronized (handler) {
+			handler.sendMessage(resultMessage);
+		}
+	}
+	
 	protected void sendMsg(Handler handler, int type, String msg) {
 		if (handler != null) {
-			Bundle resultBundle = new Bundle();
-			resultBundle.putString(Messages.MSG_MESSAGE, msg);
-			Message resultMessage = Message.obtain(handler);
-			resultMessage.arg1 = type;
-			resultMessage.setData(resultBundle);
-			handler.sendMessage(resultMessage);
+			Message resultMessage = Messages.obtain(type);
+			if (msg != null) {
+				Bundle resultBundle = new Bundle();
+				resultBundle.putString(Messages.MSG_MESSAGE, msg);
+				resultMessage.setData(resultBundle);
+			}
+			synchronized (handler) {
+				handler.sendMessage(resultMessage);
+			}
 		}
 	}
 }

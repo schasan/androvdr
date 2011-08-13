@@ -116,7 +116,7 @@ public class DevicesActivity extends AbstractListActivity {
 		if (Preferences.blackOnWhite && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
 			getListView().setBackgroundColor(Color.WHITE);
 
-		mDevices = Devices.getInstance(this);
+		mDevices = Devices.getInstance();
 		if (! mDevices.hasPlugins()) {
 			Button b = (Button) findViewById(R.id.devices_add_device);
 			b.setVisibility(View.GONE);

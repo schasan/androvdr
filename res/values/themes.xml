@@ -2,7 +2,9 @@
 <resources>
   <style name="Theme" parent="android:Theme">
     <item name="header">@style/header</item>
+    <item name="footer">@style/footer</item>
     <item name="body">@style/body</item>
+    <item name="detailsElementBackground">@style/detailsElementBackground_dark</item>
     <item name="button">@style/button</item>
     <item name="buttonSquare">@style/buttonSquare</item>
     <item name="buttonSquareHeight">@style/buttonSquareHeight</item>
@@ -24,8 +26,10 @@
     <item name="spacer">@style/spacer</item>
   </style>
   <style name="Theme.Light" parent="android:Theme.Light">
-    <item name="header">@style/header</item>
+    <item name="header">@style/header_light</item>
+    <item name="footer">@style/footer_light</item>
     <item name="body">@style/body</item>
+    <item name="detailsElementBackground">@style/detailsElementBackground_light</item>
     <item name="button">@style/button</item>
     <item name="buttonSquare">@style/buttonSquare</item>
     <item name="buttonSquareHeight">@style/buttonSquareHeight</item>
@@ -48,7 +52,9 @@
   </style>
   <style name="Theme.Original" parent="android:Theme">
     <item name="header">@style/header</item>
+    <item name="footer">@style/footer</item>
     <item name="body">@style/body.Original</item>
+    <item name="detailsElementBackground">@style/detailsElementBackground_dark</item>
     <item name="button">@style/button.Original</item>
     <item name="buttonSmall">@style/buttonSmall.Original</item>
     <item name="buttonLarge">@style/buttonLarge.Original</item>
@@ -59,8 +65,10 @@
     <item name="spacerButton">@style/spacer.Original</item>
   </style>
   <style name="Theme.Original.Light" parent="android:Theme.Light">
-    <item name="header">@style/header</item>
+    <item name="header">@style/header_light</item>
+    <item name="footer">@style/footer_light</item>
     <item name="body">@style/body.Original</item>
+    <item name="detailsElementBackground">@style/detailsElementBackground_light</item>
     <item name="button">@style/button.Original</item>
     <item name="buttonSmall">@style/buttonSmall.Original</item>
     <item name="buttonLarge">@style/buttonLarge.Original</item>

@@ -65,7 +65,7 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 	    mDisableStandby = sp.getBoolean("standbyNo", false);
 	    mUseSwipeToFinish = sp.getBoolean("swipeToFinish", false);
 	    
-	    mDevices = Devices.getInstance(activity);
+	    mDevices = Devices.getInstance();
 	    mUseVolumeVDR = mDevices.volumeControl();
 	    
 	    mUseVibrator = sp.getBoolean("hapticFeedback", false);

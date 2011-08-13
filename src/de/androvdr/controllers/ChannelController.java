@@ -78,9 +78,14 @@ public class ChannelController extends AbstractController implements Runnable {
 	public static final int CHANNEL_ACTION_WHATS_ON = 7;
 	public static final int CHANNEL_ACTION_LIVETV = 8;
 
+	public interface OnChannelSelectedListener {
+		public boolean OnItemSelected(int position, Channel channel);
+	}
+	
 	private Channels mChannels = null;
 	private final ListView mListView;
 	private ChannelAdapter mChannelAdapter;
+	private OnChannelSelectedListener mSelectedListener;
 	private UpdateThread mUpdateThread;
 	private long mSearchTime;
 	
@@ -95,11 +100,15 @@ public class ChannelController extends AbstractController implements Runnable {
 			case Messages.MSG_DONE:
 				try {
 					mChannels = new Channels(Preferences.getVdr().channellist);
-					setChannelAdapter(new ChannelAdapter(mActivity,	mChannels.getItems()),	mListView);
-					mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
+					setChannelAdapter(new ChannelAdapter(mActivity,	mChannels.getItems()), mListView);
+					sendMsg(mHandler, Messages.MSG_PROGRESS_DISMISS, null);
+					sendMsg(mHandler, Messages.MSG_CONTROLLER_READY, null);
 				} catch (IOException e) {
 					sendMsg(mHandler, Messages.MSG_ERROR, e.getMessage());
 				}
+				break;
+			case Messages.MSG_DATA_UPDATE_DONE:
+				notifyDataSetChanged();
 				break;
 			default:
 				Message newMsg = new Message();
@@ -121,15 +130,12 @@ public class ChannelController extends AbstractController implements Runnable {
 		mSearchTime = time;
 
 		if (!Channels.isInitialized()) {
-			Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
-			msg.arg2 = R.string.loading_channels;
-			mHandler.sendMessage(msg);
+			sendMsg(mHandler, Messages.MSG_CONTROLLER_LOADING, R.string.loading_channels);
+			sendMsg(mHandler, Messages.MSG_PROGRESS_SHOW, R.string.loading_channels);
 		}
 		
 		if (mSearchTime > 0) {
-			Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
-			msg.arg2 = R.string.loading;
-			mHandler.sendMessage(msg);
+			sendMsg(mHandler, Messages.MSG_PROGRESS_SHOW, R.string.loading);
 		}
 
 		Thread thread = new Thread(this);
@@ -141,13 +147,16 @@ public class ChannelController extends AbstractController implements Runnable {
 		Channel channel = mChannelAdapter.getItem(position);
 		switch (action) {
 		case CHANNEL_ACTION_PROGRAMINFO:
-			intent = new Intent(mActivity, EpgdataActivity.class);
-			intent.putExtra("channelnumber", channel.nr);
 			if (mSearchTime == 0)
 				channel.viewEpg = channel.getNow();
 			else
 				channel.viewEpg = channel.getSearchResult();
-			mActivity.startActivityForResult(intent, 1);
+
+			if (! mSelectedListener.OnItemSelected(position, channel)) {
+				intent = new Intent(mActivity, EpgdataActivity.class);
+				intent.putExtra("channelnumber", channel.nr);
+				mActivity.startActivityForResult(intent, 1);
+			}
 			break;
 		case CHANNEL_ACTION_PROGRAMINFOS:
 		case CHANNEL_ACTION_PROGRAMINFOS_ALL:
@@ -187,6 +196,10 @@ public class ChannelController extends AbstractController implements Runnable {
 		return channel.name;
 	}
 
+	public int getItemPosition(Channel channel) {
+		return mChannelAdapter.getPosition(channel);
+	}
+	
 	private OnItemClickListener getOnItemClickListener() {
 		return new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> listView, View v,
@@ -224,7 +237,7 @@ public class ChannelController extends AbstractController implements Runnable {
 				for (Channel channel : channels)
 					channel.searchEpgAt(mSearchTime);
 			}
-			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
+			sendMsg(mThreadHandler, Messages.MSG_DONE, null);
 		} catch (IOException e) {
 			logger.error("Couldn't load channels", e);
 			sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
@@ -237,11 +250,14 @@ public class ChannelController extends AbstractController implements Runnable {
 		listView.setOnItemClickListener(getOnItemClickListener());
 		listView.setSelected(true);
 		listView.setSelection(0);
-		mActivity.registerForContextMenu(mListView);
 		if (! Preferences.useInternet && (mChannelAdapter.getCount() > 0) && (mSearchTime == 0))
 			mUpdateThread = new UpdateThread(mThreadHandler);
 	}
 
+	public void setOnChannelSelectedListener(OnChannelSelectedListener listener) {
+		mSelectedListener = listener;
+	}
+	
 	public void whatsOn(long time) {
 		Intent intent = new Intent(mActivity, ChannelsActivity.class);
 		intent.putExtra(ChannelsActivity.SEARCHTIME, time);
@@ -461,7 +477,7 @@ public class ChannelController extends AbstractController implements Runnable {
 		@Override
 		protected void onPostExecute(Response result) {
 		    if(result.getCode() == 250) {
-		    	Devices devices = Devices.getInstance(mActivity);
+		    	Devices devices = Devices.getInstance();
 		    	devices.updateChannelSensor();
 		    	mActivity.finish();
 		    } else {
@@ -485,42 +501,40 @@ public class ChannelController extends AbstractController implements Runnable {
 		@Override
 		public void run() {
 			logger.trace("UpdateThread started");
-			try {
-				while (! isInterrupted()) {
-					try {
-						if (mChannelAdapter.getCount() > 0) {
-							long l = mChannelAdapter.getItem(0).getMillisToNextUpdate();
-							if (l > 0) {
-								sleep(l);
-							} else if (l != 0) {
-								for (int i = 0; i < mChannelAdapter.getCount(); i++) 
-									mChannelAdapter.getItem(i).cleanupEpg();
-								mHandler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
-							}
+			while (! isInterrupted()) {
+				try {
+					if (mChannelAdapter.getCount() > 0) {
+						long l = mChannelAdapter.getItem(0).getMillisToNextUpdate();
+						if (l > 0) {
+							sleep(l);
+						} else if (l != 0) {
+							for (int i = 0; i < mChannelAdapter.getCount(); i++) 
+								mChannelAdapter.getItem(i).cleanupEpg();
+							sendMsg(mThreadHandler, Messages.MSG_DATA_UPDATE_DONE, null);
 						}
-						
-						logger.trace("epg update started");
-						mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_SHOW));
-						for (int i = 0; i < mChannelAdapter.getCount(); i++) {
-							mChannelAdapter.getItem(i).updateEpg(true);
-							if (isInterrupted())
-								throw new InterruptedException();;
-						}
-						logger.trace("epg update finished");
-					} catch (InterruptedException e) {
-						logger.trace("UpdateThread interrupted");
-						break;
-					} catch (Exception e) {
-						logger.error("Couldn't update epg data", e);
-					} finally {
-						mHandler.sendMessage(Messages.obtain(Messages.MSG_DATA_UPDATE_DONE));
-						mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
 					}
+
+					logger.trace("epg update started");
+					sendMsg(mHandler, Messages.MSG_TITLEBAR_PROGRESS_SHOW, null);
+					for (int i = 0; i < mChannelAdapter.getCount(); i++) {
+						mChannelAdapter.getItem(i).updateEpg(true);
+						if (isInterrupted())
+							throw new InterruptedException();
+						if (i >= mListView.getFirstVisiblePosition() && i <= mListView.getLastVisiblePosition())
+							sendMsg(mThreadHandler, Messages.MSG_DATA_UPDATE_DONE, null);
+					}
+					logger.trace("epg update finished");
+				} catch (InterruptedException e) {
+					logger.trace("UpdateThread interrupted");
+					break;
+				} catch (Exception e) {
+					logger.error("Couldn't update epg data", e);
+				} finally {
+					sendMsg(mThreadHandler, Messages.MSG_DATA_UPDATE_DONE, null);
+					sendMsg(mHandler, Messages.MSG_TITLEBAR_PROGRESS_DISMISS, null);
 				}
-				logger.trace("UpdateThread finished");
-			} finally {
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
 			}
+			logger.trace("UpdateThread finished");
 		}
 	}
 }

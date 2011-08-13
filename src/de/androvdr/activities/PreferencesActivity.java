@@ -76,8 +76,13 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 			CheckBoxPreference cbf = (CheckBoxPreference) findPreference("showDiskStatus");
 			cbf.setChecked(Preferences.showDiskStatus);
 		}
+		if (Preferences.screenSize < Preferences.SCREENSIZE_LARGE) {
+			PreferenceGroup category = (PreferenceGroup) findPreference("category_appearance");
+			Preference pref = findPreference("detailsLeft");
+			category.removePreference(pref);
+		}
 		
-		mDevices = Devices.getInstance(this);
+		mDevices = Devices.getInstance();
 		if (!mDevices.hasPlugins()) {
 			PreferenceGroup volumeCategory = (PreferenceGroup) findPreference("category_volume");
 			for (CharSequence prefName : Devices.volumePrefNames) {

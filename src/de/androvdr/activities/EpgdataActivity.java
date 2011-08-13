@@ -20,58 +20,20 @@
 
 package de.androvdr.activities;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.LinearLayout;
-import de.androvdr.Preferences;
-import de.androvdr.R;
-import de.androvdr.controllers.EpgdataController;
+import de.androvdr.fragments.EpgdataFragment;
 
-public class EpgdataActivity extends AbstractGestureActivity {
-	private EpgdataController mController;
+public class EpgdataActivity extends AbstractFragmentActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.epgdata);
 
-		LinearLayout view = (LinearLayout) findViewById(R.id.pgi);
-		
-		/*
-		 * setTheme doesn't change background color :(
-		 */
-		if (Preferences.blackOnWhite)
-			view.setBackgroundColor(Color.WHITE);
-		
-		Bundle bundle = getIntent().getExtras();
-		if (bundle != null) {
-			int channelnumber = bundle.getInt("channelnumber");
-			mController = new EpgdataController(this, handler, view, channelnumber);
+		if (savedInstanceState == null) {
+			EpgdataFragment detail = new EpgdataFragment();
+			detail.setArguments(getIntent().getExtras());
+			getSupportFragmentManager().beginTransaction().add(
+					android.R.id.content, detail).commit();
 		}
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.epg_menu, menu);
-		menu.setHeaderTitle(mController.getTitle());
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.epg_record:
-			mController.action(EpgdataController.EPGDATA_ACTION_RECORD);
-			break;
-		default:
-			super.onContextItemSelected(item);
-		}
-		return true;
 	}
 }

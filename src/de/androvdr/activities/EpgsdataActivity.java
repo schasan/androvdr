@@ -20,96 +20,24 @@
 
 package de.androvdr.activities;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.LinearLayout;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import de.androvdr.Preferences;
 import de.androvdr.R;
-import de.androvdr.controllers.EpgsdataController;
 
-public class EpgsdataActivity extends AbstractListActivity {
-	private static transient Logger logger = LoggerFactory.getLogger(EpgsdataActivity.class);
-	
-	private int mChannelNumber;
-	private EpgsdataController mController;
-	private LinearLayout mView;
-	private int mMaxItems;
-	
+public class EpgsdataActivity extends AbstractFragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.epgsdata);
-
-		Bundle bundle = getIntent().getExtras();
-		if(bundle != null){
-			mChannelNumber = bundle.getInt("channelnumber");
-			mMaxItems = bundle.getInt("maxitems");
-		}
-		else {
-			mChannelNumber = 0;
-			mMaxItems = Preferences.getVdr().epgmax;
-		}
-		logger.trace("onCreate");
-	    mView = (LinearLayout) findViewById(R.id.epgsdata_main);
-
-		/*
-		 * setTheme doesn't change background color :(
-		 */
-		if (Preferences.blackOnWhite)
-			mView.setBackgroundColor(Color.WHITE);
 		
-		mController = new EpgsdataController(this, handler, mView, mChannelNumber, mMaxItems);
-	}
-	
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.epgs_menu, menu);
-		AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfo;
-		menu.setHeaderTitle(mController.getTitle(mi.position));
-	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.epgs_option_menu, menu);
-		return true;
-	}
-	
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-		switch (item.getItemId()) {
-		case R.id.epgs_record:
-			mController.action(EpgsdataController.EPGSDATA_ACTION_RECORD, info.position);
-			return true;
-		default:
-			return super.onContextItemSelected(item);
+		if (isDualPane()) {
+			int fragmentId;
+			if (Preferences.detailsLeft)
+				fragmentId = R.id.detail_fragment_right;
+			else
+				fragmentId = R.id.detail_fragment_left;
+			findViewById(fragmentId).setVisibility(View.GONE);
 		}
-	}
-
-    @Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.epgs_search:
-			onSearchRequested();
-			break;
-		default:
-			super.onOptionsItemSelected(item);
-		}
-		return true;
 	}
 }

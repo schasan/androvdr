@@ -23,7 +23,6 @@ package de.androvdr;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -34,6 +33,11 @@ import org.hampelratte.svdrp.parsers.ChannelParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteStatement;
+import de.androvdr.devices.VdrDevice;
 import de.androvdr.svdrp.VDRConnection;
 
 public class Channels {
@@ -95,6 +99,22 @@ public class Channels {
 	public static void clear() {
 		mIsInitialized = false;
 		mItems.clear();
+		
+		VdrDevice vdr = Preferences.getVdr();
+		DBHelper dbhelper = new DBHelper(AndroApplication.getAppContext());
+		SQLiteDatabase db = null;
+		try {
+			db = dbhelper.getWritableDatabase();
+			db.delete(ChannelsTable.TABLE_NAME, 
+					ChannelsTable.VDR_ID + "=?", 
+					new String[] { Long.toString(vdr.getId()) });
+			logger.debug("channellist cleared");
+		} catch (SQLiteException e) {
+			logger.error("Couldn't clear channels table", e);
+		} finally {
+			if (db != null)
+				db.close();
+		}
 	}
 	
 	public void deleteTempChannels() {
@@ -130,13 +150,58 @@ public class Channels {
 			if (mIsInitialized)
 				return;
 			
+			mItems.clear();
+			mIsInitialized = false;
+
+			// --- initialize from db ---
+			VdrDevice vdr = Preferences.getVdr();
+			DBHelper dbh = new DBHelper(AndroApplication.getAppContext());
+			SQLiteDatabase db = null;
+			Cursor cursor = null;
+			try {
+				db = dbh.getReadableDatabase();
+				cursor = db.query(ChannelsTable.TABLE_NAME,
+						new String[] { ChannelsTable.NUMBER, ChannelsTable.NAME, ChannelsTable.ZUSATZ},
+						ChannelsTable.VDR_ID + "=?", 
+						new String[] { Long.toString(vdr.getId()) },
+						null, null, ChannelsTable.ID);
+				
+				while (cursor.moveToNext()) {
+					Channel channel = new Channel(cursor.getInt(0), 
+							cursor.getString(1), cursor.getString(2));
+					mItems.add(channel);
+				}			
+				mIsInitialized = (mItems.size() > 0);
+			} catch (SQLiteException e) {
+				logger.error("Couldn't load channels from database", e);
+			} finally {
+				if (cursor != null)
+					cursor.close();
+				if (db != null)
+					db.close();
+			}
+			
+			// --- no need to request channellist from VDR ---
+			if (mIsInitialized) {
+				logger.debug("channels initialized from database");
+				return;
+			}
+			
 			String[] channelList = mDefaults.split(",");
 			String[] bereich;
 			
-			mItems.clear();
-			mIsInitialized = false;
-			
+			db = null;
 			try {
+				db = dbh.getWritableDatabase();
+				SQLiteStatement insert = db.compileStatement(
+						"INSERT INTO " + ChannelsTable.TABLE_NAME +
+						"(" + 
+						  	ChannelsTable.VDR_ID + "," + ChannelsTable.NUMBER + "," +  
+						  	ChannelsTable.NAME + "," + ChannelsTable.ZUSATZ +
+						") " +
+						"VALUES (?,?,?,?)");
+				db.beginTransaction();
+
 				int i = 0;
 				for (i = 0; i < channelList.length; i++) { // Bereiche oder einzelne Kanaele
 					try {
@@ -157,11 +222,27 @@ public class Channels {
 						continue;
 					}
 				}
-				Collections.sort(mItems);
 				mIsInitialized = true;
+				
+				for (Channel channel : mItems) {
+					insert.bindLong(1, vdr.getId());
+					insert.bindLong(2, channel.nr);
+					insert.bindString(3, channel.name);
+					insert.bindString(4, channel.zusatz);
+					insert.executeInsert();
+				}
+				logger.debug("channels stored into database");
+				db.setTransactionSuccessful();
 			} catch (IOException e) {
 				logger.error("Couldn't initialize Channels", e);
 				throw e;
+			} catch (SQLiteException se) {
+				logger.error("Couldn't store channels into database", se);
+			} finally {
+				if (db != null) {
+					db.endTransaction();
+					db.close();
+				}
 			}
 		}
 	}

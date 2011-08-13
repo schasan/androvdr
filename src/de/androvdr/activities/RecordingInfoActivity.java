@@ -20,32 +20,20 @@
 
 package de.androvdr.activities;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.LinearLayout;
-import de.androvdr.Preferences;
-import de.androvdr.R;
-import de.androvdr.controllers.RecordingInfoController;
+import de.androvdr.fragments.RecordingInfoFragment;
 
-public class RecordingInfoActivity extends AbstractGestureActivity {
-	
+public class RecordingInfoActivity extends AbstractFragmentActivity {
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.recordinginfo);
 
-		LinearLayout view = (LinearLayout) findViewById(R.id.reci);
-		
-		/*
-		 * setTheme doesn't change background color :(
-		 */
-		if (Preferences.blackOnWhite)
-			view.setBackgroundColor(Color.WHITE);
-		
-		Bundle bundle = getIntent().getExtras();
-		if (bundle != null) {
-			int recordingNumber = bundle.getInt("recordingnumber");
-			new RecordingInfoController(this, handler, view, recordingNumber);
+		if (savedInstanceState == null) {
+			RecordingInfoFragment detail = new RecordingInfoFragment();
+			detail.setArguments(getIntent().getExtras());
+			getSupportFragmentManager().beginTransaction().add(
+					android.R.id.content, detail).commit();
 		}
 	}
 }

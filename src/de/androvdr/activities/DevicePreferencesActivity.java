@@ -55,7 +55,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
-import de.androvdr.AndroApplication;
 import de.androvdr.DevicesTable;
 import de.androvdr.ListPreferenceValueHolder;
 import de.androvdr.Preferences;
@@ -102,10 +101,7 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 		
 		mId = getIntent().getExtras().getInt("deviceid", -1);
 		
-		/*
-		 * use ApplicationContext because of overriden getSharedPreferences
-		 */
-		mDevices = Devices.getInstance(AndroApplication.getAppContext());
+		mDevices = Devices.getInstance();
 		
 		pref = new CursorPreferenceHack(mId);
 		pref.registerOnSharedPreferenceChangeListener(this);

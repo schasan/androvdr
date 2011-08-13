@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.hampelratte.svdrp.Response;
 import org.hampelratte.svdrp.commands.DELR;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
@@ -58,7 +60,6 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
-import de.androvdr.DBHelper;
 import de.androvdr.Messages;
 import de.androvdr.Preferences;
 import de.androvdr.R;
@@ -67,7 +68,6 @@ import de.androvdr.RecordingInfo;
 import de.androvdr.RecordingViewItem;
 import de.androvdr.Recordings;
 import de.androvdr.VdrCommands;
-import de.androvdr.activities.AbstractListActivity;
 import de.androvdr.activities.RecordingInfoActivity;
 import de.androvdr.svdrp.VDRConnection;
 
@@ -81,17 +81,23 @@ public class RecordingController extends AbstractController implements Runnable 
 	public static final int RECORDING_ACTION_REMOTE = 7;
 	public static final int RECORDING_ACTION_KEY_BACK = 8;
 	
+	public interface OnRecordingSelectedListener {
+		public boolean OnItemSelected(int position, Recording recording);
+	}
+	
 	private static transient Logger logger = LoggerFactory.getLogger(RecordingController.class);
 	
 	private RecordingViewItemComparer mComparer;
+	private int mCurrentSelectedItemIndex = -1;
 	private String mDiskStatusResponse;
 	private Boolean mDiskStatusResponseSync = true;
 	private final ListView mListView;
 	private RecordingViewItemList mRecordingViewItems = new RecordingViewItemList();
 	private RecordingAdapter mRecordingAdapter;
 	private Stack<RecordingViewItemList> mRecordingsStack = new Stack<RecordingViewItemList>();
+	private OnRecordingSelectedListener mSelectedListener;
 	private RecordingIdUpdateThread mUpdateThread = null;
-	private DBHelper db;
+	private AtomicBoolean mUpdateThreadFinished = new AtomicBoolean(false);
 
 	// --- AsyncTasks ---
 	RecordingInfoTask mRecordingTask = null;
@@ -109,6 +115,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				mRecordingAdapter = new RecordingAdapter(mActivity,	mRecordingViewItems, mListView);
 				setRecordingAdapter(mRecordingAdapter, mListView);
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
+				mHandler.sendMessage(Messages.obtain(Messages.MSG_CONTROLLER_READY));
 				break;
 			default:
 				Message newMsg = new Message();
@@ -118,26 +125,48 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 	};
 
-	public RecordingController(AbstractListActivity activity, Handler handler, ListView listView, Parcelable[] recordings) {
+	public RecordingController(Activity activity, Handler handler, ListView listView, Bundle bundle) {
 		super.onCreate(activity, handler);
 		mListView = listView;
 		datetimeformatter = new SimpleDateFormat(Preferences.dateformatLong);
 		calendar = new GregorianCalendar();
-		db = new DBHelper(mActivity);
 		
-		if (recordings != null && recordings.length > 0) {
+		if (bundle != null) {
+			mDiskStatusResponse = bundle.getString("diskstatus");
+			
+			// --- restore sort order ---
+			mComparer = new RecordingViewItemComparer(bundle.getInt("sortby"));
+			mComparer.ascending = bundle.getBoolean("sortascending");
+			
+			// --- restore view items ---
+			RecordingViewItem[] recordings = (RecordingViewItem[]) bundle.getParcelableArray("recordings");
 			mRecordingViewItems = new RecordingViewItemList();
 			for (int i = 0; i < recordings.length; i++) {
 				mRecordingViewItems.add((RecordingViewItem) recordings[i]);
-				mRecordingViewItems.get(i).recording.db = db;
+				// mRecordingViewItems.get(i).recording.db = db;
 			}
+			
+			// --- restore view item stack ---
+			ArrayList<Parcelable> stack = bundle.getParcelableArrayList("stack");
+			ArrayList<Integer> index = bundle.getIntegerArrayList("stackindex");
+			int current = 0;
+			for (int i = 0; i < index.size(); i++) {
+				int last = index.get(i);
+				RecordingViewItemList list = new RecordingViewItemList();
+				for (int j = current; j < last; j++) {
+					list.add((RecordingViewItem) stack.get(j));
+				}
+				mRecordingsStack.add(list);
+			}
+			
 			mRecordingAdapter = new RecordingAdapter(mActivity, mRecordingViewItems, mListView);
 			setRecordingAdapter(mRecordingAdapter, mListView);
+			sendMsg(mHandler, Messages.MSG_CONTROLLER_READY, null);
 		}
 		else {
-			Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
-			msg.arg2 = R.string.loading;
-			mHandler.sendMessage(msg);
+			sendMsg(mHandler, Messages.MSG_CONTROLLER_LOADING, R.string.loading);
+			sendMsg(mHandler, Messages.MSG_PROGRESS_SHOW, R.string.loading);
+
 			Thread thread = new Thread(this);
 			thread.start();
 		}
@@ -152,6 +181,8 @@ public class RecordingController extends AbstractController implements Runnable 
 			if (mRecordingsStack.empty())
 				mActivity.finish();
 			else {
+				unselectItem();
+				
 				// --- restore adapter state ---
 				RecordingViewItemList list = mRecordingsStack.pop();
 				mRecordingAdapter.clear();
@@ -188,6 +219,11 @@ public class RecordingController extends AbstractController implements Runnable 
 		if (mUpdateThread != null)
 			mUpdateThread.interrupt();
 
+		if (action == RECORDING_ACTION_INFO && position == -1) {
+			unselectItem();
+			return;
+		}
+		
 		final RecordingViewItem item = mRecordingAdapter.getItem(position);
 		
 		switch (action) {
@@ -197,6 +233,8 @@ public class RecordingController extends AbstractController implements Runnable 
 			break;
 		case RECORDING_ACTION_INFO:
 			if (item.isFolder) {
+				unselectItem();
+				
 				// --- save current items ---
 				RecordingViewItemList list = new RecordingViewItemList();
 				for (int i = 0; i < mRecordingAdapter.getCount(); i++)
@@ -234,11 +272,20 @@ public class RecordingController extends AbstractController implements Runnable 
 		return new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> listView, View v,
 					int position, long ID) {
+				mCurrentSelectedItemIndex = position;
 				action(RECORDING_ACTION_INFO, position);
 			}
 		};
 	}
 
+	public RecordingViewItem[] getRecordingViewItems() {
+		RecordingViewItem[] items = new RecordingViewItem[mRecordingViewItems.size()];
+		int count = 0;
+		for (RecordingViewItem rvi : mRecordingViewItems)
+			items[count++] = rvi;
+		return items;
+	}
+	
 	public boolean isFolder(int position) {
 		RecordingViewItem item = mRecordingAdapter.getItem(position);
 		return item.isFolder;
@@ -248,7 +295,6 @@ public class RecordingController extends AbstractController implements Runnable 
 		logger.trace("onPause");
 		if (mUpdateThread != null) {
 			mUpdateThread.interrupt();
-			db.close();
 		}
 		if (mRecordingTask != null) {
 			mRecordingTask.cancel(true);
@@ -262,14 +308,36 @@ public class RecordingController extends AbstractController implements Runnable 
 			mUpdateThread = new RecordingIdUpdateThread(mThreadHandler);
 	}
 	
+    public void onSaveInstanceState(Bundle outState) {
+    	outState.putString("diskstatus", mDiskStatusResponse);
+    	outState.putParcelableArray("recordings", getRecordingViewItems());
+    	if (mComparer == null) {
+    		outState.putInt("sortby", RECORDING_ACTION_SORT_NAME);
+    		outState.putBoolean("sortascending", true);
+    	} else {
+    		outState.putInt("sortby", mComparer.compareBy);
+    		outState.putBoolean("sortascending", mComparer.ascending);
+    	}
+    	ArrayList<RecordingViewItem> stack = new ArrayList<RecordingViewItem>();
+    	ArrayList<Integer> index = new ArrayList<Integer>();
+    	for (int i = 0; i < mRecordingsStack.size(); i++) {
+    		RecordingViewItemList list = mRecordingsStack.get(i);
+    		for (RecordingViewItem item : list)
+    			stack.add(item);
+    		index.add(stack.size());
+    	}
+    	outState.putParcelableArrayList("stack", stack);
+    	outState.putIntegerArrayList("stackindex", index);
+    }
+    
 	@Override
 	public void run() {
 		try {
-			Recordings recordings = new Recordings(db);
+			Recordings recordings = new Recordings();
 			for(RecordingViewItem recordingViewItem: recordings.getItems()) {
 				mRecordingViewItems.add(recordingViewItem);
 			}
-			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
+			sendMsg(mThreadHandler, Messages.MSG_DONE, null);
 		} catch (IOException e) {
 			logger.error("Couldn't read recordings", e);
 			sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
@@ -280,13 +348,20 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 	}
 	
+	public void setOnRecordingSelectedListener(OnRecordingSelectedListener listener) {
+		mSelectedListener = listener;
+	}
+	
 	private void setRecordingAdapter(RecordingAdapter adapter, ListView listView) {
-		action(RECORDING_ACTION_SORT_NAME);
+		if (mComparer == null)
+			action(RECORDING_ACTION_SORT_NAME);
+		else {
+			adapter.sort(mComparer);
+		}
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(getOnItemClickListener());
 		listView.setSelected(true);
 		listView.setSelection(0);
-		mActivity.registerForContextMenu(listView);
 		mUpdateThread = new RecordingIdUpdateThread(mThreadHandler);
 		
 		// --- disk status ---
@@ -317,6 +392,12 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 	}
 
+	private void unselectItem() {
+		mListView.setItemChecked(mCurrentSelectedItemIndex, false);
+		mCurrentSelectedItemIndex = -1;
+		mSelectedListener.OnItemSelected(-1, null);
+	}
+	
 	private class RecordingAdapter extends ArrayAdapter<RecordingViewItem> implements SectionIndexer {
 		private final Activity mActivity;
 		private final ListView mListView;
@@ -491,9 +572,16 @@ public class RecordingController extends AbstractController implements Runnable 
 	}
 	
 	private class RecordingDeleteTask extends RecordingInfoTask {
+		private boolean mDoUnselectItem = false;
 		
 		@Override
 		protected String doIt() {
+			if (mCurrentSelectedItemIndex >= 0) {
+				RecordingViewItem rvi = (RecordingViewItem) mListView
+						.getItemAtPosition(mCurrentSelectedItemIndex);
+				if (rvi.recording.id.equals(mRecording.id))
+					mDoUnselectItem = true;
+			}
 		    Response response = VDRConnection.send(new DELR(mRecording.number));
 	        return response.getCode() + " - " + response.getMessage().replaceAll("\n$", "");
 		}
@@ -509,6 +597,8 @@ public class RecordingController extends AbstractController implements Runnable 
 							list.get(i).folderItems.remove(mRecordingViewItem);
 						}
 				}
+				if (mDoUnselectItem)
+					unselectItem();
 			}
 			super.onPostExecute(result);
 		}
@@ -524,11 +614,16 @@ public class RecordingController extends AbstractController implements Runnable 
 		
 		@Override
 		public void run() {
+			synchronized (mUpdateThreadFinished) {
+				if (mUpdateThreadFinished.get())
+					return;
+			}
+			
 			logger.trace("UpdateThread started");
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_SHOW));
+			sendMsg(mHandler, Messages.MSG_TITLEBAR_PROGRESS_SHOW, null);
 			
 			if (Preferences.deleteRecordingIds && ! Preferences.useInternet) {
-				Recordings.clearIds(db);
+				Recordings.clearIds();
 				for(Recording recording: mRecordingViewItems.getAllRecordings()) {
 					recording.setInfoId(null);
 				}
@@ -554,13 +649,17 @@ public class RecordingController extends AbstractController implements Runnable 
 				}
 				
 				if (Preferences.doRecordingIdCleanUp) {
-					Recordings.deleteUnusedIds(db, mRecordingViewItems.getAllRecordings());
+					Recordings.deleteUnusedIds(mRecordingViewItems.getAllRecordings());
 					Preferences.doRecordingIdCleanUp = false;
+				}
+				
+				synchronized (mUpdateThreadFinished) {
+					mUpdateThreadFinished.getAndSet(true);
 				}
 			} catch (IOException e) {
 				logger.error("Couldn't update recording ids", e);
 			} finally {
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_TITLEBAR_PROGRESS_DISMISS));
+				sendMsg(mHandler, Messages.MSG_TITLEBAR_PROGRESS_DISMISS, null);
 			}
 			logger.trace("UpdateThread finished");
 		}
@@ -572,7 +671,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		protected RecordingInfo mInfo;
 		
 		protected void onPreExecute() {
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_SHOW, R.string.searching));
+			sendMsg(mHandler, Messages.MSG_PROGRESS_SHOW, R.string.searching);
 		}
 
 		@Override
@@ -610,9 +709,15 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 		
 		protected String doIt() {
-			Intent intent = new Intent(mActivity, RecordingInfoActivity.class);
-			intent.putExtra("recordingnumber", mRecording.number);
-			mActivity.startActivityForResult(intent, 1);
+			int position = mRecordingAdapter.getPosition(mRecordingViewItem);
+			if (mSelectedListener == null || ! mSelectedListener.OnItemSelected(position, mRecording)) {
+				Intent intent = new Intent(mActivity, RecordingInfoActivity.class);
+				intent.putExtra("recordingnumber", mRecording.number);
+				mActivity.startActivityForResult(intent, 1);
+			} else {
+				if (mUpdateThread != null)
+					mUpdateThread = new RecordingIdUpdateThread(mThreadHandler);
+			}
 			return "";
 		}
 
@@ -624,11 +729,11 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 		
 		protected void onProgressUpdate(Void... values) {
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_UPDATE, R.string.updating));
+			sendMsg(mHandler, Messages.MSG_PROGRESS_UPDATE, R.string.updating);
 		}
 		
 		protected void onPostExecute(String result) {
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
+			sendMsg(mHandler, Messages.MSG_PROGRESS_DISMISS, null);
 			mRecordingAdapter.notifyDataSetChanged();
 			if (result != "")
 				Toast.makeText(mActivity, result, Toast.LENGTH_SHORT).show();
@@ -700,7 +805,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		public void update() throws IOException {
 			logger.trace("updateRecordings started");
 			// --- get recordings from vdr ---
-			Recordings recordings = new Recordings(db);
+			Recordings recordings = new Recordings();
 			RecordingViewItemList recordingViewItems = new RecordingViewItemList();
 			for(RecordingViewItem recordingViewItem: recordings.getItems())
 				recordingViewItems.add(recordingViewItem);

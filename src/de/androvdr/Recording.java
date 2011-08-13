@@ -30,6 +30,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Recording implements Parcelable, Comparable<Recording> {
+	private static final DBHelper sDBHelper = new DBHelper(AndroApplication.getAppContext());
+
 	private static final SimpleDateFormat dateformatter = new SimpleDateFormat("dd.MM.yy HH:mm");
 	private static final StringBuilder sb = new StringBuilder();
 	
@@ -45,8 +47,6 @@ public class Recording implements Parcelable, Comparable<Recording> {
 		}
 	};
 	
-	public DBHelper db;
-
 	public String id;
 	public int number;
 	public long date;
@@ -57,8 +57,7 @@ public class Recording implements Parcelable, Comparable<Recording> {
 	
 	public Recording() {};
 	
-	public Recording(String vdrrecordinginfo, DBHelper db) throws Exception {
-		this.db = db;
+	public Recording(String vdrrecordinginfo) throws Exception {
 		id = MD5.calculate(vdrrecordinginfo.substring(vdrrecordinginfo.indexOf(" ")).replace("*", " "));
 		parse(vdrrecordinginfo);
 	}
@@ -89,9 +88,9 @@ public class Recording implements Parcelable, Comparable<Recording> {
 		
 		String result = null;
 		Cursor cursor = null;
-		synchronized (db) {
+		synchronized (sDBHelper) {
 			try {
-				cursor = db.getReadableDatabase().query(
+				cursor = sDBHelper.getReadableDatabase().query(
 						RecordingIdsTable.TABLE_NAME,
 						new String[] { RecordingIdsTable.INFO_ID },
 						RecordingIdsTable.ID + " = ? AND " + RecordingIdsTable.VDR_ID + " = ?",
@@ -144,10 +143,10 @@ public class Recording implements Parcelable, Comparable<Recording> {
 
 	public void setInfoId(String id) {
 		if (id != null) {
-			synchronized (db) {
+			synchronized (sDBHelper) {
 				long sysTime = System.currentTimeMillis();
 				String storedId = getInfoId();
-				SQLiteDatabase database = db.getWritableDatabase();
+				SQLiteDatabase database = sDBHelper.getWritableDatabase();
 
 				ContentValues values = new ContentValues();
 				values.put(RecordingIdsTable.INFO_ID, id);

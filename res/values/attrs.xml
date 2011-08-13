@@ -2,6 +2,8 @@
 <resources>
   <attr name="body" format="reference" />
   <attr name="header" format="reference" />
+  <attr name="footer" format="reference" />
+  <attr name="detailsElementBackground" format="reference" />
   <attr name="button" format="reference" />
   <attr name="buttonSquare" format="reference" />
   <attr name="buttonSquareHeight" format="reference" />

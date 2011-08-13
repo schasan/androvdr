@@ -72,6 +72,7 @@ public class Preferences {
 	public static boolean epgsearch_description;
 	public static int epgsearch_max;
 	public static boolean showDiskStatus;
+	public static boolean detailsLeft;
 	public static int screenSize = SCREENSIZE_NOT_DEFINED;
 	
 	public static String dateformat = "dd.MM.";
@@ -117,7 +118,7 @@ public class Preferences {
 	public static VdrDevice getVdr() {
 		if (sCurrentVdr == null) {
 			Context context = AndroApplication.getAppContext();
-			Devices devices = Devices.getInstance(context);
+			Devices devices = Devices.getInstance();
 			sCurrentVdr = devices.getVdr(sCurrentVdrId);
 			if (sCurrentVdr == null)
 				if (devices.getVdrs().size() == 1)
@@ -186,7 +187,8 @@ public class Preferences {
 	    	editor.commit();
 	    }
 	    epgsearch_max = Integer.parseInt(sp.getString("epgsearch_max", "30"));
-
+	    detailsLeft = sp.getBoolean("detailsLeft", false);
+	    
 	    Configuration conf = context.getResources().getConfiguration();
 	    if (((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_SMALL) == Configuration.SCREENLAYOUT_SIZE_SMALL) 
 	    	&& ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_NORMAL) != Configuration.SCREENLAYOUT_SIZE_NORMAL))

@@ -486,7 +486,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
         super.onCreate(savedInstanceState, false);
 
         Preferences.init(false);
-		mDevices = Devices.getInstance(this);
+		mDevices = Devices.getInstance();
 
 		mConfigurationManager = ConfigurationManager.getInstance(this);
 
