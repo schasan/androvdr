@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Environment;
@@ -178,6 +179,12 @@ public class Preferences {
 	    epgsearch_title = sp.getBoolean("epgsearch_title", true);
 	    epgsearch_subtitle = sp.getBoolean("epgsearch_subtitle", true);
 	    epgsearch_description = sp.getBoolean("epgsearch_description", false);
+	    
+	    if (sp.getString("epgsearch_max", "30").equals("")) {
+	    	Editor editor = sp.edit();
+	    	editor.putString("epgsearch_max", "30");
+	    	editor.commit();
+	    }
 	    epgsearch_max = Integer.parseInt(sp.getString("epgsearch_max", "30"));
 
 	    Configuration conf = context.getResources().getConfiguration();
