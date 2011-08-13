@@ -117,8 +117,8 @@ public class PortForwarding implements Runnable {
 			session = jsch.getSession(vdr.remote_user, vdr.remote_host,	vdr.remote_port);
 			
 			Properties config = new Properties();
-			config.put("compression.s2c", "zlib,none");
-			config.put("compression.c2s", "zlib,none");
+			config.put("compression.s2c", "zlib@openssh.com,zlib,none");
+			config.put("compression.c2s", "zlib@openssh.com,zlib,none");
 			session.setConfig(config);
 			
 			// password will be given via UserInfo interface.
