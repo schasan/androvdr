@@ -72,6 +72,9 @@ public class EpgdataController extends AbstractController {
 		mActivity.registerForContextMenu(mView.findViewById(R.id.pgi_layout_content));
 		try {
 			mChannel = new Channels(Preferences.getVdr().channellist).getChannel(mChannelNumber);
+			if (mChannel == null)
+				throw new IOException("Couldn't get channel");
+			
 			showData();
 		} catch (IOException e) {
 			logger.error("Couldn't load channels", e);
