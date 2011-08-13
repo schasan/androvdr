@@ -91,6 +91,10 @@ public class VdrCommands {
 			} catch (ParseException e) {
 				logger.error("Couldn't get recording info", e);
 				throw new IOException(e.getMessage());
+			} catch (Exception e) {
+				// --- Parser could throw NPE ---
+				logger.error("Couldn't get recording info", e);
+				throw new IOException("Invalid recording info");
 			}
         } else {
             throw new IOException(response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""));

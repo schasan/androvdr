@@ -272,7 +272,15 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 		if ((currentVdr != null) && (currentVdr.getId() == mId)) {
 			if (clearChannels)
 				Channels.clear();
-			VDRConnection.close();
+
+			// --- network operations in main thread disallowed on HonyComb ---
+			Thread thread = new Thread() {
+				@Override
+				public void run() {
+					VDRConnection.close();
+				};
+			};
+			thread.start();
 		}
 	}
 

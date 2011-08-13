@@ -173,6 +173,9 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			} else {
 				if (mChannelNumber == 0) {
 					Channel c = channels.addChannel(-1);
+					if (c == null)
+						throw new IOException("Couldn't get channel");
+					
 					mChannelNumber = c.nr;
 				}
 
