@@ -57,6 +57,7 @@
       android:defaultValue="" />
   </PreferenceCategory>
   <PreferenceCategory
+    android:key="category_appearance"
     android:title="@string/settings_appearance">
     <CheckBoxPreference
       android:key="alternateLayout"
@@ -96,6 +97,10 @@
       android:key="showDiskStatus"
       android:title="@string/settings_diskstatus"
       android:summary="@string/settings_diskstatus_summary" />
+    <CheckBoxPreference
+      android:key="detailsLeft"
+      android:title="@string/settings_detailsleft"
+      android:summary="@string/settings_detailsleft_summary" />
   </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/settings_epgsearch">

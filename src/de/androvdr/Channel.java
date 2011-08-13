@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import de.androvdr.Epgs.NoScheduleException;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -35,6 +37,11 @@ public class Channel implements Comparable<Channel> {
 	
 	public static final String logoDir = Preferences.getLogoDirName();
 	
+	public interface OnCurrentEpgChangedListener {
+		public void OnCurrentEpgChanged(Channel channel);
+	}
+	
+	private OnCurrentEpgChangedListener mChangedListener;
 	private long mLastEpgUpdate = 0;
 	private Epg mNext = null;
 	private Epg mNow = null;
@@ -47,6 +54,16 @@ public class Channel implements Comparable<Channel> {
 	public boolean isTemp = false;
 
 	public Epg viewEpg = null;		// used by EpdataController
+	
+	public Channel(int number, String name, String zusatz) {
+		this.nr = number;
+		this.name = name;
+		this.zusatz = zusatz;
+		
+        mNow = new Epg(nr, true);
+        mNext = new Epg(nr, true);
+        logo = initLogo();
+	}
 	
 	public Channel(org.hampelratte.svdrp.responses.highlevel.Channel channel) throws IOException {
         name = channel.getName();
@@ -71,7 +88,11 @@ public class Channel implements Comparable<Channel> {
 	}
 	
 	public ArrayList<Epg> get(int count) throws IOException {
-		return new Epgs(nr).get(count);
+		try {
+			return new Epgs(nr).get(count);
+		} catch (NoScheduleException e) {
+			return new ArrayList<Epg>();
+		}
 	}
 	
 	public ArrayList<Epg> getAll() throws IOException {
@@ -118,6 +139,10 @@ public class Channel implements Comparable<Channel> {
 		return image;
 	}
 	
+	public void setOnCurrentEpgChangedListener(OnCurrentEpgChangedListener listener) {
+		mChangedListener = listener;
+	}
+	
 	public void searchEpgAt(long time) throws IOException {
 		mSearchResult = new Epgs(nr).getAt(time);
 	}
@@ -128,7 +153,15 @@ public class Channel implements Comparable<Channel> {
 				|| (systemTime - mLastEpgUpdate >= EPG_UPDATE_PERIOD)) {
 			if (mNow.isEmpty
 					|| ((System.currentTimeMillis() / 1000) >= (mNow.startzeit + mNow.dauer - 60))) {
-				mNow = new Epgs(nr).getNow();
+				Epg epg = new Epgs(nr).getNow();
+				if (mChangedListener != null)
+					mChangedListener.OnCurrentEpgChanged(this);
+				mNow = epg;
+				
+				// --- refresh channel name from epg ---
+				if (! mNow.isEmpty && ! name.equals(mNow.channelName))
+					name = mNow.channelName;
+				
 				if (next)
 					mNext = new Epgs(nr).getNext();
 			}

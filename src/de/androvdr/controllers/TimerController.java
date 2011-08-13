@@ -69,6 +69,18 @@ import de.androvdr.svdrp.ConnectionProblem;
 import de.androvdr.svdrp.VDRConnection;
 
 public class TimerController extends AbstractController implements Runnable {
+	public final static int TIMER_ACTION_DELETE = 1;
+	public final static int TIMER_ACTION_TOGGLE = 2;
+	public final static int TIMER_ACTION_SHOW_EPG = 3;
+	public final static int TIMER_ACTION_RECORD = 4;
+	public final static int TIMER_ACTION_PROGRAMINFOS = 5;
+	public final static int TIMER_ACTION_PROGRAMINFOS_ALL = 6;
+	public final static int TIMER_ACTION_SWITCH_CAHNNEL = 7;
+
+	public interface OnTimerSelectedListener {
+		public boolean OnTimerSelected(int position, Channel channel);
+	}
+	
 	private static transient Logger logger = LoggerFactory.getLogger(TimerController.class);
 	
 	private static final int timer_titleSize = 20,
@@ -78,6 +90,7 @@ public class TimerController extends AbstractController implements Runnable {
 	private Channels mChannels;
 	private final ListView mListView;
 	private final EpgSearch mSearchFor;
+	private OnTimerSelectedListener mSelectedListener;
 	private ArrayList<Timer> mTimer;
 	
 	// --- needed by each row ---
@@ -86,14 +99,6 @@ public class TimerController extends AbstractController implements Runnable {
 	private final String[] weekdays;
 	private final GregorianCalendar calendar;
 	
-	public final static int TIMER_ACTION_DELETE = 1;
-	public final static int TIMER_ACTION_TOGGLE = 2;
-	public final static int TIMER_ACTION_SHOW_EPG = 3;
-	public final static int TIMER_ACTION_RECORD = 4;
-	public final static int TIMER_ACTION_PROGRAMINFOS = 5;
-	public final static int TIMER_ACTION_PROGRAMINFOS_ALL = 6;
-	public final static int TIMER_ACTION_SWITCH_CAHNNEL = 7;
-
 	private Handler mThreadHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -101,7 +106,8 @@ public class TimerController extends AbstractController implements Runnable {
 			case Messages.MSG_DONE:
 				mAdapter = new TimerAdapter(mActivity, mTimer);
 				setTimerAdapter(mAdapter, mListView);
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
+				sendMsg(mHandler, Messages.MSG_PROGRESS_DISMISS, null);
+				sendMsg(mHandler, Messages.MSG_CONTROLLER_READY, null);
 				break;
 			default:
 				Message newMsg = new Message();
@@ -120,9 +126,9 @@ public class TimerController extends AbstractController implements Runnable {
 		weekdays = mActivity.getResources().getStringArray(R.array.weekday);
 		calendar = new GregorianCalendar();
 		
-		Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
-		msg.arg2 = R.string.loading;
-		mHandler.sendMessage(msg);
+		sendMsg(mHandler, Messages.MSG_CONTROLLER_LOADING, R.string.loading);
+		sendMsg(mHandler, Messages.MSG_PROGRESS_SHOW, R.string.loading);
+		
 		Thread thread = new Thread(this);
 		thread.start();
 	}
@@ -181,22 +187,25 @@ public class TimerController extends AbstractController implements Runnable {
 			    mTimer = new Timers(mSearchFor).getItems();
 			}
 			mChannels = new Channels(Preferences.getVdr().channellist);
-			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
+			sendMsg(mThreadHandler, Messages.MSG_DONE, null);
 		} catch (IOException e) {
 			logger.error("Couldn't load timers or execute epgsearch", e);
 			if (e.toString().contains("550"))
-				mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_EPGSEARCH_NOT_FOUND));
+				sendMsg(mThreadHandler, Messages.MSG_EPGSEARCH_NOT_FOUND, null);
 			else
 				sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
 		}
 	}
 
+	public void setOnTimerSelectedListener(OnTimerSelectedListener listener) {
+		mSelectedListener = listener;
+	}
+	
 	private void setTimerAdapter(TimerAdapter adapter, ListView listView) {
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(getOnItemClickListener());
 		listView.setSelected(true);
 		listView.setSelection(0);
-		mActivity.registerForContextMenu(listView);
 	}
 	
 	private class GetEpgTask extends AsyncTask<Timer, Void, String> {
@@ -213,9 +222,12 @@ public class TimerController extends AbstractController implements Runnable {
 					channel.isTemp = true;
 				}
 				channel.viewEpg = channel.getAt(timer.start + ((vdr.margin_start + 1) * 60));
-				Intent intent = new Intent(mActivity, EpgdataActivity.class);
-				intent.putExtra("channelnumber", channel.nr);
-				mActivity.startActivityForResult(intent, 1);
+				int position = mAdapter.getPosition(timer);
+				if (! mSelectedListener.OnTimerSelected(position, channel)) {
+					Intent intent = new Intent(mActivity, EpgdataActivity.class);
+					intent.putExtra("channelnumber", channel.nr);
+					mActivity.startActivityForResult(intent, 1);
+				}
 				return "";
 			} catch (IOException e) {
 				logger.error("Couldn't get epg data", e);
@@ -225,14 +237,14 @@ public class TimerController extends AbstractController implements Runnable {
 
 		@Override
 		protected void onPostExecute(String result) {
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
+			sendMsg(mHandler, Messages.MSG_PROGRESS_DISMISS, null);
 			if (result != "")
 				Toast.makeText(mActivity, result, Toast.LENGTH_LONG).show();
 		}
 
 		@Override
 		protected void onPreExecute() {
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_SHOW, R.string.searching));
+			sendMsg(mHandler, Messages.MSG_PROGRESS_SHOW, R.string.searching);
 		}
 		
 	}
@@ -380,7 +392,7 @@ public class TimerController extends AbstractController implements Runnable {
 
 		@Override
 		protected void onPostExecute(String result) {
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
+			sendMsg(mHandler, Messages.MSG_PROGRESS_DISMISS, null);
 			
 			for (int i = mAdapter.getCount() -1; i >= 0; i--)
 				if (mAdapter.getItem(i).lastUpdate < 0)
@@ -393,7 +405,7 @@ public class TimerController extends AbstractController implements Runnable {
 		
 		@Override
 		protected void onPreExecute() {
-			mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_SHOW, R.string.updating));
+			sendMsg(mHandler, Messages.MSG_PROGRESS_SHOW, R.string.updating);
 		}
 		
 		private String update() {

@@ -66,7 +66,12 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	public static final int EPG_NOW = -1;
 	
 	public static final int EPGSDATA_ACTION_RECORD = 1;
+	public static final int EPGSDATA_ACTION_PROGRAMINFO = 2;
 	
+	public interface OnEpgdataSelectedListener {
+		public boolean OnItemSelected(int position, Channel channel);
+	}
+
 	private int mChannelNumber;
 	private EpgdataAdapter mEpgdataAdapter;
 	private ArrayList<Epg> mEpgdata;
@@ -74,6 +79,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	private final ListView mListView;
 	private final LinearLayout mMainView;
 	private final int mMaxEpgdata;
+	private OnEpgdataSelectedListener mSelectedListener;
 	
 	// --- needed by each row ---
 	private final SimpleDateFormat dateformatter;
@@ -87,7 +93,8 @@ public class EpgsdataController extends AbstractController implements Runnable {
 			switch (msg.arg1) {
 			case Messages.MSG_DONE:
 				setEpgAdapter(new EpgdataAdapter(mActivity, mEpgdata), mListView);
-				mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
+				sendMsg(mHandler, Messages.MSG_PROGRESS_DISMISS, null);
+				sendMsg(mHandler, Messages.MSG_CONTROLLER_READY, null);
 				break;
 			default:
 				Message newMsg = new Message();
@@ -116,9 +123,8 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		weekdays = mActivity.getResources().getStringArray(R.array.weekday);
 		calendar = new GregorianCalendar();
 		
-		Message msg = Messages.obtain(Messages.MSG_PROGRESS_SHOW);
-		msg.arg2 = R.string.loading;
-		mHandler.sendMessage(msg);
+		sendMsg(mHandler, Messages.MSG_CONTROLLER_LOADING, R.string.loading);
+		sendMsg(mHandler, Messages.MSG_PROGRESS_SHOW, R.string.loading);
 		
 		Thread thread = new Thread(this);
 		thread.start();
@@ -131,25 +137,28 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		case EPGSDATA_ACTION_RECORD:
 			new SetTimerTask().execute(epg);
 			break;
+		case EPGSDATA_ACTION_PROGRAMINFO:
+			try {
+				Channel channel = new Channels(Preferences.getVdr().channellist).getChannel(epg.kanal);
+				channel.viewEpg = epg;
+				
+				if (! mSelectedListener.OnItemSelected(position, channel)) {
+					Intent intent = new Intent(mActivity, EpgdataActivity.class);
+					intent.putExtra("channelnumber", channel.nr);
+					mActivity.startActivityForResult(intent, 1);
+				}
+			} catch (IOException e) {
+				logger.error("Couldn't load channels", e);
+				sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
+			}
+			break;
 		}
 	}
 	
 	private OnItemClickListener getOnItemClickListener() {
 		return new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> listView, View v, int position, long ID) {
-				Epg item = (Epg) listView.getAdapter().getItem(position);
-				try {
-					Channel channel = new Channels(Preferences.getVdr().channellist).getChannel(item.kanal);
-					channel.viewEpg = item;
-					
-					Intent intent = new Intent(v.getContext(), EpgdataActivity.class);
-					intent.putExtra("channelnumber", channel.nr);
-					mActivity.startActivityForResult(intent, 1);
-					
-				} catch (IOException e) {
-					logger.error("Couldn't load channels", e);
-					sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
-				}
+				action(EPGSDATA_ACTION_PROGRAMINFO, position);
 			}
 		};
 	}
@@ -189,7 +198,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 				else
 					mEpgdata = channels.getChannel(mChannelNumber).get(mMaxEpgdata);
 			}
-			mThreadHandler.sendMessage(Messages.obtain(Messages.MSG_DONE));
+			sendMsg(mThreadHandler, Messages.MSG_DONE, null);
 		} catch (IOException e) {
 			logger.error("Couldn't load epg data", e);
 			sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
@@ -215,9 +224,12 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		listView.setOnItemClickListener(getOnItemClickListener());
 		listView.setSelected(true);
 		listView.setSelection(0);
-		mActivity.registerForContextMenu(listView);
 	}
 
+	public void setOnEpgdataSelectedListener(OnEpgdataSelectedListener listener) {
+		mSelectedListener = listener;
+	}
+	
 	private class EpgdataAdapter extends ArrayAdapter<Epg> {
 		private final Activity mActivity;
 		

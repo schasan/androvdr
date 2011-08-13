@@ -31,7 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static transient Logger logger = LoggerFactory.getLogger(DBHelper.class);
 	
 	public static final String DATABASE_NAME = "AndroVDR.db";
-	public static final int DATABASE_VERSION = 4;
+	public static final int DATABASE_VERSION = 6;
 	
 	public DBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -41,6 +41,8 @@ public class DBHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(RecordingIdsTable.SQL_CREATE);
 		db.execSQL(DevicesTable.SQL_CREATE);
+		db.execSQL(ChannelsTable.SQL_CREATE);
+		db.execSQL(ChannelsTable.SQL_CREATE_INDEX);
 	}
 
 	@Override
@@ -61,12 +63,21 @@ public class DBHelper extends SQLiteOpenHelper {
 			// --- livetv ---
 			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME 
 					+ " ADD COLUMN " + DevicesTable.STREAMINGPORT + " INT DEFAULT 3000");
+		case 4:
+			logger.debug("Upgrading database from version 4 to 5");
+			db.execSQL(ChannelsTable.SQL_CREATE);
+		case 5:
+			logger.debug("Upgrading database from version 5 to 6");
+			db.execSQL(ChannelsTable.SQL_DROP);
+			db.execSQL(ChannelsTable.SQL_CREATE);
+			db.execSQL(ChannelsTable.SQL_CREATE_INDEX);
 			
 			break;
 		default:
 			logger.debug("Upgrading database from version {} to {}", oldVersion, newVersion);
 			db.execSQL(RecordingIdsTable.SQL_DROP);
 			db.execSQL(DevicesTable.SQL_DROP);
+			db.execSQL(ChannelsTable.SQL_DROP);
 			onCreate(db);
 		}
 	}

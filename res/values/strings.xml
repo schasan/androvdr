@@ -95,6 +95,8 @@
     <string name="settings_tabindicatorcolor">Tab Indicator Color</string>
     <string name="settings_diskstatus">Disk Status</string>
     <string name="settings_diskstatus_summary">Show disk status in recordings view</string>
+    <string name="settings_detailsleft">Swap List / Detail</string>
+    <string name="settings_detailsleft_summary">Swap the position of list and details in landscape mode.</string>
     <string name="settings_livetv">Enable Live-TV</string>
     <string name="settings_livetv_summary">Needs streamdev-server on VDR and an external player such as VPlayer</string>
     <string name="settings_livetv_streamformat">Streamformat</string>

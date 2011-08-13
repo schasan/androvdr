@@ -46,11 +46,20 @@ public class Epgs {
 	}
 	
 	public ArrayList<Epg> getAll() throws IOException {
-		return get(EPG_ALL);
+		try {
+			return get(EPG_ALL);
+		} catch (NoScheduleException e) {
+			return new ArrayList<Epg>();
+		}
 	}
 	
 	public Epg getAt(long time) throws IOException {
-		ArrayList<Epg> list = get(time);
+		ArrayList<Epg> list;
+		try {
+			list = get(time);
+		} catch (NoScheduleException e) {
+			list = new ArrayList<Epg>();
+		}
 		if(list.size() == 1)
 			return list.get(0);
 		else
@@ -58,7 +67,12 @@ public class Epgs {
 	}
 	
 	public Epg getNext() throws IOException {
-		ArrayList<Epg> list = get(EPG_NEXT);
+		ArrayList<Epg> list;
+		try {
+			list = get(EPG_NEXT);
+		} catch (NoScheduleException e) {
+			list = new ArrayList<Epg>();
+		}
 		if(list.size() == 1)
 			return list.get(0);
 		else
@@ -66,14 +80,19 @@ public class Epgs {
 	}
 	
 	public Epg getNow() throws IOException {
-		ArrayList<Epg> list = get(EPG_NOW);
+		ArrayList<Epg> list;
+		try {
+			list = get(EPG_NOW);
+		} catch (NoScheduleException e) {
+			list = new ArrayList<Epg>();
+		}
 		if(list.size() == 1)
 			return list.get(0);
 		else
 			return new Epg(mChannel, true);
 	}
 	
-	public ArrayList<Epg> get(long count) throws IOException {
+	public ArrayList<Epg> get(long count) throws IOException, NoScheduleException {
 		ArrayList<Epg> result = new ArrayList<Epg>();
 
 		LSTE cmd = new LSTE(mChannel);
@@ -91,6 +110,7 @@ public class Epgs {
 		    int entryCount = 0;
 		    for (EPGEntry entry : epgList) {
 		        Epg epg = new Epg();
+		        epg.id = MD5.calculate(response.getMessage());
                 epg.startzeit = entry.getStartTime().getTimeInMillis() / 1000;
                 long end = entry.getEndTime().getTimeInMillis() / 1000;
                 epg.dauer = (int) (end - epg.startzeit);
@@ -99,6 +119,7 @@ public class Epgs {
                 epg.kurztext = entry.getShortText();
                 epg.vps = entry.getVpsTime().getTimeInMillis() / 1000;
                 epg.kanal = mChannel;
+                epg.channelName = entry.getChannelName();
                 
                 for (Stream stream : entry.getStreams()) {
                     StreamInfo si = new StreamInfo();
@@ -132,6 +153,8 @@ public class Epgs {
                     break;
                 }
             }
+		} else if (response.getCode() == 550) {
+			throw new NoScheduleException();
 		} else {
 			throw new IOException(response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""));
 		}
@@ -140,4 +163,8 @@ public class Epgs {
 			result.get(i).calculatePercentDone();
 		return result;
 	}
+	
+	public class NoScheduleException extends Exception {
+		private static final long serialVersionUID = 1L;
+	};
 }

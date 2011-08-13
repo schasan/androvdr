@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="header">
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_width">fill_parent</item>
+    <item name="android:gravity">center</item>
+    <item name="android:padding">4dip</item>
+    <item name="android:textColor">?android:textColorPrimary</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:background">@drawable/header_background_dark</item>
+   </style>
+   <style name="footer" parent="header">
+    <item name="android:textStyle">normal</item>
+   </style>
+  <style name="header_light">
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_width">fill_parent</item>
+    <item name="android:gravity">center</item>
+    <item name="android:padding">4dip</item>
+    <item name="android:textColor">?android:textColorPrimary</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:background">@drawable/header_background_light</item>
+   </style>
+   <style name="footer_light" parent="header_light">
+    <item name="android:textStyle">normal</item>
+   </style>
+  <style name="detailsElementBackground_dark">
+    <item name="android:background">@drawable/panel_background_dark</item>
+  </style>
+  <style name="detailsElementBackground_light">
+    <item name="android:background">@drawable/panel_bg_holo_light</item>
+  </style>
+</resources>
