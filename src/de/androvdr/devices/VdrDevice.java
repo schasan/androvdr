@@ -30,6 +30,7 @@ import org.hampelratte.svdrp.Response;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.util.Log;
 import de.androvdr.Channels;
 import de.androvdr.EventListenerList;
 import de.androvdr.Preferences;
@@ -54,6 +55,7 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 
 	public int timeout;
 	public String macaddress;
+	public String broadcastaddress;
 	public String remote_host;
 	public String remote_user;
 	public int remote_port;
@@ -245,6 +247,7 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 		mPort = sp.getInt("port", 2001);
 		timeout = sp.getInt("timeout", 7500);
 		macaddress = sp.getString("macaddress", "");
+		broadcastaddress = sp.getString("broadcastaddress", "");
 		remote_host = sp.getString("remote_host", "");
 		remote_user = sp.getString("remote_user", "");
 		remote_port = sp.getInt("remote_port", 22);
@@ -355,14 +358,14 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 	public boolean write(String command) {
 		if (command.equalsIgnoreCase("WOL")) {
 			Wol wol = new Wol(null);
-			if (! wol.sendMacigPaket(mHost, macaddress, true)) {
+			if (! wol.sendMagicPaket(broadcastaddress, macaddress, true)) {
 				mLastError = wol.lastError;
 				return false;
 			}
 			return true;
 		} else if(command.equalsIgnoreCase("WOLINTERNET")) {
 			Wol wol = new Wol(null);
-			if (! wol.sendMacigPaket(remote_host, macaddress, false)) {
+			if (! wol.sendMagicPaket(remote_host, macaddress, false)) {
 				mLastError = wol.lastError;
 				return false;
 			}
