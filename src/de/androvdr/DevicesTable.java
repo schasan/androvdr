@@ -32,6 +32,7 @@ public class DevicesTable {
 	public static final String USER = "user";
 	public static final String PASSWORD = "password";
 	public static final String MACADDRESS = "macaddress";
+	public static final String BROADCASTADDRESS = "broadcastaddress";
 	public static final String REMOTE_HOST = "remote_host";
 	public static final String REMOTE_USER = "remote_user";
 	public static final String REMOTE_PORT = "remote_port";
@@ -49,7 +50,7 @@ public class DevicesTable {
 	public static final String[] ALL_COLUMNS = new String[] { ID, CLASS, NAME, HOST,
 		PORT, USER,	PASSWORD, MACADDRESS, REMOTE_HOST, REMOTE_USER, REMOTE_PORT,
 		REMOTE_LOCAL_PORT, REMOTE_TIMEOUT, CHANNELLIST, EPGMAX, CHARACTERSET,
-		MARGIN_START, MARGIN_STOP, VPS, TIMEOUT, SSHKEY, STREAMINGPORT };
+		MARGIN_START, MARGIN_STOP, VPS, TIMEOUT, SSHKEY, STREAMINGPORT, BROADCASTADDRESS };
 	
 	public static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_NAME + " ("
@@ -74,7 +75,8 @@ public class DevicesTable {
 		+ VPS + " STRING DEFAULT 'false',"
 		+ TIMEOUT + " INT DEFAULT 7500,"
 		+ SSHKEY + " BLOB DEFAULT NULL,"
-		+ STREAMINGPORT + " INT DEFAULT 3000"
+		+ STREAMINGPORT + " INT DEFAULT 3000,"
+		+ BROADCASTADDRESS + " STRING DEFAULT '255.255.255.255'"
 		+ ")";
 	
 	public static final String SQL_DROP =

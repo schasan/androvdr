@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 public class Wol {
@@ -43,7 +44,7 @@ public class Wol {
 		context = c;
 	}
 	
-	public boolean sendMacigPaket(String ipAddr, String macStr,	boolean sendBroadcast) {
+	public boolean sendMagicPaket(String ipAddr, String macStr,	boolean sendBroadcast) {
 		lastError = "";
 
 		final int PORT = 9;
@@ -67,10 +68,10 @@ public class Wol {
 				if (adr.length != 4) {
 					throw new IllegalArgumentException("Invalid IP4 address.");
 				}
-				adr[3] = -1; // Broadcast
 				address = InetAddress.getByAddress(adr);
 				logger.debug("Broadcastaddress: {}", address.getHostAddress());
 			}
+			Log.d("AndroVDR", "Broadcastaddress " + address.getHostAddress());
 			DatagramPacket packet = new DatagramPacket(bytes, bytes.length,	address, PORT);
 			DatagramSocket socket = new DatagramSocket();
 			socket.setBroadcast(true);

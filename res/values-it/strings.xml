@@ -118,6 +118,8 @@
     <string name="settings_livetv_port_summary">Predefinita 3000. Deve essere abilitata in "streamdevhosts.conf".</string>
     <string name="settings_macaddress">Indirizzo MAC</string>
     <string name="settings_macaddress_summary">Richiesto per WakeOnLan. Formato 00:00:00:00:00:00</string>
+    <string name="settings_broadcastaddress">Indirizzo Broadcast IP</string>
+    <string name="settings_broadcastaddress_summary">Indirizzo Broadcast IP (255.255.255.255)</string>
     <string name="settings_channellist">Lista canali</string>
     <string name="settings_channellist_summary">Elenco gamma o valori separati da virgole e senza spazi.</string>
     <string name="settings_epgmax">Valori massimi EPG</string>

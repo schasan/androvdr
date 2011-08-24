@@ -29,6 +29,11 @@
       android:summary="@string/settings_macaddress_summary"
       android:defaultValue="" />
     <EditTextPreference
+      android:key="broadcastaddress"
+      android:title="@string/settings_broadcastaddress"
+      android:summary="@string/settings_broadcastaddress_summary"
+      android:defaultValue="255.255.255.255" />
+    <EditTextPreference
       android:key="streamingport"
       android:inputType="number"
       android:title="@string/settings_livetv_port"
