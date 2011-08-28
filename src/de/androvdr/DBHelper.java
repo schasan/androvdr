@@ -71,12 +71,12 @@ public class DBHelper extends SQLiteOpenHelper {
 			db.execSQL(ChannelsTable.SQL_DROP);
 			db.execSQL(ChannelsTable.SQL_CREATE);
 			db.execSQL(ChannelsTable.SQL_CREATE_INDEX);
-			
-			break;
 		case 6:
 			logger.debug("Upgrading database from version 6 to 7");
 			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME
 					+ " ADD COLUMN " + DevicesTable.BROADCASTADDRESS + " STRING DEFAULT '255.255.255.255'");
+			
+			break;
 		default:
 			logger.debug("Upgrading database from version {} to {}", oldVersion, newVersion);
 			db.execSQL(RecordingIdsTable.SQL_DROP);
