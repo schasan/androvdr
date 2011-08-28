@@ -127,6 +127,10 @@ public class Devices implements OnSharedPreferenceChangeListener, OnChannelChang
 			vdr.sshkey = cursor.getString(20);
 			vdr.streamingport = cursor.getInt(21);
 			vdr.broadcastaddress = cursor.getString(22);
+			vdr.extremux = cursor.getString(23).equals("true");
+			vdr.extremux_param = cursor.getString(24);
+			vdr.remote_streaming_port = cursor.getInt(25);
+			
 			mDevices.put(vdr.getName(), vdr);
 			mSensors.put(vdr.getName(), vdr);
 		} else {

@@ -180,12 +180,19 @@ public class ChannelController extends AbstractController implements Runnable {
 		case CHANNEL_ACTION_LIVETV:
 			VdrDevice vdr = Preferences.getVdr();
 			SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mActivity);
-			String url = "http://" + vdr.getIP() + ":" + vdr.streamingport 
-				+ "/" + sp.getString("livetv_streamformat", "PES") 
-				+ "/" + channel.nr;
-			logger.debug("Streaming URL: {}", url);
+			StringBuilder url = new StringBuilder();
+			url.append("http://" + vdr.getIP() + ":" + vdr.streamingport + "/");
+			if (vdr.extremux) {
+				url.append("EXT");
+				if (vdr.extremux_param != null && vdr.extremux_param.length() > 0)
+					url.append(";" + vdr.extremux_param);
+			} else {
+				url.append(sp.getString("livetv_streamformat", "PES"));
+			}
+			url.append("/" + channel.nr);
+			logger.debug("Streaming URL: {}", url.toString());
 			intent = new Intent(Intent.ACTION_VIEW);
-			intent.setDataAndType(Uri.parse(url),"video/*");
+			intent.setDataAndType(Uri.parse(url.toString()),"video/*");
 			mActivity.startActivityForResult(intent, 1);
 			break;
 		}
