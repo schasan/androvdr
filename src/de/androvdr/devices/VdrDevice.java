@@ -60,6 +60,7 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 	public int remote_port;
 	public int remote_local_port;
 	public int remote_timeout;
+	public int remote_streaming_port;
 	public String channellist;
 	public int epgmax;
 	public String characterset;
@@ -68,6 +69,8 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 	public int margin_stop;
 	public String sshkey;
 	public int streamingport;
+	public boolean extremux;
+	public String extremux_param;
 	
 	public VdrDevice() {
 		initCommands();
@@ -252,6 +255,7 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 		remote_port = sp.getInt("remote_port", 22);
 		remote_local_port = sp.getInt("remote_local_port", 35550);
 		remote_timeout = sp.getInt("remote_timeout", 25000);
+		remote_streaming_port = sp.getInt("remote_streaming_port", 3000);
 		epgmax = sp.getInt("epgmax", 30);
 		
 		String newchannellist = sp.getString("channellist", "1-20,24");
@@ -269,6 +273,8 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 		margin_stop	= sp.getInt("margin_stop", 10);
 		sshkey = sp.getString("sshkey", null);
 		streamingport = sp.getInt("streamingport", 3000);
+		extremux = sp.getString("extremux", "false").equals("true");
+		extremux_param = sp.getString("extremux_param", null);
 		
 		VdrDevice currentVdr = Preferences.getVdr();
 		if ((currentVdr != null) && (currentVdr.getId() == mId)) {

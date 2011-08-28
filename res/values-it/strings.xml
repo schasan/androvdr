@@ -153,6 +153,9 @@
     <string name="settings_epgsearch_description">Descrizione</string>
     <string name="settings_epgsearch_max">Risultati massimi ricerca</string>
     <string name="settings_epgsearch_max_summary">Voci massime nei risultati.</string>
+    <string name="settings_extremux">Remux</string>
+    <string name="settings_extremux_summary">Use externremux.sh on VDR</string>
+    <string name="settings_extremux_param">Remux Parameter</string>
     <!-- Main -->
     <string name="main_select_vdr">Seleziona VDR</string>
     <string name="main_forwarding_on">Attiva inoltro</string>

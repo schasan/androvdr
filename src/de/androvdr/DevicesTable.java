@@ -38,6 +38,7 @@ public class DevicesTable {
 	public static final String REMOTE_PORT = "remote_port";
 	public static final String REMOTE_LOCAL_PORT = "remote_local_port";
 	public static final String REMOTE_TIMEOUT = "remote_timeout";
+	public static final String REMOTE_STREAMINGPORT = "remote_streaming_port";
 	public static final String CHANNELLIST = "channellist";
 	public static final String EPGMAX = "epgmax";
 	public static final String CHARACTERSET = "characterset";
@@ -46,11 +47,14 @@ public class DevicesTable {
 	public static final String VPS = "vps";
 	public static final String SSHKEY = "sshkey";
 	public static final String STREAMINGPORT = "streamingport";
+	public static final String EXTREMUX = "extremux";
+	public static final String EXTREMUX_PARAM = "extremux_param";
 	
 	public static final String[] ALL_COLUMNS = new String[] { ID, CLASS, NAME, HOST,
 		PORT, USER,	PASSWORD, MACADDRESS, REMOTE_HOST, REMOTE_USER, REMOTE_PORT,
 		REMOTE_LOCAL_PORT, REMOTE_TIMEOUT, CHANNELLIST, EPGMAX, CHARACTERSET,
-		MARGIN_START, MARGIN_STOP, VPS, TIMEOUT, SSHKEY, STREAMINGPORT, BROADCASTADDRESS };
+		MARGIN_START, MARGIN_STOP, VPS, TIMEOUT, SSHKEY, STREAMINGPORT, BROADCASTADDRESS,
+		EXTREMUX, EXTREMUX_PARAM, REMOTE_STREAMINGPORT};
 	
 	public static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_NAME + " ("
@@ -76,7 +80,10 @@ public class DevicesTable {
 		+ TIMEOUT + " INT DEFAULT 7500,"
 		+ SSHKEY + " BLOB DEFAULT NULL,"
 		+ STREAMINGPORT + " INT DEFAULT 3000,"
-		+ BROADCASTADDRESS + " STRING DEFAULT '255.255.255.255'"
+		+ BROADCASTADDRESS + " STRING DEFAULT '255.255.255.255',"
+		+ EXTREMUX + " STRING DEFAULT 'false',"
+		+ EXTREMUX_PARAM + " STRING,"
+		+ REMOTE_STREAMINGPORT + " INT DEFAULT 3000"
 		+ ")";
 	
 	public static final String SQL_DROP =

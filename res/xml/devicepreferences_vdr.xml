@@ -77,6 +77,19 @@
       android:title="@string/settings_margin_stop"
       android:defaultValue="10" />
   </PreferenceCategory>
+  <PreferenceCategory 
+    android:title="@string/livetv">
+    <CheckBoxPreference
+      android:key="extremux"
+      android:title="@string/settings_extremux"
+      android:summary="@string/settings_extremux_summary"
+      android:defaultValue="false" />
+    <EditTextPreference
+      android:key="extremux_param"
+      android:title="@string/settings_extremux_param"
+      android:dependency="extremux"
+      android:defaultValue="" />
+  </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/settings_remote">
     <EditTextPreference
