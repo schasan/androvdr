@@ -30,7 +30,6 @@ import org.hampelratte.svdrp.Response;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.util.Log;
 import de.androvdr.Channels;
 import de.androvdr.EventListenerList;
 import de.androvdr.Preferences;
@@ -357,15 +356,15 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 	@Override
 	public boolean write(String command) {
 		if (command.equalsIgnoreCase("WOL")) {
-			Wol wol = new Wol(null);
-			if (! wol.sendMagicPaket(broadcastaddress, macaddress, true)) {
+			Wol wol = new Wol();
+			if (! wol.sendMagicPaket(broadcastaddress, macaddress)) {
 				mLastError = wol.lastError;
 				return false;
 			}
 			return true;
 		} else if(command.equalsIgnoreCase("WOLINTERNET")) {
-			Wol wol = new Wol(null);
-			if (! wol.sendMagicPaket(remote_host, macaddress, false)) {
+			Wol wol = new Wol();
+			if (! wol.sendMagicPaket(remote_host, macaddress)) {
 				mLastError = wol.lastError;
 				return false;
 			}

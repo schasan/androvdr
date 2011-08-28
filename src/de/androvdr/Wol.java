@@ -28,23 +28,13 @@ import java.net.InetAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.content.Context;
-import android.util.Log;
-import android.widget.Toast;
-
 public class Wol {
 	
 	private final transient Logger logger = LoggerFactory.getLogger(Wol.class);
 	
-	private Context context;
-	
 	public String lastError;
 	
-	public Wol(Context c){
-		context = c;
-	}
-	
-	public boolean sendMagicPaket(String ipAddr, String macStr,	boolean sendBroadcast) {
+	public boolean sendMagicPaket(String ipAddr, String macStr) {
 		lastError = "";
 
 		final int PORT = 9;
@@ -61,17 +51,7 @@ public class Wol {
 
 			InetAddress address;
 			address = InetAddress.getByName(ipAddr);
-			logger.debug("Address: {}", address.getHostAddress());
-			if (sendBroadcast == true) {
-				// Umwandeln in IP-Broadcast-Adresse
-				byte[] adr = address.getAddress();
-				if (adr.length != 4) {
-					throw new IllegalArgumentException("Invalid IP4 address.");
-				}
-				address = InetAddress.getByAddress(adr);
-				logger.debug("Broadcastaddress: {}", address.getHostAddress());
-			}
-			Log.d("AndroVDR", "Broadcastaddress " + address.getHostAddress());
+			logger.debug("Broadcastaddress: {}", address.getHostAddress());
 			DatagramPacket packet = new DatagramPacket(bytes, bytes.length,	address, PORT);
 			DatagramSocket socket = new DatagramSocket();
 			socket.setBroadcast(true);
@@ -79,10 +59,8 @@ public class Wol {
 			socket.close();
 			return true;
 		} catch (Exception e) {
-			if (context != null)
-				Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
 			lastError = e.toString();
-			logger.error("Couldn't send WOL packet", e.toString());
+			logger.error("Couldn't send WOL packet: {}", e.toString());
 			return false;
 		}
 	}    
