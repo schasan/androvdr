@@ -183,7 +183,7 @@ public class ChannelController extends AbstractController implements Runnable {
 			StringBuilder url = new StringBuilder();
 			url.append("http://" + vdr.getIP() + ":" + vdr.streamingport + "/");
 			if (vdr.extremux) {
-				url.append("EXT");
+				url.append(vdr.extremux_command);
 				if (vdr.extremux_param != null && vdr.extremux_param.length() > 0)
 					url.append(";" + vdr.extremux_param);
 			} else {
