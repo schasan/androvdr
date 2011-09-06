@@ -155,6 +155,8 @@
     <string name="settings_epgsearch_max_summary">Maximale Anzahl der Suchergebnisse.</string>
     <string name="settings_extremux">Remux</string>
     <string name="settings_extremux_summary">Benutze externremux.sh auf dem VDR</string>
+    <string name="settings_extremux_command">Befehl</string>
+    <string name="settings_extremux_command_summary">Befehl zur Aktivierung von externremux im streamdev-server. Normalerweise EXT or EXTERN</string>
     <string name="settings_extremux_param">Remux Parameter</string>
     <!-- Main -->
     <string name="main_select_vdr">VDR auswählen</string>

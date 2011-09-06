@@ -49,12 +49,13 @@ public class DevicesTable {
 	public static final String STREAMINGPORT = "streamingport";
 	public static final String EXTREMUX = "extremux";
 	public static final String EXTREMUX_PARAM = "extremux_param";
+	public static final String EXTREMUX_COMMAND = "extremux_command";
 	
 	public static final String[] ALL_COLUMNS = new String[] { ID, CLASS, NAME, HOST,
 		PORT, USER,	PASSWORD, MACADDRESS, REMOTE_HOST, REMOTE_USER, REMOTE_PORT,
 		REMOTE_LOCAL_PORT, REMOTE_TIMEOUT, CHANNELLIST, EPGMAX, CHARACTERSET,
 		MARGIN_START, MARGIN_STOP, VPS, TIMEOUT, SSHKEY, STREAMINGPORT, BROADCASTADDRESS,
-		EXTREMUX, EXTREMUX_PARAM, REMOTE_STREAMINGPORT};
+		EXTREMUX, EXTREMUX_PARAM, REMOTE_STREAMINGPORT, EXTREMUX_COMMAND};
 	
 	public static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_NAME + " ("
@@ -83,7 +84,8 @@ public class DevicesTable {
 		+ BROADCASTADDRESS + " STRING DEFAULT '255.255.255.255',"
 		+ EXTREMUX + " STRING DEFAULT 'false',"
 		+ EXTREMUX_PARAM + " STRING,"
-		+ REMOTE_STREAMINGPORT + " INT DEFAULT 3000"
+		+ REMOTE_STREAMINGPORT + " INT DEFAULT 3000,"
+		+ EXTREMUX_COMMAND + " STRING DEFAULT 'EXT'"
 		+ ")";
 	
 	public static final String SQL_DROP =

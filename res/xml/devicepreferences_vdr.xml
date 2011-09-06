@@ -85,6 +85,12 @@
       android:summary="@string/settings_extremux_summary"
       android:defaultValue="false" />
     <EditTextPreference
+      android:key="extremux_command"
+      android:title="@string/settings_extremux_command"
+      android:summary="@string/settings_extremux_command_summary"
+      android:dependency="extremux"
+      android:defaultValue="EXT" />
+    <EditTextPreference
       android:key="extremux_param"
       android:title="@string/settings_extremux_param"
       android:dependency="extremux"

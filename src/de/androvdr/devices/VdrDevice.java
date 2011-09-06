@@ -70,6 +70,7 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 	public String sshkey;
 	public int streamingport;
 	public boolean extremux;
+	public String extremux_command;
 	public String extremux_param;
 	
 	public VdrDevice() {
@@ -274,6 +275,7 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 		sshkey = sp.getString("sshkey", null);
 		streamingport = sp.getInt("streamingport", 3000);
 		extremux = sp.getString("extremux", "false").equals("true");
+		extremux_command = sp.getString("extremux_command", "EXT");
 		extremux_param = sp.getString("extremux_param", null);
 		
 		VdrDevice currentVdr = Preferences.getVdr();
