@@ -34,6 +34,7 @@ import de.androvdr.svdrp.VDRConnection;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 
 public class Recordings {
@@ -51,12 +52,16 @@ public class Recordings {
 	}
 	
 	public static void clearIds(long vdrid) {
-		SQLiteDatabase database = sDBHelper.getWritableDatabase();
 		synchronized (sDBHelper) {
-			int i = database.delete(RecordingIdsTable.TABLE_NAME,
-					RecordingIdsTable.VDR_ID + "=?", 
-					new String[] { Long.toString(vdrid) });
-			i++;
+			try {
+				SQLiteDatabase database = sDBHelper.getWritableDatabase();
+				int i = database.delete(RecordingIdsTable.TABLE_NAME,
+						RecordingIdsTable.VDR_ID + "=?", 
+						new String[] { Long.toString(vdrid) });
+				i++;
+			} catch (SQLiteException e) {
+				logger.error("clearIds", e);
+			}
 		}
 	}
 	
@@ -108,12 +113,12 @@ public class Recordings {
 	}
 	
 	public static void deleteUnusedIds(ArrayList<Recording> currentRecordings) {
-		SQLiteDatabase database = sDBHelper.getWritableDatabase();
-		Cursor cursor = null;
-		Recording searchRecording = new Recording();
-		Collections.sort(currentRecordings);
 		synchronized (sDBHelper) {
+			Cursor cursor = null;
+			Recording searchRecording = new Recording();
+			Collections.sort(currentRecordings);
 			try {
+				SQLiteDatabase database = sDBHelper.getWritableDatabase();
 				SQLiteStatement deleteStmt = database
 						.compileStatement("DELETE FROM " + RecordingIdsTable.TABLE_NAME
 								+ " WHERE " + RecordingIdsTable.ID + " = ? AND " + RecordingIdsTable.VDR_ID + " = ?");
@@ -130,6 +135,8 @@ public class Recordings {
 						deleteStmt.execute();
 					}
 				}
+			} catch (SQLiteException e) {
+				logger.error("deleteUnusedIds", e);
 			} finally {
 				if (cursor != null)
 					cursor.close();
