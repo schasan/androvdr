@@ -136,7 +136,6 @@ public class Preferences {
 	public static void setVdr(long id) {
 		if (id == sCurrentVdrId)
 			return;
-		Channels.clear();
 		sCurrentVdrId = id;
 		sCurrentVdr = null;
 		Context context = AndroApplication.getAppContext();
