@@ -95,8 +95,8 @@
     <string name="settings_tabindicatorcolor">Colore indicatore scheda</string>
     <string name="settings_diskstatus">Stato disco</string>
     <string name="settings_diskstatus_summary">Mostra stato disco nel menu registrazioni.</string>
-    <string name="settings_detailsleft">Swap List / Detail</string>
-    <string name="settings_detailsleft_summary">Swap the position of list and details in landscape mode.</string>
+    <string name="settings_detailsleft">Alterna Elenco / Dettagli</string>
+    <string name="settings_detailsleft_summary">Alterna la posizione elenco e dettagli nella modalità orizzontale.</string>
     <string name="settings_livetv">Abilita trasmissione dal vivo</string>
     <string name="settings_livetv_summary">Sono necessari streamdev-server sulla VDR e un lettore esterno come VPlayer</string>
     <string name="settings_livetv_streamformat">Formato trasmissione</string>
@@ -154,10 +154,10 @@
     <string name="settings_epgsearch_max">Risultati massimi ricerca</string>
     <string name="settings_epgsearch_max_summary">Voci massime nei risultati.</string>
     <string name="settings_extremux">Remux</string>
-    <string name="settings_extremux_summary">Use externremux.sh on VDR</string>
-    <string name="settings_extremux_command">Command</string>
-    <string name="settings_extremux_command_summary">Command to activate externremux in streamdev-server. Normally EXT or EXTERN</string>
-    <string name="settings_extremux_param">Remux Parameter</string>
+    <string name="settings_extremux_summary">Usa externremux.sh in VDR</string>
+    <string name="settings_extremux_command">Comando</string>
+    <string name="settings_extremux_command_summary">Comando per attivare externremux in streamdev-server. Di solito EXT o EXTERN</string>
+    <string name="settings_extremux_param">Parametro remux</string>
     <!-- Main -->
     <string name="main_select_vdr">Seleziona VDR</string>
     <string name="main_forwarding_on">Attiva inoltro</string>
