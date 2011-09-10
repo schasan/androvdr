@@ -101,6 +101,9 @@ public class Channels {
 		mItems.clear();
 		
 		VdrDevice vdr = Preferences.getVdr();
+		if (vdr == null)
+			return;
+		
 		DBHelper dbhelper = new DBHelper(AndroApplication.getAppContext());
 		SQLiteDatabase db = null;
 		try {

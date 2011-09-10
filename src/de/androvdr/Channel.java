@@ -160,6 +160,7 @@ public class Channel implements Comparable<Channel> {
 				
 				// --- refresh channel name from epg ---
 				if (! mNow.isEmpty && ! name.equals(mNow.channelName))
+					// TODO: update database
 					name = mNow.channelName;
 				
 				if (next)
