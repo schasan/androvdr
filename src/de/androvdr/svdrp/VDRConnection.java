@@ -92,6 +92,7 @@ public class VDRConnection {
 			}
 			logger.trace("<-- {}", res.getMessage());
 		} catch (Exception e1) {
+			close();
 			res = new ConnectionProblem(e1.getMessage());
 			logger.error(res.getMessage(), e1);
 		}
