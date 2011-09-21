@@ -122,7 +122,8 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	private static final int SWITCH_DIALOG_ID = 0;
 	
 	private Devices mDevices;
-	private CharSequence mTitle;
+	private String mTitle;
+	private String mTitleChannelName;
 	private WatchPortForwadingThread mWatchPortForwardingThread;
 	private WorkspaceView mWorkspace;
 	private boolean mLayoutChanged = false;
@@ -172,10 +173,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 				}
 				break;
 			case SENSOR_CHANNEL:
-				tv = (TextView) findViewById(R.id.channeltext);
-				if (tv != null) {
-					new ChannelViewUpdater().execute(result);
-				}
+				new ChannelViewUpdater().execute(result);
 				break;
 			}
 		};
@@ -439,21 +437,21 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 							msg.sendToTarget();
 						}
 					});
-			mDevices.addOnSensorChangeListener("VDR.channel", 1,
-					new OnSensorChangeListener() {
-						@Override
-						public void onChange(String result) {
-							logger.trace("Channel: {}", result);
-							Message msg = Message.obtain(mSensorHandler,
-									SENSOR_CHANNEL);
-							Bundle bundle = new Bundle();
-							bundle.putString(MSG_RESULT, result);
-							msg.setData(bundle);
-							msg.sendToTarget();
-						}
-					});
-			mDevices.startSensorUpdater(0);
 		}
+		mDevices.addOnSensorChangeListener("VDR.channel", 1,
+				new OnSensorChangeListener() {
+					@Override
+					public void onChange(String result) {
+						logger.trace("Channel: {}", result);
+						Message msg = Message.obtain(mSensorHandler,
+								SENSOR_CHANNEL);
+						Bundle bundle = new Bundle();
+						bundle.putString(MSG_RESULT, result);
+						msg.setData(bundle);
+						msg.sendToTarget();
+					}
+				});
+		mDevices.startSensorUpdater(0);
 	}
 
     @Override
@@ -490,7 +488,8 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 
 		mConfigurationManager = ConfigurationManager.getInstance(this);
 
-        mTitle = getTitle();
+        mTitle = getTitle().toString();
+        mTitleChannelName = "";
         
 		mDevices.setParentActivity(this);
 		mDevices.setResultHandler(mResultHandler);
@@ -674,16 +673,18 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 
 	public void updateTitle(View view) {
     	if ((view != null) && (view.getTag() instanceof CharSequence))
-    		setTitle(mTitle + " (" + (CharSequence) view.getTag() + ")");
+    		setTitle(mTitle + " (" + view.getTag() + ")");
     	else
-    		setTitle(mTitle);
+    		setTitle(mTitle + mTitleChannelName);
     }
     
 	private class ChannelViewUpdater extends AsyncTask<String, Void, Channel> {
 
 		@Override
 		protected Channel doInBackground(String... params) {
+			LinearLayout channelInfo = (LinearLayout) findViewById(R.id.remote_channel_info);
 			int channelNumber;
+			StringBuilder channelName = new StringBuilder();
 			
 			if (params[0].equalsIgnoreCase("N/A"))
 				return null;
@@ -691,11 +692,18 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			try {
 				String[] sa = params[0].split(" ");
 				channelNumber = Integer.parseInt(sa[0]);
+				for (int i = 1; i < sa.length; i++)
+					channelName.append(sa[i] + " ");
 			} catch (Exception e) {
 				logger.error("Couldn't parse channel: {}", e);
 				return null;
 			}
 
+			// --- only channel name is needed ---
+			if (channelInfo == null) {
+				return new Channel(channelNumber, channelName.toString().trim(), "");
+			}
+			
 		    Response response = VDRConnection.send(new LSTC(channelNumber));
 			if(response.getCode() != 250) {
 				logger.error("Couldn't get channel: {} {}", response.getCode(), response.getMessage());
@@ -727,61 +735,70 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		@Override
 		protected void onPostExecute(Channel channel) {
 			LinearLayout channelInfo = (LinearLayout) findViewById(R.id.remote_channel_info);
-			
-			if (channelInfo == null)
-				return;
-			
-			if (channel == null) {
-				channelInfo.setVisibility(View.GONE);
+
+			if (channelInfo == null) {
+				if (channel == null)
+					mTitleChannelName = "";
+				else
+					mTitleChannelName = " - " + channel.name;
+
+				if (mWorkspace != null)
+					updateTitle(mWorkspace.getCurrentView());
+				else
+					updateTitle(null);
 			} else {
-				channelInfo.setVisibility(View.VISIBLE);
-				final SimpleDateFormat timeformatter = new SimpleDateFormat(
-						Preferences.timeformat);
-				final GregorianCalendar calendar = new GregorianCalendar();
-
-				TextView tv = (TextView) findViewById(R.id.channelnumber);
-				ImageView iv = (ImageView) findViewById(R.id.channellogo);
-
-				if (Preferences.useLogos) {
-					tv.setVisibility(View.GONE);
-					iv.setVisibility(View.VISIBLE);
-					iv.setImageBitmap(channel.logo);
+				if (channel == null) {
+					channelInfo.setVisibility(View.GONE);
 				} else {
-					tv.setVisibility(View.VISIBLE);
-					iv.setVisibility(View.GONE);
-					tv.setText(String.valueOf(channel.nr));
-				}
+					channelInfo.setVisibility(View.VISIBLE);
+					final SimpleDateFormat timeformatter = new SimpleDateFormat(
+							Preferences.timeformat);
+					final GregorianCalendar calendar = new GregorianCalendar();
 
-				tv = (TextView) findViewById(R.id.channeltext);
-				tv.setText(channel.name);
+					TextView tv = (TextView) findViewById(R.id.channelnumber);
+					ImageView iv = (ImageView) findViewById(R.id.channellogo);
 
-				ProgressBar pb = (ProgressBar) findViewById(R.id.channelprogress);
-				if (channel.getNow().isEmpty) {
-					pb.setProgress(0);
-					tv = (TextView) findViewById(R.id.channelnowplayingtime);
-					tv.setText("");
-					tv = (TextView) findViewById(R.id.channelnowplaying);
-					tv.setText("");
-				} else {
-					calendar.setTimeInMillis(channel.getNow().startzeit * 1000);
-					pb.setProgress(channel.getNow().getActualPercentDone());
-					tv = (TextView) findViewById(R.id.channelnowplayingtime);
-					tv.setText(timeformatter.format(calendar.getTime()));
-					tv = (TextView) findViewById(R.id.channelnowplaying);
-					tv.setText(channel.getNow().titel);
-				}
+					if (Preferences.useLogos) {
+						tv.setVisibility(View.GONE);
+						iv.setVisibility(View.VISIBLE);
+						iv.setImageBitmap(channel.logo);
+					} else {
+						tv.setVisibility(View.VISIBLE);
+						iv.setVisibility(View.GONE);
+						tv.setText(String.valueOf(channel.nr));
+					}
 
-				if (channel.getNext().isEmpty) {
-					tv = (TextView) findViewById(R.id.channelnextplayingtime);
-					tv.setText("");
-					tv = (TextView) findViewById(R.id.channelnextplaying);
-					tv.setText("");
-				} else {
-					calendar.setTimeInMillis(channel.getNext().startzeit * 1000);
-					tv = (TextView) findViewById(R.id.channelnextplayingtime);
-					tv.setText(timeformatter.format(calendar.getTime()));
-					tv = (TextView) findViewById(R.id.channelnextplaying);
-					tv.setText(channel.getNext().titel);
+					tv = (TextView) findViewById(R.id.channeltext);
+					tv.setText(channel.name);
+
+					ProgressBar pb = (ProgressBar) findViewById(R.id.channelprogress);
+					if (channel.getNow().isEmpty) {
+						pb.setProgress(0);
+						tv = (TextView) findViewById(R.id.channelnowplayingtime);
+						tv.setText("");
+						tv = (TextView) findViewById(R.id.channelnowplaying);
+						tv.setText("");
+					} else {
+						calendar.setTimeInMillis(channel.getNow().startzeit * 1000);
+						pb.setProgress(channel.getNow().getActualPercentDone());
+						tv = (TextView) findViewById(R.id.channelnowplayingtime);
+						tv.setText(timeformatter.format(calendar.getTime()));
+						tv = (TextView) findViewById(R.id.channelnowplaying);
+						tv.setText(channel.getNow().titel);
+					}
+
+					if (channel.getNext().isEmpty) {
+						tv = (TextView) findViewById(R.id.channelnextplayingtime);
+						tv.setText("");
+						tv = (TextView) findViewById(R.id.channelnextplaying);
+						tv.setText("");
+					} else {
+						calendar.setTimeInMillis(channel.getNext().startzeit * 1000);
+						tv = (TextView) findViewById(R.id.channelnextplayingtime);
+						tv.setText(timeformatter.format(calendar.getTime()));
+						tv = (TextView) findViewById(R.id.channelnextplaying);
+						tv.setText(channel.getNext().titel);
+					}
 				}
 			}
 		}
