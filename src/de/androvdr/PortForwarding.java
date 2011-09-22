@@ -190,7 +190,11 @@ public class PortForwarding implements Runnable {
       		//break; Kein break,hier. ProgressDialog auch beenden
     	case STOP_PROGRESS_DIALOG:// ProgressDialog beenden, Portforwarding ist aktiviert !
     		if(progressDialog != null)
-    			progressDialog.dismiss();
+				try {
+					progressDialog.dismiss();
+				} catch (IllegalArgumentException e) {
+					logger.error("progressDialog dismiss", e);
+				}
     		break;
     	case START_PROGRESS_DIALOG:
     		//progressDialog = ProgressDialog.show(c, "", c.getString(R.string.starte_portforwarding),true,false);
