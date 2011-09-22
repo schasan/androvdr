@@ -41,6 +41,8 @@
     <string name="search">Cerca</string>
     <string name="notification_connected_ticker">Connessione stabilita</string>
     <string name="notification_connected">Connesso a</string>
+    <string name="dialog_novdr_title">No VDR configured</string>
+    <string name="dialog_novdr_summary">First of all you need to configure at least one VDR.\nConfigure now?</string>
     <!-- ChannelsActivity -->
     <string name="channels">Canali</string>
     <string name="channels_whats_on">In programmazione adesso</string>

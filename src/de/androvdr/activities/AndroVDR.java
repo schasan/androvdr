@@ -100,6 +100,8 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     
 	private static final int PREFERENCEACTIVITY_ID = 1;
 	private static final int ACTIVITY_ID = 2;
+	private static final int DEVICEPREFERENCEACTIVITY_ID = 3;
+	
 	private static transient Logger logger = LoggerFactory.getLogger(AndroVDR.class);
 	
 	private static final int CLOSE_CONNECTION = 0;
@@ -120,6 +122,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	public static PortForwarding portForwarding = null;
 	
 	private static final int SWITCH_DIALOG_ID = 0;
+	private static final int CONFIG_DEVICE_DIALOG = 1;
 	
 	private Devices mDevices;
 	private String mTitle;
@@ -201,6 +204,11 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 
 			@Override
 			public boolean onLongClick(View v) {
+				if (Preferences.getVdr() == null) {
+					showDialog(CONFIG_DEVICE_DIALOG);
+					return false;
+				}
+
 				boolean result = false;
 				if (v.getTag() instanceof String) {
 					String sa[] = ((String) v.getTag()).split("\\|");
@@ -461,10 +469,19 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     		if (mLayoutChanged) {
     			initWorkspaceView();
     		}
+    		break;
+    	case DEVICEPREFERENCEACTIVITY_ID:
+    		mDevices.initDevices();
+    		break;
     	}
     }
     
 	public void onButtonClick(View v) {
+		if (Preferences.getVdr() == null) {
+			showDialog(CONFIG_DEVICE_DIALOG);
+			return;
+		}
+		
 		if (v.getTag() instanceof String) {
 			mConfigurationManager.vibrate();
 			String sa[] = ((String) v.getTag()).split("\\|");
@@ -547,6 +564,26 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			});
 			dialog = builder.create();
 			break;
+		case CONFIG_DEVICE_DIALOG:
+			builder = new AlertDialog.Builder(this);
+			builder.setTitle(R.string.dialog_novdr_title)
+			.setMessage(R.string.dialog_novdr_summary)
+			.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			})
+			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					Intent intent = new Intent(AndroVDR.this, DevicePreferencesActivity.class);
+					intent.putExtra("deviceid", -1);
+					startActivityForResult(intent, DEVICEPREFERENCEACTIVITY_ID);
+				}
+			});
+			dialog = builder.create();
+			break;
 		default:
 			dialog = null;
 		}
@@ -609,6 +646,10 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		else
 			mi.setTitle(R.string.main_forwarding_on);
 		
+		boolean vdrdefined = (Preferences.getVdr() != null);
+		menu.findItem(R.id.androvdr_gestures).setEnabled(vdrdefined);
+		menu.findItem(R.id.androvdr_internet).setEnabled(vdrdefined);
+		menu.findItem(R.id.androvdr_switch_vdr).setEnabled(vdrdefined);
 		return true;
 	}
 	

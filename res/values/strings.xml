@@ -41,6 +41,8 @@
     <string name="search">Search</string>
     <string name="notification_connected_ticker">Connection established</string>
     <string name="notification_connected">Connected with</string>
+    <string name="dialog_novdr_title">No VDR configured</string>
+    <string name="dialog_novdr_summary">First of all you need to configure at least one VDR.\nConfigure now?</string>
     <!-- ChannelsActivity -->
     <string name="channels">Channels</string>
     <string name="channels_whats_on">What\'s on ...</string>

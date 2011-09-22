@@ -41,6 +41,8 @@
     <string name="search">Suche</string>
     <string name="notification_connected_ticker">Verbindung hergestellt</string>
     <string name="notification_connected">Verbunden mit</string>
+    <string name="dialog_novdr_title">Kein VDR eingerichtet</string>
+    <string name="dialog_novdr_summary">Als erstes muss mindestens ein VDR konfiguriert werden.\nJetzt einrichten ?</string>
     <!-- ChannelsActivity -->
     <string name="channels">Sender</string>
     <string name="channels_whats_on">Was läuft ...</string>
