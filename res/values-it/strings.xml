@@ -95,6 +95,8 @@
     <string name="settings_tabindicatorcolor">Colore indicatore scheda</string>
     <string name="settings_diskstatus">Stato disco</string>
     <string name="settings_diskstatus_summary">Mostra stato disco nel menu registrazioni.</string>
+    <string name="settings_current_channelname">Current Channel</string>
+    <string name="settings_current_channelname_summary">Show name of current channel in channel view.</string>
     <string name="settings_detailsleft">Alterna Elenco / Dettagli</string>
     <string name="settings_detailsleft_summary">Alterna la posizione elenco e dettagli nella modalità orizzontale.</string>
     <string name="settings_livetv">Abilita trasmissione dal vivo</string>

@@ -98,6 +98,10 @@
       android:title="@string/settings_diskstatus"
       android:summary="@string/settings_diskstatus_summary" />
     <CheckBoxPreference
+      android:key="showCurrentChannel"
+      android:title="@string/settings_current_channelname"
+      android:summary="@string/settings_current_channelname_summary" />
+    <CheckBoxPreference
       android:key="detailsLeft"
       android:title="@string/settings_detailsleft"
       android:summary="@string/settings_detailsleft_summary" />
