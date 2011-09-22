@@ -131,7 +131,17 @@ public class RecordingController extends AbstractController implements Runnable 
 		datetimeformatter = new SimpleDateFormat(Preferences.dateformatLong);
 		calendar = new GregorianCalendar();
 		
+		RecordingViewItem[] recordings = null;
+		
 		if (bundle != null) {
+			try {
+				recordings = (RecordingViewItem[]) bundle.getParcelableArray("recordings");
+			} catch (Exception e) {
+				logger.error("restore SavedInstanceState", e);
+			}
+		}
+		
+		if (recordings != null) {
 			mDiskStatusResponse = bundle.getString("diskstatus");
 			
 			// --- restore sort order ---
@@ -139,7 +149,6 @@ public class RecordingController extends AbstractController implements Runnable 
 			mComparer.ascending = bundle.getBoolean("sortascending");
 			
 			// --- restore view items ---
-			RecordingViewItem[] recordings = (RecordingViewItem[]) bundle.getParcelableArray("recordings");
 			mRecordingViewItems = new RecordingViewItemList();
 			for (int i = 0; i < recordings.length; i++) {
 				mRecordingViewItems.add((RecordingViewItem) recordings[i]);
@@ -576,7 +585,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		
 		@Override
 		protected String doIt() {
-			if (mCurrentSelectedItemIndex >= 0) {
+			if (mCurrentSelectedItemIndex >= 0 && mCurrentSelectedItemIndex < mListView.getCount()) {
 				RecordingViewItem rvi = (RecordingViewItem) mListView
 						.getItemAtPosition(mCurrentSelectedItemIndex);
 				if (rvi.recording.id.equals(mRecording.id))
