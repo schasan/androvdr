@@ -13,4 +13,19 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_weight="1" />
+  <LinearLayout
+    style="?footer"
+    android:id="@+id/channels_currentchannel"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="0dip"
+    android:orientation="vertical">
+    <TextView
+      style="?footer"
+      android:id="@+id/channels_currentchannelname"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:padding="0dip" />
+  </LinearLayout>
 </LinearLayout>

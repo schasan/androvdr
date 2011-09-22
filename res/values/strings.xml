@@ -94,7 +94,9 @@
     <string name="settings_textsizeoffset_summary">Change textsize, relative to default.</string>
     <string name="settings_tabindicatorcolor">Tab Indicator Color</string>
     <string name="settings_diskstatus">Disk Status</string>
-    <string name="settings_diskstatus_summary">Show disk status in recordings view</string>
+    <string name="settings_diskstatus_summary">Show disk status in recordings view.</string>
+    <string name="settings_current_channelname">Current Channel</string>
+    <string name="settings_current_channelname_summary">Show name of current channel in channel view.</string>
     <string name="settings_detailsleft">Swap List / Detail</string>
     <string name="settings_detailsleft_summary">Swap the position of list and details in landscape mode.</string>
     <string name="settings_livetv">Enable Live-TV</string>

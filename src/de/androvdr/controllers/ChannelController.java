@@ -78,6 +78,8 @@ public class ChannelController extends AbstractController implements Runnable {
 	public static final int CHANNEL_ACTION_WHATS_ON = 7;
 	public static final int CHANNEL_ACTION_LIVETV = 8;
 
+	private static final int MSG_CURRENTCHANNEL_UPDATE = 10000;
+	
 	public interface OnChannelSelectedListener {
 		public boolean OnItemSelected(int position, Channel channel);
 	}
@@ -88,6 +90,8 @@ public class ChannelController extends AbstractController implements Runnable {
 	private OnChannelSelectedListener mSelectedListener;
 	private UpdateThread mUpdateThread;
 	private long mSearchTime;
+	
+	private String mCurrentChannelName = "";
 	
 	// --- needed by each row ---
 	private final SimpleDateFormat timeformatter;
@@ -109,6 +113,15 @@ public class ChannelController extends AbstractController implements Runnable {
 				break;
 			case Messages.MSG_DATA_UPDATE_DONE:
 				notifyDataSetChanged();
+				break;
+			case MSG_CURRENTCHANNEL_UPDATE:
+				if (Preferences.showCurrentChannel) {
+					LinearLayout lay = (LinearLayout) mListView.getParent();
+					if (lay != null && lay.findViewById(R.id.channels_currentchannel) != null) {
+						TextView tv = (TextView) lay.findViewById(R.id.channels_currentchannelname);
+						tv.setText(mCurrentChannelName);
+					}
+				}
 				break;
 			default:
 				Message newMsg = new Message();
@@ -510,6 +523,21 @@ public class ChannelController extends AbstractController implements Runnable {
 			logger.trace("UpdateThread started");
 			while (! isInterrupted()) {
 				try {
+					// --- display current channel in footer ---
+					VdrDevice vdr = Preferences.getVdr();
+					if (Preferences.showCurrentChannel && vdr != null) {
+						StringBuilder sb = new StringBuilder();
+						
+						String channelresponse = vdr.read("channel");
+						if (channelresponse != null) {
+							String[] sa = channelresponse.split(" ");
+							for (int i = 1; i < sa.length; i++)
+								sb.append(sa[i] + " ");
+						}
+						mCurrentChannelName = sb.toString().trim();
+						sendMsg(mThreadHandler, MSG_CURRENTCHANNEL_UPDATE, null);
+					}
+					
 					if (mChannelAdapter.getCount() > 0) {
 						long l = mChannelAdapter.getItem(0).getMillisToNextUpdate();
 						if (l > 0) {
@@ -523,6 +551,7 @@ public class ChannelController extends AbstractController implements Runnable {
 
 					logger.trace("epg update started");
 					sendMsg(mHandler, Messages.MSG_TITLEBAR_PROGRESS_SHOW, null);
+					
 					for (int i = 0; i < mChannelAdapter.getCount(); i++) {
 						mChannelAdapter.getItem(i).updateEpg(true);
 						if (isInterrupted())

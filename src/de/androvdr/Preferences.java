@@ -72,6 +72,7 @@ public class Preferences {
 	public static boolean epgsearch_description;
 	public static int epgsearch_max;
 	public static boolean showDiskStatus;
+	public static boolean showCurrentChannel;
 	public static boolean detailsLeft;
 	public static int screenSize = SCREENSIZE_NOT_DEFINED;
 	
@@ -190,10 +191,25 @@ public class Preferences {
 	    
 	    Configuration conf = context.getResources().getConfiguration();
 	    if (((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_SMALL) == Configuration.SCREENLAYOUT_SIZE_SMALL) 
-	    	&& ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_NORMAL) != Configuration.SCREENLAYOUT_SIZE_NORMAL))
+	    	&& ((conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_NORMAL) != Configuration.SCREENLAYOUT_SIZE_NORMAL)) {
 	    	showDiskStatus = sp.getBoolean("showDiskStatus", false);
-	    else
+	    	showCurrentChannel = sp.getBoolean("showCurrentChannel", false);
+	    }  else {
 	    	showDiskStatus = sp.getBoolean("showDiskStatus", true);
+	    	showCurrentChannel = sp.getBoolean("showCurrentChannel", true);
+	    }
+
+	    if (! sp.contains("showDiskStatus")) {
+	    	Editor editor = sp.edit();
+	    	editor.putBoolean("showDiskStatus", showDiskStatus);
+	    	editor.commit();
+	    }
+	    
+	    if (! sp.contains("showCurrentChannel")) {
+	    	Editor editor = sp.edit();
+	    	editor.putBoolean("showCurrentChannel", showCurrentChannel);
+	    	editor.commit();
+	    }
 	    
 	    String colorname = sp.getString("tabIndicatorColor", "blue");
 	    if (!colorname.equals("none"))

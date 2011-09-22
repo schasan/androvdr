@@ -95,6 +95,8 @@
     <string name="settings_tabindicatorcolor">Farbe Tabindikator</string>
     <string name="settings_diskstatus">Diskstatus</string>
     <string name="settings_diskstatus_summary">Zeige Diskstatus in der Aufnahmenansicht.</string>
+    <string name="settings_current_channelname">Aktueller Sender</string>
+    <string name="settings_current_channelname_summary">Zeige aktuellen Sendernamen in der Senderansicht.</string>
     <string name="settings_detailsleft">Vertausche Liste / Details</string>
     <string name="settings_detailsleft_summary">Tausche die Positionen von Liste und Details im Landscape-Modus.</string>
     <string name="settings_livetv">Aktiviere Live-TV</string>

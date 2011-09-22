@@ -37,6 +37,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -65,6 +66,11 @@ public class ChannelsFragment extends AbstractListFragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
+		if (! Preferences.showCurrentChannel) {
+			LinearLayout lay = (LinearLayout) mActivity.findViewById(R.id.channels_currentchannel);
+			lay.setVisibility(View.GONE);
+		}
 
 		TextView tv = (TextView) mActivity.findViewById(R.id.channels_header);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
