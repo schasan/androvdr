@@ -713,10 +713,15 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	}
 
 	public void updateTitle(View view) {
+		String title;
+		
     	if ((view != null) && (view.getTag() instanceof CharSequence))
-    		setTitle(mTitle + " (" + view.getTag() + ")");
+    		title = mTitle + " (" + view.getTag() + ")";
     	else
-    		setTitle(mTitle + mTitleChannelName);
+    		title = mTitle + mTitleChannelName;
+    	
+    	if (! isFinishing())
+    		setTitle(title);
     }
     
 	private class ChannelViewUpdater extends AsyncTask<String, Void, Channel> {
