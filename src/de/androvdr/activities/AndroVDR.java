@@ -504,6 +504,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		mDevices = Devices.getInstance();
 
 		mConfigurationManager = ConfigurationManager.getInstance(this);
+		mConfigurationManager.disableKeyguard();
 
         mTitle = getTitle().toString();
         mTitleChannelName = "";
@@ -601,6 +602,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		mConfigurationManager.enableKeyguard();
 		mDevices.clearOnSensorChangeListeners();
 		new CloseConnectionTask().execute(CLOSE_CONNECTION_PORTFORWARDING);
 	}
