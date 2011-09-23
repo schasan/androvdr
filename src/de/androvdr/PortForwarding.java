@@ -123,17 +123,18 @@ public class PortForwarding implements Runnable {
 			
 			// password will be given via UserInfo interface.
 			UserInfo ui = new MyUserInfo();
-
 			session.setUserInfo(ui);
-
 			session.connect();
-
 			logger.trace("SSH-Session verbunden");
 
 			int assinged_port = session.setPortForwardingL(vdr.remote_local_port, "localhost", vdr.getPort());
-
 			logger.debug("localhost:{} -> {}",  assinged_port, (vdr.getIP() + ":" + vdr.getPort()));
 
+			if (vdr.extremux) {
+				int assinged_streaming_port = session.setPortForwardingL(vdr.remote_streaming_port, "localhost", vdr.streamingport);
+				logger.debug("localhost:{} -> {}",  assinged_streaming_port, (vdr.getIP() + ":" + vdr.streamingport));
+			}
+			
 			handler.sendEmptyMessage(STOP_PROGRESS_DIALOG); // alles OK, beende
 															// mit dieser
 															// Nachricht die

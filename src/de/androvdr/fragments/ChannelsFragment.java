@@ -118,7 +118,7 @@ public class ChannelsFragment extends AbstractListFragment implements
 			menu.removeItem(R.id.cm_livetv);
 		}
 		
-		if (Preferences.useInternet) {
+		if (Preferences.useInternet && ! Preferences.getVdr().extremux) {
 			MenuItem menuitem = menu.findItem(R.id.cm_livetv);
 			if (menuitem != null)
 				menuitem.setEnabled(false);

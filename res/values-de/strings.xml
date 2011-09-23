@@ -144,8 +144,11 @@
     <string name="settings_sshkey_select">SSH-Key auswählen</string>
     <string name="settings_sshkey_no_files">Keine Dateien auf der SD-Karte gefunden</string>
     <string name="settings_sshkey_imported">%s importiert</string>
-    <string name="settings_remote_local_port">Lokaler Forward-Port</string>
-    <string name="settings_remote_local_port_summary">Lokaler Port für Forwarding.</string>
+    <string name="settings_remote_local_forwarding_ports">Lokale Forward Ports</string>
+    <string name="settings_remote_local_port">SVDRP</string>
+    <string name="settings_remote_local_port_summary">Lokaler Port der an den SVDRP-Port des VDR weitergeleitet wird.</string>
+    <string name="settings_remote_local_streaming_port">Live-TV</string>
+    <string name="settings_remote_local_streaming_port_summary">Lokaler Port der an den Streaming-Port des VDR weitergeleitet wird.</string>
     <string name="settings_timeout">Timeout (in ms)</string>
     <string name="settings_characterset">Zeichensatz</string>
     <string name="settings_characterset_summary">Vom VDR benutzter Zeichensatz.</string>

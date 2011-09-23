@@ -31,7 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static transient Logger logger = LoggerFactory.getLogger(DBHelper.class);
 	
 	public static final String DATABASE_NAME = "AndroVDR.db";
-	public static final int DATABASE_VERSION = 9;
+	public static final int DATABASE_VERSION = 10;
 	
 	public DBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -87,6 +87,10 @@ public class DBHelper extends SQLiteOpenHelper {
 			logger.debug("Upgrading database from version 8 to 9");
 			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME
 					+ " ADD COLUMN " + DevicesTable.EXTREMUX_COMMAND + " STRING DEFAULT 'EXT'");
+		case 9:
+			logger.debug("Upgrading database from version 9 to 10");
+			db.execSQL("UPDATE " + DevicesTable.TABLE_NAME + " SET "
+					+ DevicesTable.REMOTE_STREAMINGPORT + "=35551");
 
 			break;
 		default:
