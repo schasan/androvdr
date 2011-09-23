@@ -87,6 +87,9 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 	}
 
 	public void disableKeyguard() {
+		if (! mDisableKeyguard)
+			return;
+		
 		if (mKeyguardLock == null) {
 	    	KeyguardManager keyguardManager = (KeyguardManager) mActivity.getSystemService(Context.KEYGUARD_SERVICE);
 	    	mKeyguardLock = keyguardManager.newKeyguardLock(mActivity.getString(R.string.app_name));
@@ -161,8 +164,6 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
     }
     
 	public void onPause() {
-		enableKeyguard();
-
 		if (mWakeLock != null)
 			mWakeLock.release();
 		
@@ -170,9 +171,6 @@ public class ConfigurationManager implements OnSharedPreferenceChangeListener {
 	}
 	
 	public void onResume() {
-		if (mDisableKeyguard)
-			disableKeyguard();
-
 		if (mWakeLock != null)
 			mWakeLock.acquire();
 		
