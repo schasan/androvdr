@@ -144,8 +144,11 @@
     <string name="settings_sshkey_select">Select SSH-Key</string>
     <string name="settings_sshkey_no_files">No files found on SD-Card</string>
     <string name="settings_sshkey_imported">%s imported</string>
-    <string name="settings_remote_local_port">Local Forwarding Port</string>
-    <string name="settings_remote_local_port_summary">Local port used by forwarding.</string>
+    <string name="settings_remote_local_forwarding_ports">Local Forwading Ports</string>
+    <string name="settings_remote_local_port">SVDRP</string>
+    <string name="settings_remote_local_port_summary">Local port forwarded to SVDRP-Port on VDR.</string>
+    <string name="settings_remote_local_streaming_port">Streaming</string>
+    <string name="settings_remote_local_streaming_port_summary">Local port forwarded to Streaming-Port on VDR.</string>
     <string name="settings_timeout">Timeout (in ms)</string>
     <string name="settings_characterset">Characterset</string>
     <string name="settings_characterset_summary">Characterset used on VDR.</string>

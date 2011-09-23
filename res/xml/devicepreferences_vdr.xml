@@ -77,7 +77,7 @@
       android:title="@string/settings_margin_stop"
       android:defaultValue="10" />
   </PreferenceCategory>
-  <PreferenceCategory 
+  <PreferenceCategory
     android:title="@string/livetv">
     <CheckBoxPreference
       android:key="extremux"
@@ -118,15 +118,24 @@
       android:title="@string/settings_sshkey"
       android:summary="@string/settings_sshkey_summary" />
     <EditTextPreference
+      android:key="remote_timeout"
+      android:inputType="number"
+      android:title="@string/settings_timeout"
+      android:defaultValue="25000" />
+  </PreferenceCategory>
+  <PreferenceCategory
+    android:title="@string/settings_remote_local_forwarding_ports">
+    <EditTextPreference
       android:key="remote_local_port"
       android:inputType="number"
       android:title="@string/settings_remote_local_port"
       android:summary="@string/settings_remote_local_port_summary"
       android:defaultValue="35550" />
     <EditTextPreference
-      android:key="remote_timeout"
+      android:key="remote_streaming_port"
       android:inputType="number"
-      android:title="@string/settings_timeout"
-      android:defaultValue="25000" />
+      android:title="@string/settings_remote_local_streaming_port"
+      android:summary="@string/settings_remote_local_streaming_port_summary"
+      android:defaultValue="35551" />
   </PreferenceCategory>
 </PreferenceScreen>

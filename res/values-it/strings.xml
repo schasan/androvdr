@@ -144,8 +144,15 @@
     <string name="settings_sshkey_select">Seleziona chiave SSH</string>
     <string name="settings_sshkey_no_files">Nessun file trovato nella scheda SD</string>
     <string name="settings_sshkey_imported">%s importata</string>
+    <string name="settings_remote_local_forwarding_ports">Local Forwading Ports</string>
+    <string name="settings_remote_local_port">SVDRP</string>
+    <string name="settings_remote_local_port_summary">Local port forwarded to SVDRP-Port on VDR.</string>
+    <string name="settings_remote_local_streaming_port">Streaming</string>
+    <string name="settings_remote_local_streaming_port_summary">Local port forwarded to Streaming-Port on VDR.</string>
+<!-- 
     <string name="settings_remote_local_port">Porta locale inoltro</string>
     <string name="settings_remote_local_port_summary">Porta locale usata per inoltro.</string>
+-->
     <string name="settings_timeout">Scadenza (in ms)</string>
     <string name="settings_characterset">Codifica</string>
     <string name="settings_characterset_summary">Codifica usata in VDR.</string>

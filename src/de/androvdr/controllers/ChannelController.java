@@ -194,7 +194,11 @@ public class ChannelController extends AbstractController implements Runnable {
 			VdrDevice vdr = Preferences.getVdr();
 			SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mActivity);
 			StringBuilder url = new StringBuilder();
-			url.append("http://" + vdr.getIP() + ":" + vdr.streamingport + "/");
+			if (Preferences.useInternet) {
+				url.append("http://localhost:" + vdr.remote_streaming_port + "/");
+			} else {
+				url.append("http://" + vdr.getIP() + ":" + vdr.streamingport + "/");
+			}
 			if (vdr.extremux) {
 				url.append(vdr.extremux_command);
 				if (vdr.extremux_param != null && vdr.extremux_param.length() > 0)
