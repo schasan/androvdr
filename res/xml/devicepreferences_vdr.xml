@@ -95,6 +95,32 @@
       android:title="@string/settings_extremux_param"
       android:dependency="extremux"
       android:defaultValue="" />
+    <CheckBoxPreference
+      android:key="generalstreaming"
+      android:title="@string/settings_generalstreaming"
+      android:summary="@string/settings_generalstreaming_summary"
+      android:defaultValue="false" />
+    <EditTextPreference
+      android:key="generalstreaming_url"
+      android:title="@string/settings_generalstreaming_url"
+      android:summary="@string/settings_generalstreaming_url_summary"
+      android:dependency="generalstreaming"
+      android:defaultValue="" />
+  </PreferenceCategory>
+  <PreferenceCategory
+    android:title="@string/settings_vdradmin">
+    <CheckBoxPreference
+      android:key="vdradmin"
+      android:title="@string/settings_vdradmin_use"
+      android:summary="@string/settings_vdradmin_use_summary"
+      android:defaultValue="false" />
+    <EditTextPreference
+      android:key="vdradmin_port"
+      android:inputType="number"
+      android:title="@string/settings_vdradmin_port"
+      android:summary="@string/settings_vdradmin_port_summary"
+      android:dependency="vdradmin"
+      android:defaultValue="8001" />
   </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/settings_remote">
@@ -136,6 +162,14 @@
       android:inputType="number"
       android:title="@string/settings_remote_local_streaming_port"
       android:summary="@string/settings_remote_local_streaming_port_summary"
+      android:dependency="extremux"
       android:defaultValue="35551" />
+    <EditTextPreference
+      android:key="remote_vdradmin_port"
+      android:inputType="number"
+      android:title="@string/settings_remote_local_vdradmin_port"
+      android:summary="@string/settings_remote_local_vdradmin_port_summary"
+      android:dependency="vdradmin"
+      android:defaultValue="35552" />
   </PreferenceCategory>
 </PreferenceScreen>

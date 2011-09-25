@@ -31,7 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static transient Logger logger = LoggerFactory.getLogger(DBHelper.class);
 	
 	public static final String DATABASE_NAME = "AndroVDR.db";
-	public static final int DATABASE_VERSION = 10;
+	public static final int DATABASE_VERSION = 11;
 	
 	public DBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -91,6 +91,18 @@ public class DBHelper extends SQLiteOpenHelper {
 			logger.debug("Upgrading database from version 9 to 10");
 			db.execSQL("UPDATE " + DevicesTable.TABLE_NAME + " SET "
 					+ DevicesTable.REMOTE_STREAMINGPORT + "=35551");
+		case 10:
+			logger.debug("Upgrading database from version 10 to 11");
+			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME
+					+ " ADD COLUMN " + DevicesTable.VDRADMIN + " STRING DEFAULT 'false'");
+			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME
+					+ " ADD COLUMN " + DevicesTable.VDRADMIN_PORT + " INT DEFAULT 8001");
+			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME
+					+ " ADD COLUMN " + DevicesTable.REMOTE_VDRADMIN_PORT + " INT DEFAULT 35552");
+			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME
+					+ " ADD COLUMN " + DevicesTable.GENERALSTREAMING + " STRING DEFAULT 'false'");
+			db.execSQL("ALTER TABLE " + DevicesTable.TABLE_NAME
+					+ " ADD COLUMN " + DevicesTable.GENERALSTREAMING_URL + " STRING");
 
 			break;
 		default:

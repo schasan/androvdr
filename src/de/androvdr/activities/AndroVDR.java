@@ -614,6 +614,9 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		VdrDevice vdr;
+		String url;
+
 		switch (item.getItemId()) {
 		case R.id.androvdr_exit:
 			new CloseConnectionTask().execute(CLOSE_CONNECTION_TERMINATE);
@@ -634,6 +637,26 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		case R.id.androvdr_internet:
 			togglePortforwarding();
 			return true;
+		case R.id.androvdr_vdradmin:
+			vdr = Preferences.getVdr();
+			if (Preferences.useInternet) {
+				url = "http://localhost:" + vdr.remote_vdradmin_port;
+			} else {
+				url = "http://" + vdr.getIP() + ":" + vdr.vdradmin_port;
+			}
+			logger.debug("Streaming URL: {}", url);
+			intent = new Intent(Intent.ACTION_VIEW);
+			intent.setDataAndType(Uri.parse(url.toString()),"text/html");
+			startActivityForResult(intent, 1);
+			return true;
+		case R.id.androvdr_generalstreaming:
+			vdr = Preferences.getVdr();
+			url = "http://" + vdr.getIP() + vdr.generalstreaming_url;
+			logger.debug("Streaming URL: {}", url);
+			intent = new Intent(Intent.ACTION_VIEW);
+			intent.setDataAndType(Uri.parse(url.toString()),"video/*");
+			startActivityForResult(intent, 1);
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -652,6 +675,13 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		menu.findItem(R.id.androvdr_gestures).setEnabled(vdrdefined);
 		menu.findItem(R.id.androvdr_internet).setEnabled(vdrdefined);
 		menu.findItem(R.id.androvdr_switch_vdr).setEnabled(vdrdefined);
+		menu.findItem(R.id.androvdr_vdradmin).setEnabled(vdrdefined);
+		menu.findItem(R.id.androvdr_generalstreaming).setEnabled(vdrdefined);
+		
+		if (vdrdefined) {
+			menu.findItem(R.id.androvdr_vdradmin).setVisible(Preferences.getVdr().vdradmin);
+			menu.findItem(R.id.androvdr_generalstreaming).setVisible(Preferences.getVdr().generalstreaming);
+		}
 		return true;
 	}
 	

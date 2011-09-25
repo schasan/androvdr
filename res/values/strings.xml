@@ -124,6 +124,11 @@
     <string name="settings_broadcastaddress_summary">Broadcast IP address, usually 255.255.255.255</string>
     <string name="settings_livetv_port">Streaming Port</string>
     <string name="settings_livetv_port_summary">Default 3000. Must be enabled in streamdevhosts.conf.</string>
+    <string name="settings_vdradmin">VDRAdmin</string>
+    <string name="settings_vdradmin_use">VDRAdmin</string>
+    <string name="settings_vdradmin_use_summary">Enable VDRAdmin access from main menu.</string>
+    <string name="settings_vdradmin_port">Port</string>
+    <string name="settings_vdradmin_port_summary">Default 8001.</string>
     <string name="settings_channellist">Channellist</string>
     <string name="settings_channellist_summary">Comma separate list of ranges or values without space.</string>
     <string name="settings_epgmax">Max. EPG Entries</string>
@@ -149,6 +154,8 @@
     <string name="settings_remote_local_port_summary">Local port forwarded to SVDRP-Port on VDR.</string>
     <string name="settings_remote_local_streaming_port">Streaming</string>
     <string name="settings_remote_local_streaming_port_summary">Local port forwarded to Streaming-Port on VDR.</string>
+    <string name="settings_remote_local_vdradmin_port">VDRAdmin</string>
+    <string name="settings_remote_local_vdradmin_port_summary">Local port forwarded to VDRAdmin-Port on VDR.</string>
     <string name="settings_timeout">Timeout (in ms)</string>
     <string name="settings_characterset">Characterset</string>
     <string name="settings_characterset_summary">Characterset used on VDR.</string>
@@ -165,6 +172,10 @@
     <string name="settings_extremux_command">Command</string>
     <string name="settings_extremux_command_summary">Command to activate externremux in streamdev-server. Normally EXT or EXTERN</string>
     <string name="settings_extremux_param">Remux Parameter</string>
+    <string name="settings_generalstreaming">Streaming</string>
+    <string name="settings_generalstreaming_summary">Enable http streaming from a configurable URL.</string>
+    <string name="settings_generalstreaming_url">URL</string>
+    <string name="settings_generalstreaming_url_summary">Appended to "http://vdr".</string>
     <!-- Main -->
     <string name="main_select_vdr">Select VDR</string>
     <string name="main_forwarding_on">Forwarding On</string>

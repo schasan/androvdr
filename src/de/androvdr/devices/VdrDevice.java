@@ -72,6 +72,11 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 	public boolean extremux;
 	public String extremux_command;
 	public String extremux_param;
+	public boolean vdradmin;
+	public int vdradmin_port;
+	public int remote_vdradmin_port;
+	public boolean generalstreaming;
+	public String generalstreaming_url;
 	
 	public VdrDevice() {
 		initCommands();
@@ -256,7 +261,7 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 		remote_port = sp.getInt("remote_port", 22);
 		remote_local_port = sp.getInt("remote_local_port", 35550);
 		remote_timeout = sp.getInt("remote_timeout", 25000);
-		remote_streaming_port = sp.getInt("remote_streaming_port", 3000);
+		remote_streaming_port = sp.getInt("remote_streaming_port", 35551);
 		epgmax = sp.getInt("epgmax", 30);
 		
 		String newchannellist = sp.getString("channellist", "1-20,24");
@@ -277,6 +282,11 @@ public class VdrDevice implements IActuator, ISensor, OnSharedPreferenceChangeLi
 		extremux = sp.getString("extremux", "false").equals("true");
 		extremux_command = sp.getString("extremux_command", "EXT");
 		extremux_param = sp.getString("extremux_param", null);
+		vdradmin = sp.getString("vdradmin", "false").equals("true");
+		vdradmin_port = sp.getInt("vdradmin_port", 8001);
+		remote_vdradmin_port = sp.getInt("remote_vdradmin_port", 35552);
+		generalstreaming = sp.getString("generalstreaming", "false").equals("true");
+		generalstreaming_url = sp.getString("generalstreaming_url", "");
 		
 		VdrDevice currentVdr = Preferences.getVdr();
 		if ((currentVdr != null) && (currentVdr.getId() == mId)) {
