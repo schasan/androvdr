@@ -663,6 +663,12 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		mDevices.stopSensorUpdater();
+	}
+	
+	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 		MenuItem mi = menu.findItem(R.id.androvdr_internet);
@@ -686,6 +692,12 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		mDevices.startSensorUpdater(1);
+	}
+
+	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
 		if (key.equals("alternateLayout"))
@@ -697,18 +709,6 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			initLogging(sharedPreferences);
 	}
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-		mDevices.startSensorUpdater(1);
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		mDevices.stopSensorUpdater();
-	}
-	
     private Handler sshDialogHandler = new Handler() {
 		@Override
         public void handleMessage(Message msg) {
