@@ -118,12 +118,17 @@
     <string name="settings_host_summary">Nome sistema o indirizzo IP (raccomandato). Deve essere abilitato in "svdrphosts.conf".</string>
     <string name="settings_port">Porta</string>
     <string name="settings_port_summary">Porta SVDRP (da 1.7.15 la 6419).</string>
-    <string name="settings_livetv_port">Porta trasmissione</string>
-    <string name="settings_livetv_port_summary">Predefinita 3000. Deve essere abilitata in "streamdevhosts.conf".</string>
     <string name="settings_macaddress">Indirizzo MAC</string>
     <string name="settings_macaddress_summary">Richiesto per WakeOnLan. Formato 00:00:00:00:00:00</string>
     <string name="settings_broadcastaddress">Indirizzo Broadcast IP</string>
     <string name="settings_broadcastaddress_summary">Indirizzo Broadcast IP (255.255.255.255)</string>
+    <string name="settings_livetv_port">Porta trasmissione</string>
+    <string name="settings_livetv_port_summary">Predefinita 3000. Deve essere abilitata in "streamdevhosts.conf".</string>
+    <string name="settings_vdradmin">VDRAdmin</string>
+    <string name="settings_vdradmin_use">VDRAdmin</string>
+    <string name="settings_vdradmin_use_summary">Enable VDRAdmin access from main menu.</string>
+    <string name="settings_vdradmin_port">Port</string>
+    <string name="settings_vdradmin_port_summary">Default 8001.</string>
     <string name="settings_channellist">Lista canali</string>
     <string name="settings_channellist_summary">Elenco gamma o valori separati da virgole e senza spazi.</string>
     <string name="settings_epgmax">Valori massimi EPG</string>
@@ -153,6 +158,8 @@
     <string name="settings_remote_local_port">Porta locale inoltro</string>
     <string name="settings_remote_local_port_summary">Porta locale usata per inoltro.</string>
 -->
+    <string name="settings_remote_local_vdradmin_port">VDRAdmin</string>
+    <string name="settings_remote_local_vdradmin_port_summary">Local port forwarded to VDRAdmin-Port on VDR.</string>
     <string name="settings_timeout">Scadenza (in ms)</string>
     <string name="settings_characterset">Codifica</string>
     <string name="settings_characterset_summary">Codifica usata in VDR.</string>
@@ -169,6 +176,10 @@
     <string name="settings_extremux_command">Comando</string>
     <string name="settings_extremux_command_summary">Comando per attivare externremux in streamdev-server. Di solito EXT o EXTERN</string>
     <string name="settings_extremux_param">Parametro remux</string>
+    <string name="settings_generalstreaming">Streaming</string>
+    <string name="settings_generalstreaming_summary">Enable http streaming from a configurable URL.</string>
+    <string name="settings_generalstreaming_url">URL</string>
+    <string name="settings_generalstreaming_url_summary">Appended to "http://vdr".</string>
     <!-- Main -->
     <string name="main_select_vdr">Seleziona VDR</string>
     <string name="main_forwarding_on">Attiva inoltro</string>

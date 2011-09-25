@@ -124,6 +124,11 @@
     <string name="settings_broadcastaddress_summary">Broadcast IP adresse, gewöhnlich 255.255.255.255</string>
     <string name="settings_livetv_port">Streaming Port</string>
     <string name="settings_livetv_port_summary">Normalerweise 3000. Freigabe in streamdevhosts.conf.</string>
+    <string name="settings_vdradmin">VDRAdmin</string>
+    <string name="settings_vdradmin_use">VDRAdmin</string>
+    <string name="settings_vdradmin_use_summary">Zugriff auf VDRAdmin aus dem Hauptmenü.</string>
+    <string name="settings_vdradmin_port">Port</string>
+    <string name="settings_vdradmin_port_summary">Normalerweiser 8001.</string>
     <string name="settings_channellist">Senderliste</string>
     <string name="settings_channellist_summary">Komma separierte Liste von Bereichen oder Werten ohne Leerzeichen.</string>
     <string name="settings_epgmax">Max. EPG Einträge</string>
@@ -149,6 +154,8 @@
     <string name="settings_remote_local_port_summary">Lokaler Port der an den SVDRP-Port des VDR weitergeleitet wird.</string>
     <string name="settings_remote_local_streaming_port">Live-TV</string>
     <string name="settings_remote_local_streaming_port_summary">Lokaler Port der an den Streaming-Port des VDR weitergeleitet wird.</string>
+    <string name="settings_remote_local_vdradmin_port">VDRAdmin</string>
+    <string name="settings_remote_local_vdradmin_port_summary">Lokaler Port der an den VDRAdmin-Port des VDR weitergeleitet wird.</string>
     <string name="settings_timeout">Timeout (in ms)</string>
     <string name="settings_characterset">Zeichensatz</string>
     <string name="settings_characterset_summary">Vom VDR benutzter Zeichensatz.</string>
@@ -165,6 +172,10 @@
     <string name="settings_extremux_command">Befehl</string>
     <string name="settings_extremux_command_summary">Befehl zur Aktivierung von externremux im streamdev-server. Normalerweise EXT or EXTERN</string>
     <string name="settings_extremux_param">Remux Parameter</string>
+    <string name="settings_generalstreaming">Streaming</string>
+    <string name="settings_generalstreaming_summary">HTTP-Streaming von einer konfigurierbaren URL</string>
+    <string name="settings_generalstreaming_url">URL</string>
+    <string name="settings_generalstreaming_url_summary">Wird an "http://vdr" angehängt.</string>
     <!-- Main -->
     <string name="main_select_vdr">VDR auswählen</string>
     <string name="main_forwarding_on">Forwarding An</string>
