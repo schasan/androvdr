@@ -122,7 +122,7 @@ public class Preferences {
 			Devices devices = Devices.getInstance();
 			sCurrentVdr = devices.getVdr(sCurrentVdrId);
 			if (sCurrentVdr == null)
-				if (devices.getVdrs().size() == 1)
+				if (devices.getVdrs().size() >= 1)
 					if ((sCurrentVdr = devices.getFirstVdr()) != null) {
 						SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 						sCurrentVdrId = sCurrentVdr.getId();
