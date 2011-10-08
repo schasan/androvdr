@@ -182,6 +182,16 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		};
 	};
 	
+	private Handler mUpdateTitleHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			if (mWorkspace != null)
+				updateTitle(mWorkspace.getCurrentView());
+			else
+				updateTitle(null);
+		};
+	};
+	
 	private void addLongClickListener(View view) {
 		if (view instanceof ViewGroup) {
 			ViewGroup v = (ViewGroup) view;
@@ -820,10 +830,8 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 				else
 					mTitleChannelName = " - " + channel.name;
 
-				if (mWorkspace != null)
-					updateTitle(mWorkspace.getCurrentView());
-				else
-					updateTitle(null);
+				
+				mUpdateTitleHandler.sendEmptyMessage(0);
 			} else {
 				if (channel == null) {
 					channelInfo.setVisibility(View.GONE);
