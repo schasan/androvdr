@@ -41,8 +41,8 @@
     <string name="search">Cerca</string>
     <string name="notification_connected_ticker">Connessione stabilita</string>
     <string name="notification_connected">Connesso a</string>
-    <string name="dialog_novdr_title">No VDR configured</string>
-    <string name="dialog_novdr_summary">First of all you need to configure at least one VDR.\nConfigure now?</string>
+    <string name="dialog_novdr_title">Nessuna VDR configurata</string>
+    <string name="dialog_novdr_summary">Prima di tutto devi configurare almeno una VDR.\nConfigurarla ora?</string>
     <!-- ChannelsActivity -->
     <string name="channels">Canali</string>
     <string name="channels_whats_on">In programmazione adesso</string>
@@ -97,8 +97,8 @@
     <string name="settings_tabindicatorcolor">Colore indicatore scheda</string>
     <string name="settings_diskstatus">Stato disco</string>
     <string name="settings_diskstatus_summary">Mostra stato disco nel menu registrazioni.</string>
-    <string name="settings_current_channelname">Current Channel</string>
-    <string name="settings_current_channelname_summary">Show name of current channel in channel view.</string>
+    <string name="settings_current_channelname">Canale attuale</string>
+    <string name="settings_current_channelname_summary">Mostra il nome del canale attuale nella visione canali.</string>
     <string name="settings_detailsleft">Alterna Elenco / Dettagli</string>
     <string name="settings_detailsleft_summary">Alterna la posizione elenco e dettagli nella modalità orizzontale.</string>
     <string name="settings_livetv">Abilita trasmissione dal vivo</string>
@@ -126,9 +126,9 @@
     <string name="settings_livetv_port_summary">Predefinita 3000. Deve essere abilitata in "streamdevhosts.conf".</string>
     <string name="settings_vdradmin">VDRAdmin</string>
     <string name="settings_vdradmin_use">VDRAdmin</string>
-    <string name="settings_vdradmin_use_summary">Enable VDRAdmin access from main menu.</string>
-    <string name="settings_vdradmin_port">Port</string>
-    <string name="settings_vdradmin_port_summary">Default 8001.</string>
+    <string name="settings_vdradmin_use_summary">Abilita accesso VDRAdmin dal menu principale.</string>
+    <string name="settings_vdradmin_port">Porta</string>
+    <string name="settings_vdradmin_port_summary">Predefinita 8001.</string>
     <string name="settings_channellist">Lista canali</string>
     <string name="settings_channellist_summary">Elenco gamma o valori separati da virgole e senza spazi.</string>
     <string name="settings_epgmax">Valori massimi EPG</string>
@@ -149,15 +149,11 @@
     <string name="settings_sshkey_select">Seleziona chiave SSH</string>
     <string name="settings_sshkey_no_files">Nessun file trovato nella scheda SD</string>
     <string name="settings_sshkey_imported">%s importata</string>
-    <string name="settings_remote_local_forwarding_ports">Local Forwading Ports</string>
+    <string name="settings_remote_local_forwarding_ports">Inoltro porte locali</string>
     <string name="settings_remote_local_port">SVDRP</string>
-    <string name="settings_remote_local_port_summary">Local port forwarded to SVDRP-Port on VDR.</string>
-    <string name="settings_remote_local_streaming_port">Streaming</string>
-    <string name="settings_remote_local_streaming_port_summary">Local port forwarded to Streaming-Port on VDR.</string>
-<!-- 
-    <string name="settings_remote_local_port">Porta locale inoltro</string>
-    <string name="settings_remote_local_port_summary">Porta locale usata per inoltro.</string>
--->
+    <string name="settings_remote_local_port_summary">Porta locale inoltrata alla porta SVDRP della VDR.</string>
+    <string name="settings_remote_local_streaming_port">Trasmissione</string>
+    <string name="settings_remote_local_streaming_port_summary">Porta locale inoltrata alla porta di trasmissione della VDR.</string>
     <string name="settings_remote_local_vdradmin_port">VDRAdmin</string>
     <string name="settings_remote_local_vdradmin_port_summary">Local port forwarded to VDRAdmin-Port on VDR.</string>
     <string name="settings_timeout">Scadenza (in ms)</string>
@@ -176,10 +172,10 @@
     <string name="settings_extremux_command">Comando</string>
     <string name="settings_extremux_command_summary">Comando per attivare externremux in streamdev-server. Di solito EXT o EXTERN</string>
     <string name="settings_extremux_param">Parametro remux</string>
-    <string name="settings_generalstreaming">Streaming</string>
-    <string name="settings_generalstreaming_summary">Enable http streaming from a configurable URL.</string>
+    <string name="settings_generalstreaming">Trasmissione</string>
+    <string name="settings_generalstreaming_summary">Abilita trasmissione "http" da un URL configurabile.</string>
     <string name="settings_generalstreaming_url">URL</string>
-    <string name="settings_generalstreaming_url_summary">Appended to "http://vdr".</string>
+    <string name="settings_generalstreaming_url_summary">Aggiungi a "http://vdr".</string>
     <!-- Main -->
     <string name="main_select_vdr">Seleziona VDR</string>
     <string name="main_forwarding_on">Attiva inoltro</string>
