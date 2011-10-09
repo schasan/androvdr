@@ -210,7 +210,7 @@ public class ChannelController extends AbstractController implements Runnable {
 			logger.debug("Streaming URL: {}", url.toString());
 			intent = new Intent(Intent.ACTION_VIEW);
 			intent.setDataAndType(Uri.parse(url.toString()),"video/*");
-			mActivity.startActivityForResult(intent, 1);
+			mActivity.startActivity(intent);
 			break;
 		}
 	}
