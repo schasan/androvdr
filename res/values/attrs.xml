@@ -6,7 +6,6 @@
   <attr name="detailsElementBackground" format="reference" />
   <attr name="button" format="reference" />
   <attr name="buttonSquare" format="reference" />
-  <attr name="buttonSquareHeight" format="reference" />
   <attr name="buttonUp" format="reference" />
   <attr name="buttonDown" format="reference" />
   <attr name="buttonLeft" format="reference" />
@@ -19,9 +18,7 @@
   <attr name="buttonStop" format="reference" />
   <attr name="buttonPause" format="reference" />
   <attr name="buttonPowerOn" format="reference" />
-  <attr name="buttonPowerOnSquare" format="reference" />
   <attr name="buttonPowerOff" format="reference" />
-  <attr name="buttonPowerOffSquare" format="reference" />
   <attr name="spacer" format="reference" />
   
   <attr name="buttonCursor" format="reference" />

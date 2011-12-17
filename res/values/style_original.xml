@@ -32,7 +32,7 @@
     <item name="android:layout_width">43dip</item>
     <item name="android:layout_height">54dip</item>
   </style>
-  <style name="spacer.Original">
+  <style name="spacer.Original" parent="@android:style/Widget.TextView">
     <item name="android:layout_width">1dip</item>
     <item name="android:layout_height">10dip</item>
   </style>

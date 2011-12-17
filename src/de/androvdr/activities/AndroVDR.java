@@ -65,19 +65,19 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TabHost;
+import android.widget.TabHost.TabContentFactory;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.RelativeLayout.LayoutParams;
-import android.widget.TabHost.TabContentFactory;
 import de.androvdr.Channel;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.GesturesFind;
@@ -94,6 +94,7 @@ import de.androvdr.devices.OnChangeListener;
 import de.androvdr.devices.OnSensorChangeListener;
 import de.androvdr.devices.VdrDevice;
 import de.androvdr.svdrp.VDRConnection;
+import de.androvdr.widget.TextResizeButton;
 
 public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLoadListener, 
 		OnSharedPreferenceChangeListener {
@@ -330,6 +331,16 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    if (screenXLarge)
 	    	Preferences.screenSize = Preferences.SCREENSIZE_XLARGE;
 	    logger.trace("Screen size: {}", Preferences.screenSize);
+	    
+	    // --- init default text size for buttons ---
+	    TextResizeButton.resetDefaultTextSize();
+	    TextResizeButton rb = (TextResizeButton) LayoutInflater.from(this).inflate(R.layout.reference_button, null);
+	    if ((Preferences.screenSize >= Preferences.SCREENSIZE_LARGE) 
+	    		&& (metrics.widthPixels > metrics.heightPixels))
+	    	rb.setTextSizeAsDefault(metrics.widthPixels / 2 / 5, 100);
+	    else
+	    	rb.setTextSizeAsDefault(Math.min(metrics.widthPixels, metrics.heightPixels) / 4, 100);
+	    logger.debug("Default TextSize (px): {}", rb.getTextSize());
 	    
 	    /*
 	     * device dependant layout initilization
