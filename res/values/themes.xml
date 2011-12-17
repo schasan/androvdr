@@ -6,8 +6,6 @@
     <item name="body">@style/body</item>
     <item name="detailsElementBackground">@style/detailsElementBackground_dark</item>
     <item name="button">@style/button</item>
-    <item name="buttonSquare">@style/buttonSquare</item>
-    <item name="buttonSquareHeight">@style/buttonSquareHeight</item>
     <item name="buttonUp">@style/buttonUp</item>
     <item name="buttonDown">@style/buttonDown</item>
     <item name="buttonLeft">@style/buttonLeft</item>
@@ -20,10 +18,7 @@
     <item name="buttonStop">@style/buttonStop</item>
     <item name="buttonPause">@style/buttonPause</item>
     <item name="buttonPowerOn">@style/buttonPowerOn</item>
-    <item name="buttonPowerOnSquare">@style/buttonPowerOnSquare</item>
     <item name="buttonPowerOff">@style/buttonPowerOff</item>
-    <item name="buttonPowerOffSquare">@style/buttonPowerOffSquare</item>
-    <item name="spacer">@style/spacer</item>
   </style>
   <style name="Theme.Light" parent="android:Theme.Light">
     <item name="header">@style/header_light</item>
@@ -31,8 +26,6 @@
     <item name="body">@style/body</item>
     <item name="detailsElementBackground">@style/detailsElementBackground_light</item>
     <item name="button">@style/button</item>
-    <item name="buttonSquare">@style/buttonSquare</item>
-    <item name="buttonSquareHeight">@style/buttonSquareHeight</item>
     <item name="buttonUp">@style/buttonUp</item>
     <item name="buttonDown">@style/buttonDown</item>
     <item name="buttonLeft">@style/buttonLeft</item>
@@ -45,10 +38,7 @@
     <item name="buttonStop">@style/buttonStop</item>
     <item name="buttonPause">@style/buttonPause</item>
     <item name="buttonPowerOn">@style/buttonPowerOn</item>
-    <item name="buttonPowerOnSquare">@style/buttonPowerOnSquare</item>
     <item name="buttonPowerOff">@style/buttonPowerOff</item>
-    <item name="buttonPowerOffSquare">@style/buttonPowerOffSquare</item>
-    <item name="spacer">@style/spacer</item>
   </style>
   <style name="Theme.Original" parent="android:Theme">
     <item name="header">@style/header</item>

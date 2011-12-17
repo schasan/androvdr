@@ -9,23 +9,23 @@
     <include
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="15"
+        android:layout_weight="18"
         layout="@layout/remote_part_record_ok" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0px"
-        android:layout_weight="18" />
+        android:layout_weight="23" />
 
     <include
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="30"
+        android:layout_weight="36"
         layout="@layout/remote_part_play_skip" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0px"
-        android:layout_weight="37" />
+        android:layout_weight="23" />
 
 </LinearLayout>

@@ -1,385 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  style="?body"
-  android:id="@+id/remote_vdr_main_id"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
-  
-  <TableLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <TableRow>
-      <ImageButton
-        style="?buttonPowerOn"
-        android:tag="VDR.wol|VDR.wolinternet" />
-      <Button
-        style="?button"
-        android:text="@string/remote_schedule"
-        android:layout_weight="1"
-        android:tag="Activity.de.androvdr.activities.EpgsdataActivity|VDR.schedule" />
-      <Button
-        style="?button"
-        android:text="@string/remote_timer"
-        android:layout_weight="1"
-        android:tag="Activity.de.androvdr.activities.TimersActivity|VDR.timers" />
-      <Button
-        style="?button"
-        android:text="@string/remote_channels"
-        android:layout_weight="1"
-        android:tag="Activity.de.androvdr.activities.ChannelsActivity|VDR.channels" />
-      <Button
-        style="?button"
-        android:text="@string/remote_records"
-        android:layout_weight="1"
-        android:tag="Activity.de.androvdr.activities.RecordingsActivity|VDR.recordings" />
-      <ImageButton
-        style="?buttonPowerOff"
-        android:tag="VDR.power" />
-    </TableRow>
-  </TableLayout>
-
-  <LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/remote_vdr_main_id"
+    style="?body"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="1" />
+    android:orientation="vertical"
+    android:weightSum="92" >
 
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="12"
+        layout="@layout/remote_part_power_activities" />
 
-    <!-- User -->
-    <TableLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
-      <TableRow>
-        <Button
-          style="?buttonSquareHeight"
-          android:text="@string/remote_user1"
-          android:tag="VDR.user1" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?buttonSquareHeight"
-          android:text="@string/remote_user2"
-          android:tag="VDR.user2" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?buttonSquareHeight"
-          android:text="@string/remote_user3"
-          android:tag="VDR.user3" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?buttonSquareHeight"
-          android:text="@string/remote_user4"
-          android:tag="VDR.user4" />
-      </TableRow>
-    </TableLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="4" />
 
-    <TextView
-      style="?spacer"
-      android:layout_weight="1" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="48"
+        android:orientation="horizontal" >
 
-    <!-- NumPad -->
-    <TableLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="1"
-          android:tag="VDR.1" />
-        <Button
-          style="?buttonSquare"
-          android:text="2"
-          android:tag="VDR.2" />
-        <Button
-          style="?buttonSquare"
-          android:text="3"
-          android:tag="VDR.3" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="4"
-          android:tag="VDR.4" />
-        <Button
-          style="?buttonSquare"
-          android:text="5"
-          android:tag="VDR.5" />
-        <Button
-          style="?buttonSquare"
-          android:text="6"
-          android:tag="VDR.6" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="7"
-          android:tag="VDR.7" />
-        <Button
-          style="?buttonSquare"
-          android:text="8"
-          android:tag="VDR.8" />
-        <Button
-          style="?buttonSquare"
-          android:text="9"
-          android:tag="VDR.9" />
-      </TableRow>
-      <TableRow>
-        <TextView
-          style="?spacer" />
-        <Button
-          style="?buttonSquare"
-          android:text="0"
-          android:tag="VDR.0" />
-        <TextView
-          style="?spacer" />
-      </TableRow>
-    </TableLayout>
+        <!-- User -->
+        <TableLayout
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="17" >
 
-    <TextView
-      style="?spacer"
-      android:layout_weight="1" />
+            <TableRow android:layout_weight="1" >
 
-    <!-- Menu / Back -->
-    <TableLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="@string/remote_menu"
-          android:tag="VDR.menu" />
-      </TableRow>
-      <TableRow>
-        <TextView
-          style="?spacer" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="@string/remote_back"
-          android:tag="VDR.back" />
-      </TableRow>
-    </TableLayout>
+                <de.androvdr.widget.TextResizeButton
+                    style="?button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:tag="VDR.user1"
+                    android:text="@string/remote_user1" />
+            </TableRow>
 
-    <TextView
-      style="?spacer"
-      android:layout_weight="1" />
+            <TableRow android:layout_weight="1" >
 
-    <!-- Cursor -->
-    <TableLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
-      <TableRow>
-        <TextView
-          style="?spacer" />
-        <ImageButton
-          style="?buttonUp"
-          android:tag="VDR.up" />
-        <TextView
-          style="?spacer" />
-      </TableRow>
-      <TableRow>
-        <ImageButton
-          style="?buttonLeft"
-          android:tag="VDR.left" />
-        <Button
-          style="?buttonSquare"
-          android:text="OK"
-          android:tag="VDR.ok" />
-        <ImageButton
-          style="?buttonRight"
-          android:tag="VDR.right" />
-      </TableRow>
-      <TableRow>
-        <TextView
-          style="?spacer" />
-        <ImageButton
-          style="?buttonDown"
-          android:tag="VDR.down" />
-        <TextView
-          style="?spacer" />
-      </TableRow>
-    </TableLayout>
+                <de.androvdr.widget.TextResizeButton
+                    style="?button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:tag="VDR.user2"
+                    android:text="@string/remote_user2" />
+            </TableRow>
 
-    <TextView
-      style="?spacer"
-      android:layout_weight="1" />
+            <TableRow android:layout_weight="1" >
 
-    <!-- Channels -->
-    <TableLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="@string/remote_chan_up"
-          android:tag="VDR.chan_up" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="@string/remote_chan_last"
-          android:tag="VDR.prev_chan" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="@string/remote_chan_down"
-          android:tag="VDR.chan_down" />
-      </TableRow>
-    </TableLayout>
+                <de.androvdr.widget.TextResizeButton
+                    style="?button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:tag="VDR.user3"
+                    android:text="@string/remote_user3" />
+            </TableRow>
 
-    <TextView
-      style="?spacer"
-      android:layout_weight="1" />
+            <TableRow android:layout_weight="1" >
 
-    <!-- Volume -->
-    <TableLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="@string/remote_vol_up"
-          android:tag="VDR.vol_up" />
-      </TableRow>
-      <TableRow>
-        <ImageButton
-          style="?buttonSquare"
-          android:src="@drawable/ic_lock_ringer_off"
-          android:tag="VDR.mute" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?buttonSquare"
-          android:text="@string/remote_vol_down"
-          android:tag="VDR.vol_down" />
-      </TableRow>
-    </TableLayout>
-  </LinearLayout>
+                <de.androvdr.widget.TextResizeButton
+                    style="?button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:tag="VDR.user4"
+                    android:text="@string/remote_user4" />
+            </TableRow>
+        </TableLayout>
 
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_weight="1" />
+        <!-- Numpad / Cursor ... -->
+        <include
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="83"
+            layout="@layout/remote_part_numpad_cursor_misc" />
+    </LinearLayout>
 
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="4" />
 
-    <!-- Play -->
-    <TableLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:paddingRight="1dip" >
-      <TableRow>
-        <ImageButton
-          style="?buttonRewind"
-          android:layout_weight="1"
-          android:tag="VDR.fastrew" />
-        <ImageButton
-          style="?buttonForward"
-          android:layout_weight="1"
-          android:tag="VDR.fastfwd" />
-        <Button
-          style="?button"
-          android:layout_weight="1"
-          android:text="Rec"
-          android:textColor="#f00"
-          android:tag="VDR.record" />
-        <ImageButton
-          style="?buttonSkipBackward"
-          android:layout_weight="1"
-          android:tag="VDR.green" />
-        <ImageButton
-          style="?buttonSkipForward"
-          android:layout_weight="1"
-          android:tag="VDR.yellow" />
-      </TableRow>
-      <TableRow>
-        <ImageButton
-          style="?buttonStop"
-          android:layout_weight="1"
-          android:tag="VDR.stop" />
-        <ImageButton
-          style="?buttonPause"
-          android:layout_weight="1"
-          android:tag="VDR.pause" />
-        <ImageButton
-          style="?buttonStart"
-          android:layout_weight="1"
-          android:tag="VDR.play" />
-      </TableRow>
-    </TableLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="24"
+        android:orientation="horizontal" >
 
-    <!-- Color / Misc Buttons -->
-    <TableLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:paddingLeft="1dip" >
-      <TableRow>
-        <ImageButton
-          style="?button"
-          android:text="Red"
-          android:layout_weight="1"
-          android:src="@drawable/rot"
-          android:tag="VDR.red" />
-        <ImageButton
-          style="?button"
-          android:text="Green"
-          android:layout_weight="1"
-          android:src="@drawable/gruen"
-          android:tag="VDR.green" />
-        <ImageButton
-          style="?button"
-          android:text="Yellow"
-          android:layout_weight="1"
-          android:src="@drawable/gelb"
-          android:tag="VDR.yellow" />
-        <ImageButton
-          style="?button"
-          android:text="Blue"
-          android:layout_weight="1"
-          android:src="@drawable/blau"
-          android:tag="VDR.blue" />
-      </TableRow>
-      <TableRow>
-        <Button
-          style="?button"
-          android:layout_weight="1"
-          android:text="@string/remote_setup"
-          android:tag="VDR.setup" />
-        <Button
-          style="?button"
-          android:layout_weight="1"
-          android:text="@string/remote_commands"
-          android:tag="VDR.commands" />
-        <Button
-          style="?button"
-          android:layout_weight="1"
-          android:text="@string/remote_info"
-          android:tag="VDR.info" />
-        <Button
-          style="?button"
-          android:layout_weight="1"
-          android:text="@string/remote_subtitles"
-          android:tag="VDR.subtitles" />
-        <Button
-          style="?button"
-          android:layout_weight="1"
-          android:text="@string/remote_audio"
-          android:tag="VDR.audio" />
-      </TableRow>
-    </TableLayout>
-  </LinearLayout>
+        <!-- Play -->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            layout="@layout/remote_part_play_skip_rec"
+            android:paddingRight="1dip" />
+
+        <!-- Color / Misc Buttons -->
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingLeft="1dip" >
+
+            <!-- Color -->
+            <include
+                android:id="@id/buttonrow_color"
+                android:layout_weight="1"
+                layout="@layout/remote_part_color" />
+
+            <!-- Misc -->
+            <include
+                android:id="@id/buttonrow_commands"
+                android:layout_weight="1"
+                layout="@layout/remote_part_commands" />
+        </TableLayout>
+    </LinearLayout>
+
 </LinearLayout>
