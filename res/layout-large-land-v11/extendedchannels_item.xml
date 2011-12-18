@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="fill_parent"
+  android:layout_width="match_parent"
   android:layout_height="wrap_content">
   <LinearLayout
     android:orientation="horizontal"
     android:layout_width="wrap_content"
-    android:layout_height="fill_parent"
+    android:layout_height="match_parent"
     android:background="?android:attr/activatedBackgroundIndicator">
     <TextView
       android:id="@+id/channelnumber"
@@ -20,7 +20,7 @@
     <LinearLayout
       android:id="@+id/channellogoholder"
       android:layout_width="56dip"
-      android:layout_height="fill_parent"
+      android:layout_height="match_parent"
       android:orientation="vertical"
       android:padding="6dip">
       <ImageView
@@ -29,19 +29,19 @@
         android:layout_width="wrap_content" />
     </LinearLayout>
     <RelativeLayout
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:minHeight="48dip"
       android:padding="6dip">
       <TextView
         android:id="@+id/channeltext"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
         android:textSize="20dip" />
       <ProgressBar
         android:id="@+id/channelprogress"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="4dip"
         android:layout_below="@id/channeltext"
         android:indeterminate="false"
@@ -49,7 +49,7 @@
       <TableLayout
         android:id="@+id/channelprogram"
         android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_below="@id/channelprogress"
         android:paddingTop="2dip">
         <TableRow

@@ -2,8 +2,8 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:id="@+id/rec"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
   android:orientation="vertical">
   <TextView
     style="?header"
@@ -11,13 +11,13 @@
     android:text="@string/rec_recordings" />
   <ListView
     android:id="@android:id/list"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_weight="1" />
   <LinearLayout
     style="?footer"
     android:id="@+id/recdiskstatus"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="0dip"
     android:orientation="vertical">
@@ -30,7 +30,7 @@
       android:padding="0dip" />
       <ProgressBar
         android:id="@+id/recdiskstatus_progressbar"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="12dip"
         android:paddingLeft="4dip"
         android:paddingRight="4dip"

@@ -2,7 +2,7 @@
 <resources>
   <style name="header">
     <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_width">fill_parent</item>
+    <item name="android:layout_width">match_parent</item>
     <item name="android:gravity">center</item>
     <item name="android:padding">4dip</item>
     <item name="android:textColor">?android:textColorPrimary</item>
@@ -14,7 +14,7 @@
    </style>
   <style name="header_light">
     <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_width">fill_parent</item>
+    <item name="android:layout_width">match_parent</item>
     <item name="android:gravity">center</item>
     <item name="android:padding">4dip</item>
     <item name="android:textColor">?android:textColorPrimary</item>

@@ -4,11 +4,11 @@
   style="?body"
   android:id="@+id/tab2"
   android:tag="@string/remote_play"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
   android:orientation="vertical">
   <TableLayout
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <TableRow>
       <ImageButton
@@ -22,10 +22,10 @@
     </TableRow>
   </TableLayout>
   <LinearLayout
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="40dip" />
   <TableLayout
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <TableRow>
       <ImageButton
@@ -47,7 +47,7 @@
     </TableRow>
   </TableLayout>
   <TableLayout
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <TableRow>
       <ImageButton
