@@ -197,10 +197,10 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		if (view instanceof ViewGroup) {
 			ViewGroup v = (ViewGroup) view;
 			for (int j = 0; j < v.getChildCount(); j++)
-				if (v.getChildAt(j).getClass() == Button.class) {
+				if (v.getChildAt(j) instanceof Button) {
 					Button button = (Button) v.getChildAt(j);
 					button.setOnLongClickListener(getOnLongClickListener());
-				} else if (v.getChildAt(j).getClass() == ImageButton.class) {
+				} else if (v.getChildAt(j) instanceof ImageButton) {
 					ImageButton imageButton = (ImageButton) v.getChildAt(j);
 					imageButton.setOnLongClickListener(getOnLongClickListener());
 				} else {
