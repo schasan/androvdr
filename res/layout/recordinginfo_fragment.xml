@@ -2,29 +2,29 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:id="@+id/reci"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
   android:orientation="vertical">
   <TextView
     style="?header"
     android:id="@+id/reci_header" />
   <ScrollView
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_weight="1">
     <RelativeLayout
       android:id="@+id/reci_layout_content"
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:padding="6dip">
       <TextView
         android:id="@+id/reci_title"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20dip" />
       <TextView
         android:id="@+id/reci_shorttext"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/reci_title"
         android:textSize="16dip" />
@@ -36,7 +36,7 @@
         android:paddingTop="6dip" />
       <TextView
         android:id="@+id/reci_channel"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/reci_shorttext"
         android:layout_toRightOf="@id/reci_start"
@@ -56,21 +56,21 @@
         android:paddingLeft="3dip" />
       <TextView
         android:id="@+id/reci_description"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/reci_durationtext"
         android:paddingTop="6dip"
         android:lineSpacingExtra="1dip" />
       <TableLayout
         android:id="@+id/reci_infotable"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/reci_description"
         android:paddingTop="12dip"
         android:stretchColumns="1" />
       <TextView
         android:id="@+id/reci_remark"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/reci_infotable"
         android:paddingTop="6dip"

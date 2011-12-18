@@ -3,18 +3,18 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:id="@+id/tab1"
   android:tag="RC"
-  android:layout_width="fill_parent"
+  android:layout_width="match_parent"
   android:layout_height="wrap_content">
   <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="?body"
     android:id="@+id/tab1"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:tag="RC">
     <TableLayout
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content">
       <TableRow>
         <ImageButton
@@ -43,15 +43,15 @@
       </TableRow>
     </TableLayout>
     <LinearLayout
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="10dip" />
     <LinearLayout
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="horizontal">
       <TableLayout
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent">
+        android:layout_height="match_parent">
         <TableRow>
           <Button
             style="?buttonSquare"
@@ -106,8 +106,8 @@
         </TableRow>
       </TableLayout>
       <TableLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <TableRow>
           <ImageButton
             style="?buttonSquare"
@@ -123,8 +123,8 @@
         </TableRow>
         <TableRow>
           <TableLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_span="3"
             android:paddingTop="18dip">
             <TableRow>
@@ -160,10 +160,10 @@
       </TableLayout>
     </LinearLayout>
     <LinearLayout
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="10dip" />
     <TableLayout
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content">
       <TableRow>
         <ImageButton

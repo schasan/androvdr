@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="6dip">
     <TextView
@@ -42,7 +42,7 @@
     <LinearLayout
     	android:id="@+id/timer_folderlayout"
     	android:layout_height="wrap_content"
-    	android:layout_width="fill_parent"
+    	android:layout_width="match_parent"
     	android:layout_marginTop="3dip"
     	android:layout_below="@id/timer_time">
 	    <ImageView
@@ -55,14 +55,14 @@
 	    <TextView
 	    	android:id="@+id/timer_folder"
 	    	android:layout_height="wrap_content"
-	    	android:layout_width="fill_parent"
+	    	android:layout_width="match_parent"
 	    	android:textStyle="bold"
 	    	android:text="Folder"/>
 	</LinearLayout>
     <TextView
     	android:id="@+id/timer_title"
     	android:layout_height="wrap_content"
-    	android:layout_width="fill_parent"
+    	android:layout_width="match_parent"
     	android:layout_below="@id/timer_folderlayout"
     	android:textSize="20dip"
     	android:text="Title"/>
