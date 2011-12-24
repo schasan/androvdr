@@ -7,10 +7,12 @@ import java.util.TimerTask;
 import org.hampelratte.svdrp.Command;
 import org.hampelratte.svdrp.Connection;
 import org.hampelratte.svdrp.Response;
+import org.hampelratte.svdrp.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.androvdr.Preferences;
+import de.androvdr.Recording;
 import de.androvdr.devices.VdrDevice;
 
 
@@ -71,6 +73,8 @@ public class VDRConnection {
 				if (connection == null) {
 					logger.debug("New connection to {} port {}", host, port);
 					connection = new Connection(host, port, 1000, timeout, vdr.characterset, false);
+					Version v = Connection.getVersion();
+					Recording.VDRVersion = v.getMajor() * 10000 + v.getMinor() * 100 + v.getRevision();
 				} else {
 					logger.trace("old connection");
 					lastTransmissionTime = System.currentTimeMillis();

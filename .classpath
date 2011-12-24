@@ -6,8 +6,8 @@
 	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar" sourcepath="lib/jsch-0.1.44-sources.jar"/>
 	<classpathentry kind="lib" path="lib/acra-3.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-android-1.6.1-RC1.jar"/>
-	<classpathentry kind="lib" path="lib/svdrp4j-1.0.0-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/jzlib-1.0.7.jar"/>
 	<classpathentry kind="lib" path="lib/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="lib/svdrp4j-1.0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
