@@ -33,7 +33,7 @@ import org.hampelratte.svdrp.parsers.TimerParser;
 import org.hampelratte.svdrp.responses.R250;
 import org.hampelratte.svdrp.responses.highlevel.Recording;
 import org.hampelratte.svdrp.responses.highlevel.Stream;
-import org.hampelratte.svdrp.responses.highlevel.VDRTimer;
+import org.hampelratte.svdrp.responses.highlevel.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +108,7 @@ public class VdrCommands {
 		GregorianCalendar endTime = new GregorianCalendar();
 		endTime.setTimeInMillis(epg.startzeit * 1000 + epg.dauer * 1000 + Preferences.getVdr().margin_stop * 60 * 1000);
 
-		VDRTimer timer = new VDRTimer();
+		Timer timer = new Timer();
 		timer.setChannelNumber(epg.kanal);
 		timer.setStartTime(startTime);
 		timer.setEndTime(endTime);
@@ -116,14 +116,14 @@ public class VdrCommands {
 		timer.setLifetime(99);
 		timer.setTitle((epg.titel == null) ? "Unknown" : epg.titel);
 		timer.setDescription(AndroApplication.getAppContext().getString(R.string.app_name));
-		timer.changeStateTo(VDRTimer.VPS, Preferences.getVdr().vps);
+		timer.changeStateTo(Timer.VPS, Preferences.getVdr().vps);
 
 		NEWT newt = new NEWT(timer.toNEWT());
 		Response response = VDRConnection.send(newt);
 		if(response.getCode() != 250)
 		    logger.error("Couldn't set timer: {}", response.getMessage());
 		else {
-			List<VDRTimer> timers = TimerParser.parse(response.getMessage());
+			List<Timer> timers = TimerParser.parse(response.getMessage());
 			if  (timers.size() > 0)
 				response = new R250("New timer \"" + timers.get(0).getID() + "\"");
 		}
