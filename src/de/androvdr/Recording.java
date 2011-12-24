@@ -47,6 +47,8 @@ public class Recording implements Parcelable, Comparable<Recording> {
 		}
 	};
 	
+	public static int VDRVersion = 10000;
+	
 	public String id;
 	public int number;
 	public long date;
@@ -126,10 +128,21 @@ public class Recording implements Parcelable, Comparable<Recording> {
 		}
 		date = dateformatter.parse(sa[1] + " " + sa[2]).getTime() / 1000;
 		
-		// --- join title ---
-		for (int i = 3; i < sa.length; i++) {
-			sb.append(sa[i] + " ");
+		if (VDRVersion >= 10721) {
+			if (sa[3].endsWith("*"))
+				isNew = true;
+			
+			// --- join title ---
+			for (int i = 4; i < sa.length; i++) {
+				sb.append(sa[i] + " ");
+			}
+		} else {
+			// --- join title ---
+			for (int i = 3; i < sa.length; i++) {
+				sb.append(sa[i] + " ");
+			}
 		}
+		
 		fullTitle = sb.toString().trim();
 		sa = sb.toString().split("~");
 		if (sa.length > 1) {
