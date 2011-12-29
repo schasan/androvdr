@@ -17,6 +17,14 @@
     <item>Ogni scheda SD</item>
   </string-array>
 
+  <string-array name="slf4jLevel">
+    <item>Trace</item>
+    <item>Debug</item>
+    <item>Info</item>
+    <item>Avviso</item>
+    <item>Errore</item>
+  </string-array>
+  
   <string-array name="colors">
     <item>Nessuno</item>
     <item>Rosso</item>

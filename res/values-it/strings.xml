@@ -200,7 +200,7 @@
          because of many different screen / button sizes
          labels on remote are always in english
     -->
-<!-- 
+<!--
     <string name="remote_schedule">Programmi</string>
     <string name="remote_schedule_short">Prog.</string>
     <string name="remote_timer">Timer</string>
@@ -215,10 +215,16 @@
     <string name="remote_info">Info</string>
     <string name="remote_subtitles">Sottotitoli</string>
     <string name="remote_setup">Opzioni</string>
+    <string name="remote_user0">Utente 0</string>
     <string name="remote_user1">Utente 1</string>
     <string name="remote_user2">Utente 2</string>
     <string name="remote_user3">Utente 3</string>
     <string name="remote_user4">Utente 4</string>
+    <string name="remote_user5">Utente 5</string>
+    <string name="remote_user6">Utente 6</string>
+    <string name="remote_user7">Utente 7</string>
+    <string name="remote_user8">Utente 8</string>
+    <string name="remote_user9">Utente 9</string>
     <string name="remote_play">Riproduci</string>
     <string name="remote_cut">Taglia</string>
     <string name="remote_audio">Audio</string>
