@@ -368,6 +368,9 @@ out:        for (String name : entries) {
         protected void onProgressUpdate(NamedGesture... values) {
             super.onProgressUpdate(values);
 
+            if (isCancelled())
+            	return;
+            
             final GesturesAdapter adapter = mAdapter;
             adapter.setNotifyOnChange(false);
 
@@ -383,6 +386,9 @@ out:        for (String name : entries) {
         protected void onPostExecute(Integer result) {
             super.onPostExecute(result);
 
+            if (isCancelled())
+            	return;
+            
             if (result == STATUS_NO_STORAGE) {
                 getListView().setVisibility(View.GONE);
                 mEmpty.setVisibility(View.VISIBLE);
