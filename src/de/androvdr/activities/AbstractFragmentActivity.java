@@ -35,6 +35,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager.BadTokenException;
 import android.widget.Toast;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
@@ -251,6 +252,8 @@ public class AbstractFragmentActivity extends FragmentActivity implements Simple
 			}
 		});
 		if (! isFinishing())
-			alert.show();
+			try {
+				alert.show();
+			} catch (BadTokenException e) { }
 	}
 }

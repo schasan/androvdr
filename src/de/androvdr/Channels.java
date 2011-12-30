@@ -85,13 +85,16 @@ public class Channels {
 				if (getChannel(channel.nr) == null)
 					mItems.add(channel);
 			} else {
-				logger.error("No channel found");
+				logger.error("Channel not found");
+				throw new IOException("Channel not found");
 			}
 		} catch (IOException e) {
 			logger.error("ungueltiger Kanaldatensatz",e);
 			// faengt u A NumberformatExceptions ab
+			throw new IOException("Couldn't parse channel details");
 		} catch(ParseException pe) {
 		    logger.error("Couldn't parse channel details", pe);
+			throw new IOException("Couldn't parse channel details");
 		}
 		return channel;
 	}
