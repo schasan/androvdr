@@ -46,6 +46,7 @@ public class Preferences {
 	private static final String CONFIG_GESTUREFILE = "gestures";
 	private static final String CONFIG_SSH_KEY = "sshkey";
 	private static final String CONFIG_SSH_KNOWN_HOSTS = "known_hosts";
+	private static final String CONFIG_USERTABFILE = "mytab";
 	
 	public static final int SCREENSIZE_NOT_DEFINED = 0;
 	public static final int SCREENSIZE_SMALL = 1;
@@ -114,6 +115,10 @@ public class Preferences {
 	
 	public static String getSSHKnownHostsFileName() {
 		return sFilesDir + "/" + CONFIG_SSH_KNOWN_HOSTS;
+	}
+	
+	public static String getUsertabFileName() {
+		return getExternalRootDirName() + "/" + CONFIG_USERTABFILE;
 	}
 	
 	public static VdrDevice getVdr() {
