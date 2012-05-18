@@ -187,6 +187,12 @@ public class Devices implements OnSharedPreferenceChangeListener, OnChannelChang
 	
 	public void clearOnSensorChangeListeners() {
 		synchronized (mSensorJobs) {
+			VdrDevice vdr = Preferences.getVdr();
+			if (vdr != null)
+				for (SensorJob job : mSensorJobs) {
+					if (VdrDevice.isChannelSensor(job.command))
+						vdr.removeChannelChangedListener(this);
+				}
 			mSensorJobs.clear();
 		}
 		logger.trace("SensorJobs cleared");

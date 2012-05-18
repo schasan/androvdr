@@ -21,18 +21,10 @@
 package de.androvdr.activities;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.GregorianCalendar;
-import java.util.List;
 
-import org.hampelratte.svdrp.Response;
-import org.hampelratte.svdrp.commands.LSTC;
-import org.hampelratte.svdrp.parsers.ChannelParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +40,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -65,28 +55,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnLongClickListener;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
-import android.widget.TabHost;
-import android.widget.TabHost.TabContentFactory;
-import android.widget.TextView;
 import android.widget.Toast;
+import de.androvdr.ActionBarHelper;
 import de.androvdr.Channel;
 import de.androvdr.ConfigurationManager;
+import de.androvdr.Dialogs;
 import de.androvdr.GesturesFind;
 import de.androvdr.IFileLogger;
 import de.androvdr.OnLoadListener;
 import de.androvdr.PortForwarding;
 import de.androvdr.Preferences;
 import de.androvdr.R;
-import de.androvdr.UsertabParser;
 import de.androvdr.WorkspaceView;
 import de.androvdr.devices.Devices;
 import de.androvdr.devices.IActuator;
@@ -96,7 +75,7 @@ import de.androvdr.devices.VdrDevice;
 import de.androvdr.svdrp.VDRConnection;
 import de.androvdr.widget.TextResizeButton;
 
-public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLoadListener, 
+public class AndroVDR extends AbstractFragmentActivity implements OnChangeListener, OnLoadListener, 
 		OnSharedPreferenceChangeListener {
     
 	private static final int PREFERENCEACTIVITY_ID = 1;
@@ -109,21 +88,9 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	private static final int CLOSE_CONNECTION_PORTFORWARDING = 1;
 	private static final int CLOSE_CONNECTION_TERMINATE = 2;
 	
-	private static final int SENSOR_DISKSTATUS = 1;
-	private static final int SENSOR_CHANNEL = 2;
+	private static final int SENSOR_CHANNEL = 1;
 	
-	private final File usertabFile = new File(Preferences.getExternalRootDirName() + "/mytab");
-
-	final private View.OnClickListener myButtonListener = new View.OnClickListener() {
-        public void onClick(View x) {
-      	  onButtonClick(x);
-        }
-    };
-
 	public static PortForwarding portForwarding = null;
-	
-	private static final int SWITCH_DIALOG_ID = 0;
-	private static final int CONFIG_DEVICE_DIALOG = 1;
 	
 	private Devices mDevices;
 	private String mTitle;
@@ -153,29 +120,8 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		public void handleMessage(Message msg) {
 			int type = msg.what;
 			String result = msg.getData().getString(MSG_RESULT);
-			TextView tv;
 			
 			switch (type) {
-			case SENSOR_DISKSTATUS:
-				tv = (TextView) findViewById(R.id.remote_diskstatus_values);
-				if (tv != null && ! result.equals("N/A")) {
-					try {
-						String[] sa = result.split(" ");
-						Integer total = Integer.parseInt(sa[0].replaceAll("MB$", "")) / 1024;
-						int free = Integer.parseInt(sa[1].replaceAll("MB$", "")) / 1024;
-						Integer used = total - free;
-
-						tv.setText(used.toString() + " GB / " + total.toString() + " GB");
-
-						ProgressBar pg = (ProgressBar) findViewById(R.id.remote_diskstatus_progressbar);
-						pg.setMax(total);
-						pg.setProgress(used);
-					} catch (Exception e) {
-						logger.error("Couldn't parse disk status: {}", e);
-						tv.setText("N/A");
-					}
-				}
-				break;
 			case SENSOR_CHANNEL:
 				new ChannelViewUpdater().execute(result);
 				break;
@@ -193,92 +139,6 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		};
 	};
 	
-	private void addLongClickListener(View view) {
-		if (view instanceof ViewGroup) {
-			ViewGroup v = (ViewGroup) view;
-			for (int j = 0; j < v.getChildCount(); j++)
-				if (v.getChildAt(j) instanceof Button) {
-					Button button = (Button) v.getChildAt(j);
-					button.setOnLongClickListener(getOnLongClickListener());
-				} else if (v.getChildAt(j) instanceof ImageButton) {
-					ImageButton imageButton = (ImageButton) v.getChildAt(j);
-					imageButton.setOnLongClickListener(getOnLongClickListener());
-				} else {
-					if (v.getChildAt(j) instanceof ViewGroup)
-						addLongClickListener((ViewGroup) v.getChildAt(j));
-				}
-		}
-	}
-	
-	private OnLongClickListener getOnLongClickListener() {
-		return new OnLongClickListener() {
-
-			@Override
-			public boolean onLongClick(View v) {
-				if (Preferences.getVdr() == null) {
-					showDialog(CONFIG_DEVICE_DIALOG);
-					return false;
-				}
-
-				boolean result = false;
-				if (v.getTag() instanceof String) {
-					String sa[] = ((String) v.getTag()).split("\\|");
-					if (sa.length > 1) {
-						mConfigurationManager.vibrate();
-						mDevices.send(sa[1]);
-						result = true;
-					}
-				}
-				return result;
-			}
-		};
-	}
-
-	public View getUserScreen() {
-	    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View root = inflater.inflate(R.layout.usertab, null);
-		RelativeLayout v = (RelativeLayout)root.findViewById(R.id.root);
-		if (!Preferences.alternateLayout)
-			v.setBackgroundColor(Color.BLACK);
-		UsertabParser p = new UsertabParser(usertabFile);
-		ArrayList<UsertabParser.UserButton> bList = p.getButtons();
-		LayoutParams l;
-		Button b;
-		ImageButton ib;
-		for(int i = 0; i < bList.size();i++){
-			UsertabParser.UserButton userButton = bList.get(i);
-			l = new LayoutParams(userButton.width,userButton.height);
-			l.setMargins(userButton.posX, userButton.posY, 0, 0);
-			if(userButton.art == 1){ // normaler Button
-				b = new Button(getApplicationContext());
-				if (Preferences.alternateLayout) {
-					b.setBackgroundResource(R.drawable.btn_remote);
-					b.setTextColor(Color.WHITE);
-					b.setTypeface(null, Typeface.BOLD);
-				}
-				b.setLayoutParams(l);
-				b.setText(userButton.beschriftung);
-				b.setTag("VDR." + userButton.action);
-				b.setOnClickListener(myButtonListener);
-				v.addView(b);
-				continue;
-			}
-			if(userButton.art == 2){ // ImageButton
-				ib = new ImageButton(getApplicationContext());
-				if (Preferences.alternateLayout) {
-					ib.setBackgroundResource(R.drawable.btn_remote);
-				}
-				ib.setLayoutParams(l);
-				ib.setImageURI(Uri.parse(userButton.beschriftung));
-				ib.setTag("VDR." + userButton.action);
-				ib.setOnClickListener(myButtonListener);
-				v.addView(ib);
-				continue;
-			}					
-		}
-		return v;
-	}
-
 	private void initLogging(SharedPreferences sp) {
 		if (logger instanceof IFileLogger) {
 			IFileLogger filelogger = (IFileLogger) logger;
@@ -290,9 +150,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    }
 	}
 
-	public void initWorkspaceView() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
+	public void initWorkspaceView(Bundle savedInstanceState) {
 		if (Preferences.alternateLayout)
 			setTheme(R.style.Theme);
 		else
@@ -341,133 +199,31 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    else
 	    	rb.setTextSizeAsDefault(Math.min(metrics.widthPixels, metrics.heightPixels) / 4, 100);
 	    logger.debug("Default TextSize (px): {}", rb.getTextSize());
+
+	    // --- landscape mode only on large displays ---
+	    if (Preferences.screenSize < Preferences.SCREENSIZE_LARGE) {
+	    	logger.trace("setting SCREEN_ORIENTATION_PORTRAIT");
+	    	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+	    }
 	    
-	    /*
-	     * device dependant layout initilization
-	     */
-		if (!usertabFile.exists() 
-				&& Preferences.alternateLayout 
-				&& Preferences.screenSize >= Preferences.SCREENSIZE_LARGE) {
-			
-			/*
-			 * tablets with large screen and no usertab
-			 */
-			
-			setContentView(R.layout.remote_vdr_main);
-			addLongClickListener(findViewById(R.id.remote_vdr_main_id));
+	    File usertabFile = new File(Preferences.getUsertabFileName());
+	    if (conf.orientation == Configuration.ORIENTATION_LANDSCAPE
+	    		&& Preferences.screenSize >= Preferences.SCREENSIZE_LARGE
+	    		&& Build.VERSION.SDK_INT >= 11
+	    		&& usertabFile.exists()) {
+	    	ActionBarHelper.initActionBar(this);
+	    } else {
+	    	setContentView(R.layout.remote);
+	    }
 
-		} else if (Build.VERSION.SDK_INT > 4) {
-
-			/*
-			 * devices with Android > 1.6
-			 */
-			
-			logger.trace("setting SCREEN_ORIENTATION_PORTRAIT");
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-			mWorkspace = new WorkspaceView(this, null);
-			mWorkspace.setTouchSlop(32);
-			mWorkspace.setOnLoadListener(this);
-			prefs.registerOnSharedPreferenceChangeListener(mWorkspace);
-
-			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-			int[] screens;
-			if (Preferences.alternateLayout) {
-				switch (Preferences.screenSize) {
-				case Preferences.SCREENSIZE_SMALL:
-					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics, 
-							R.layout.remote_vdr_play };
-					break;
-				case Preferences.SCREENSIZE_NORMAL:
-				case Preferences.SCREENSIZE_LONG:
-					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics };
-					break;
-				case Preferences.SCREENSIZE_LARGE:
-				case Preferences.SCREENSIZE_XLARGE:
-					screens = new int[] { R.layout.remote_vdr_main };
-					break;
-				default:
-					screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics };
-				}
-	
-				mWorkspace.setDefaultScreen(0);
-			} else {
-				screens = new int[] { R.layout.tab1, R.layout.tab2,	R.layout.tab3 };
-				mWorkspace.setDefaultScreen(0);
-			}
-
-			for (int screen : screens) {
-				View view = inflater.inflate(screen, null, false);
-				addLongClickListener(view);
-				mWorkspace.addView(view);
-			}
-
-			if (usertabFile.exists()) {
-				logger.trace("Add user defined screen");
-				mWorkspace.addView(getUserScreen());
-			}
-
-			setContentView(mWorkspace);
-			
-		} else {
-
-			/*
-			 * devices with Android 1.6
-			 */
-			
-			logger.trace("setting SCREEN_ORIENTATION_PORTRAIT");
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-			setContentView(R.layout.main);
-		    MyTabContentFactory tab = new MyTabContentFactory(this);
-		    TabHost mTabHost = (TabHost) findViewById(R.id.tabhost);
-		    mTabHost.setup();
-		    
-		    if (Preferences.alternateLayout) {
-			    mTabHost.addTab(mTabHost.newTabSpec("tab_main").setIndicator(getString(R.string.tab_main_text)).setContent(tab));
-		        mTabHost.addTab(mTabHost.newTabSpec("tab_numerics").setIndicator(getString(R.string.tab_numerics_text)).setContent(tab));
-
-		        switch (Preferences.screenSize) {
-		        case Preferences.SCREENSIZE_SMALL:
-		        case Preferences.SCREENSIZE_NORMAL:
-			        mTabHost.addTab(mTabHost.newTabSpec("tab_play").setIndicator(getString(R.string.tab_play_text)).setContent(tab));
-		        	break;
-		        }
-		    } else {
-			    mTabHost.addTab(mTabHost.newTabSpec("tab_rc1").setIndicator(getString(R.string.tab1_text)).setContent(tab));
-		        mTabHost.addTab(mTabHost.newTabSpec("tab_rc2").setIndicator(getString(R.string.tab2_text)).setContent(tab));
-		        mTabHost.addTab(mTabHost.newTabSpec("tab_rc3").setIndicator(getString(R.string.tab3_text)).setContent(tab));
-		    }
-		    
-	        if(usertabFile.exists()){
-	        	logger.trace("fuege User-Tab hinzu");
-	        	mTabHost.addTab(mTabHost.newTabSpec("tab_rc5").setIndicator("User").setContent(tab));
-	        }
-
-	        int tabheight = (mTabHost.getTabWidget().getChildAt(0).getLayoutParams().height / 3) * 2;
-	        for ( int i = 0; i < mTabHost.getTabWidget().getChildCount(); i++)
-		        mTabHost.getTabWidget().getChildAt(i).getLayoutParams().height = tabheight;
-	        
-	        mTabHost.setCurrentTab(0);        
-		}
-
-		if (Preferences.screenSize >= Preferences.SCREENSIZE_XLARGE) {
-			mDevices.addOnSensorChangeListener("VDR.disk", 5,
-					new OnSensorChangeListener() {
-						@Override
-						public void onChange(String result) {
-							logger.trace("DiskStatus: {}", result);
-							Message msg = Message.obtain(mSensorHandler,
-									SENSOR_DISKSTATUS);
-							Bundle bundle = new Bundle();
-							bundle.putString(MSG_RESULT, result);
-							msg.setData(bundle);
-							msg.sendToTarget();
-						}
-					});
-		}
-		mDevices.addOnSensorChangeListener("VDR.channel", 1,
+	    // --- show tag of current remote view in statusbar ---
+	    mWorkspace = (WorkspaceView) findViewById(R.id.workspaceview);
+	    if (mWorkspace != null)
+	    	mWorkspace.setOnLoadListener(this);
+	    
+	    // --- show current channel in status bar ---
+	    if (Preferences.screenSize < Preferences.SCREENSIZE_XLARGE)
+			mDevices.addOnSensorChangeListener("VDR.channel", 1,
 				new OnSensorChangeListener() {
 					@Override
 					public void onChange(String result) {
@@ -479,8 +235,9 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 						msg.setData(bundle);
 						msg.sendToTarget();
 					}
-				});
-		mDevices.startSensorUpdater(0);
+			});
+
+	    mDevices.startSensorUpdater(0);
 	}
 
     @Override
@@ -488,7 +245,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     	switch (requestCode) {
     	case PREFERENCEACTIVITY_ID:
     		if (mLayoutChanged) {
-    			initWorkspaceView();
+    			initWorkspaceView(null);
     		}
     		break;
     	case DEVICEPREFERENCEACTIVITY_ID:
@@ -497,29 +254,15 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
     	}
     }
     
-	public void onButtonClick(View v) {
-		if (Preferences.getVdr() == null) {
-			showDialog(CONFIG_DEVICE_DIALOG);
-			return;
-		}
-		
-		if (v.getTag() instanceof String) {
-			mConfigurationManager.vibrate();
-			String sa[] = ((String) v.getTag()).split("\\|");
-			if (sa.length > 0)
-				mDevices.send(sa[0]);
-		}
-	}
-
 	@Override
 	public void onChange() {
-		removeDialog(SWITCH_DIALOG_ID);
+		removeDialog(Dialogs.SWITCH_VDR);
 	}
 
 	/** Called when the activity is first created. **/
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, false);
+        super.onCreate(savedInstanceState);
 
         Preferences.init(false);
 		mDevices = Devices.getInstance();
@@ -539,7 +282,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	    sp.registerOnSharedPreferenceChangeListener(mDevices);
 
 	    initLogging(sp);
-		initWorkspaceView();
+		initWorkspaceView(savedInstanceState);
 		
 		mWatchPortForwardingThread = new WatchPortForwadingThread();
 		mWatchPortForwardingThread.start();
@@ -549,7 +292,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 	protected Dialog onCreateDialog(int id) {
 		Dialog dialog = null;
 		switch (id) {
-		case SWITCH_DIALOG_ID:
+		case Dialogs.SWITCH_VDR:
 			final ArrayList<VdrDevice> vdrs = mDevices.getVdrs();
 			final ArrayList<String> items = new ArrayList<String>();
 			
@@ -586,7 +329,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			});
 			dialog = builder.create();
 			break;
-		case CONFIG_DEVICE_DIALOG:
+		case Dialogs.CONFIG_VDR:
 			builder = new AlertDialog.Builder(this);
 			builder.setTitle(R.string.dialog_novdr_title)
 			.setMessage(R.string.dialog_novdr_summary)
@@ -622,7 +365,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 
 	@Override
 	protected void onDestroy() {
-		super.onDestroy();
+		super.onDestroy();	
 		mConfigurationManager.enableKeyguard();
 		mDevices.clearOnSensorChangeListeners();
 		new CloseConnectionTask().execute(CLOSE_CONNECTION_PORTFORWARDING);
@@ -646,7 +389,7 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			startActivity(new Intent(this, AboutActivity.class));
 			return true;
 		case R.id.androvdr_switch_vdr:
-			showDialog(SWITCH_DIALOG_ID);
+			showDialog(Dialogs.SWITCH_VDR);
 			return true;
 		case R.id.androvdr_settings:
 			startActivityForResult(new Intent(this, PreferencesActivity.class), PREFERENCEACTIVITY_ID);
@@ -730,6 +473,10 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 			initLogging(sharedPreferences);
 	}
 
+	@Override
+	public void onSwipe(int direction) {
+	}
+	
     private Handler sshDialogHandler = new Handler() {
 		@Override
         public void handleMessage(Message msg) {
@@ -781,7 +528,6 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 
 		@Override
 		protected Channel doInBackground(String... params) {
-			LinearLayout channelInfo = (LinearLayout) findViewById(R.id.remote_channel_info);
 			int channelNumber;
 			StringBuilder channelName = new StringBuilder();
 			
@@ -798,106 +544,17 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 				return null;
 			}
 
-			// --- only channel name is needed ---
-			if (channelInfo == null) {
-				return new Channel(channelNumber, channelName.toString().trim(), "");
-			}
-			
-		    Response response = VDRConnection.send(new LSTC(channelNumber));
-			if(response.getCode() != 250) {
-				logger.error("Couldn't get channel: {} {}", response.getCode(), response.getMessage());
-				return null;
-			}
-			
-			Channel channel;
-			try {
-				List<org.hampelratte.svdrp.responses.highlevel.Channel> channels = ChannelParser
-						.parse(response.getMessage(), true);
-				if (channels.size() > 0) {
-					channel = new Channel(channels.get(0));
-					channel.updateEpg(true);
-					return channel;
-				} else {
-					logger.error("No channel found");
-					return null;
-				}
-			} catch(ParseException pe) {
-			    logger.error("Couldn't parse channel details", pe);
-			    return null;
-			} catch(IOException e) {
-				logger.error("Couldn't get channel", e);
-				return null;
-			}
-			
+			return new Channel(channelNumber, channelName.toString().trim(), "");
 		}
 		
 		@Override
 		protected void onPostExecute(Channel channel) {
-			LinearLayout channelInfo = (LinearLayout) findViewById(R.id.remote_channel_info);
+			if (channel == null)
+				mTitleChannelName = "";
+			else
+				mTitleChannelName = " - " + channel.name;
 
-			if (channelInfo == null) {
-				if (channel == null)
-					mTitleChannelName = "";
-				else
-					mTitleChannelName = " - " + channel.name;
-
-				
-				mUpdateTitleHandler.sendEmptyMessage(0);
-			} else {
-				if (channel == null) {
-					channelInfo.setVisibility(View.GONE);
-				} else {
-					channelInfo.setVisibility(View.VISIBLE);
-					final SimpleDateFormat timeformatter = new SimpleDateFormat(
-							Preferences.timeformat);
-					final GregorianCalendar calendar = new GregorianCalendar();
-
-					TextView tv = (TextView) findViewById(R.id.channelnumber);
-					ImageView iv = (ImageView) findViewById(R.id.channellogo);
-
-					if (Preferences.useLogos) {
-						tv.setVisibility(View.GONE);
-						iv.setVisibility(View.VISIBLE);
-						iv.setImageBitmap(channel.logo);
-					} else {
-						tv.setVisibility(View.VISIBLE);
-						iv.setVisibility(View.GONE);
-						tv.setText(String.valueOf(channel.nr));
-					}
-
-					tv = (TextView) findViewById(R.id.channeltext);
-					tv.setText(channel.name);
-
-					ProgressBar pb = (ProgressBar) findViewById(R.id.channelprogress);
-					if (channel.getNow().isEmpty) {
-						pb.setProgress(0);
-						tv = (TextView) findViewById(R.id.channelnowplayingtime);
-						tv.setText("");
-						tv = (TextView) findViewById(R.id.channelnowplaying);
-						tv.setText("");
-					} else {
-						calendar.setTimeInMillis(channel.getNow().startzeit * 1000);
-						pb.setProgress(channel.getNow().getActualPercentDone());
-						tv = (TextView) findViewById(R.id.channelnowplayingtime);
-						tv.setText(timeformatter.format(calendar.getTime()));
-						tv = (TextView) findViewById(R.id.channelnowplaying);
-						tv.setText(channel.getNow().titel);
-					}
-
-					if (channel.getNext().isEmpty) {
-						tv = (TextView) findViewById(R.id.channelnextplayingtime);
-						tv.setText("");
-						tv = (TextView) findViewById(R.id.channelnextplaying);
-						tv.setText("");
-					} else {
-						calendar.setTimeInMillis(channel.getNext().startzeit * 1000);
-						tv = (TextView) findViewById(R.id.channelnextplayingtime);
-						tv.setText(timeformatter.format(calendar.getTime()));
-						tv = (TextView) findViewById(R.id.channelnextplaying);
-						tv.setText(channel.getNext().titel);
-					}
-				}
-			}
+			mUpdateTitleHandler.sendEmptyMessage(0);
 		}
 	}
 	
@@ -924,59 +581,6 @@ public class AndroVDR extends AbstractActivity implements OnChangeListener, OnLo
 		
 	}
 	
-    public class MyTabContentFactory implements TabContentFactory {
-
-    	Context context;
-    	LayoutInflater inflater;
-    	
-    	public MyTabContentFactory(Context c){
-    		this.context = c;
-    		inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	}
-    	
-    	
-    	@Override
-    	public View createTabContent(String tag) {
-    		View root;
-    		logger.trace("Erstelle den Tab {}", tag);
-    		
-    		if(tag.equals("tab_rc1")){
-    			root = inflater.inflate(R.layout.tab1, null);
-    			addLongClickListener(root);
-    			return root.findViewById(R.id.tab1);
-    		}
-    		if(tag.equals("tab_rc2")){
-    			root = inflater.inflate(R.layout.tab2, null);
-    			addLongClickListener(root);
-    			return root.findViewById(R.id.tab2);
-    		}
-    		if(tag.equals("tab_rc3")){
-    			root = inflater.inflate(R.layout.tab3, null);
-    			addLongClickListener(root);
-    			return root.findViewById(R.id.tab3);
-    		}
-    		if(tag.equals("tab_rc5")){
-    			return getUserScreen();
-    		}
-    		if(tag.equals("tab_main")){
-    			root = inflater.inflate(R.layout.remote_vdr_main, null);
-    			addLongClickListener(root);
-    			return root.findViewById(R.id.remote_vdr_main_id);
-    		}
-    		if(tag.equals("tab_numerics")){
-    			root = inflater.inflate(R.layout.remote_vdr_numerics, null);
-    			addLongClickListener(root);
-    			return root.findViewById(R.id.remote_vdr_numerics_id);
-    		}
-    		if(tag.equals("tab_play")){
-    			root = inflater.inflate(R.layout.remote_vdr_play, null);
-    			addLongClickListener(root);
-    			return root.findViewById(R.id.remote_vdr_play_id);
-    		}
-    		return null;
-    	}
-    }
-    
     public class WatchPortForwadingThread extends Thread {
     	
     	public void run() {

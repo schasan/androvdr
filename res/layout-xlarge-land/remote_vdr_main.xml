@@ -153,11 +153,11 @@
 
         <!-- Info Area -->
         <LinearLayout
+            android:id="@+id/remote_infoarea"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/btn_keyboard_key_normal"
-            android:onClick="onButtonClick"
             android:orientation="vertical"
             android:tag="Activity.de.androvdr.activities.EpgsdataActivity" >
 
