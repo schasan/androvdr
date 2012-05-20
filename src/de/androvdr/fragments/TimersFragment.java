@@ -60,7 +60,8 @@ public class TimersFragment extends AbstractListFragment
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		TextView tv = (TextView) mActivity.findViewById(R.id.timers_header);
+		TextView tv = (TextView) mActivity.findViewById(R.id.header_text);
+		tv.setText(R.string.timers);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
 		
 	    mListView = (ListView) mActivity.findViewById(android.R.id.list);

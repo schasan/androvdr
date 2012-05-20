@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.gesture.Gesture;
 import android.gesture.GestureLibrary;
 import android.gesture.GestureOverlayView;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -32,6 +33,9 @@ public class GesturesCreate extends Activity {
 
         GestureOverlayView overlay = (GestureOverlayView) findViewById(R.id.gestures_overlay);
         overlay.addOnGestureListener(new GesturesProcessor());
+
+		if (Build.VERSION.SDK_INT >= 14)
+			ActionBarHelper.setHomeButtonEnabled(this, true);
     }
 
     @Override

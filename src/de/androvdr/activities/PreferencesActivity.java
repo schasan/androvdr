@@ -35,6 +35,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
+import de.androvdr.ActionBarHelper;
 import de.androvdr.ListPreferenceValueHolder;
 import de.androvdr.Preferences;
 import de.androvdr.R;
@@ -67,6 +68,8 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 			getListView().setCacheColorHint(Color.TRANSPARENT);
 			getWindow().setBackgroundDrawable(getResources().getDrawable(android.R.drawable.screen_background_light));
 		}
+		if (Build.VERSION.SDK_INT >= 14)
+			ActionBarHelper.setHomeButtonEnabled(this, true);
 		
 		addPreferencesFromResource(R.xml.preferences);
 

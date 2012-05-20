@@ -27,6 +27,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -37,6 +38,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager.BadTokenException;
 import android.widget.Toast;
+import de.androvdr.ActionBarHelper;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Messages;
 import de.androvdr.Preferences;
@@ -164,7 +166,8 @@ public class AbstractFragmentActivity extends FragmentActivity implements Simple
 		logger.trace("onCreate");
 		
 		Preferences.init(false);
-		if (Preferences.blackOnWhite)
+		if (Preferences.blackOnWhite
+				&& !(Build.VERSION.SDK_INT >= 11 && (this instanceof AndroVDR)))
 			setTheme(R.style.Theme_Light);
 		
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -172,6 +175,9 @@ public class AbstractFragmentActivity extends FragmentActivity implements Simple
 		mDetector = new SimpleGestureFilter(this, this);
 		mDetector.setMode(SimpleGestureFilter.MODE_TRANSPARENT);
 		mConfigurationManager = ConfigurationManager.getInstance(this);
+		
+		if (Build.VERSION.SDK_INT >= 14)
+			ActionBarHelper.setHomeButtonEnabled(this, true);
 	}
 
 	@Override

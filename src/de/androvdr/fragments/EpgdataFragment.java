@@ -73,7 +73,7 @@ public class EpgdataFragment extends AbstractFragment {
 		registerForContextMenu(root);
 		
 		if (((AbstractFragmentActivity) getActivity()).isDualPane()) {
-			View header = root.findViewById(R.id.pgi_header);
+			View header = root.findViewById(R.id.header_text);
 			if (header != null)
 				header.setVisibility(View.GONE);
 		}

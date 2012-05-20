@@ -118,7 +118,7 @@ public class ChannelController extends AbstractController implements Runnable {
 				if (Preferences.showCurrentChannel) {
 					LinearLayout lay = (LinearLayout) mListView.getParent();
 					if (lay != null && lay.findViewById(R.id.channels_currentchannel) != null) {
-						TextView tv = (TextView) lay.findViewById(R.id.channels_currentchannelname);
+						TextView tv = (TextView) lay.findViewById(R.id.footer_text);
 						tv.setText(mCurrentChannelName);
 					}
 				}

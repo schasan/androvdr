@@ -2,6 +2,7 @@ package de.androvdr;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -29,8 +30,14 @@ public class ActionBarHelper {
 				.setTabListener(
 						new TabListener<RemoteUserFragment>(activity, "user",
 								RemoteUserFragment.class)));
-}
+	}
 
+	public static void setHomeButtonEnabled(Activity activity, boolean enabled) {
+		ActionBar actionBar = activity.getActionBar();
+		if (actionBar != null)
+			actionBar.setHomeButtonEnabled(enabled);
+	}
+	
     public static class TabListener<T extends Fragment> implements ActionBar.TabListener {
 
         private Fragment mFragment;

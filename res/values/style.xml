@@ -2,11 +2,9 @@
 <resources>
   <!-- Theme / Layout FvK -->
   <style name="header">
-    <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_width">match_parent</item>
     <item name="android:gravity">center</item>
-    <item name="android:padding">4dip</item>
     <item name="android:textStyle">bold</item>
+    <item name="android:textSize">36sp</item>
     <item name="android:background">@drawable/header_background_dark</item>
   </style>
   <style name="header_light" parent="header">
@@ -20,7 +18,7 @@
   </style>
   <style name="body">
     <item name="android:background">@drawable/keyboard_background</item>
-    <item name="android:paddingBottom">4dip</item>
+    <item name="android:paddingBottom">2dip</item>
   </style>
   <style name="detailsElementBackground_dark">
     <item name="android:background">@drawable/panel_background_dark</item>

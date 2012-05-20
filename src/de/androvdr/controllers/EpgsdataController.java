@@ -111,7 +111,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		mMainView = view;
 		mListView = (ListView) view.findViewById(android.R.id.list);
 		
-		TextView tv = (TextView) view.findViewById(R.id.epgsheader);
+		TextView tv = (TextView) view.findViewById(R.id.header_text);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	epgdefaultSize + Preferences.textSizeOffset);
 		
 		mChannelNumber = channelNumber;
@@ -208,7 +208,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	private void setEpgAdapter(EpgdataAdapter adapter, ListView listView) {
 		mEpgdataAdapter = adapter;
 
-		TextView tv = (TextView) mMainView.findViewById(R.id.epgsheader);
+		TextView tv = (TextView) mMainView.findViewById(R.id.header_text);
 		if (! mIsMultiChannelView) {
 			try {
 				tv.setText(new Channels(Preferences.getVdr().channellist).getName(mChannelNumber));			
