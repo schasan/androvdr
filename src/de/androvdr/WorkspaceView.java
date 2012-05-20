@@ -21,9 +21,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -64,7 +66,7 @@ import android.widget.Scroller;
         private float wallpaperOffset;
         private boolean wallpaperLoaded;
         private boolean firstWallpaperLayout = true;
-        private static final int TAB_INDICATOR_HEIGHT_PCT = 2;
+        private final int TAB_INDICATOR_HEIGHT;
         private RectF selectedTab;
 
 
@@ -100,6 +102,8 @@ import android.widget.Scroller;
         private RectF bar;
 
         private Paint tabIndicatorBackgroundPaint;
+
+        private boolean mTabIndicatorVisibility = true;
 
         private static class WorkspaceOvershootInterpolator implements Interpolator {
             private static final float DEFAULT_TENSION = 1.3f;
@@ -144,6 +148,13 @@ import android.widget.Scroller;
          */
         public WorkspaceView(Context context, AttributeSet attrs, int defStyle) {
             super(context, attrs, defStyle);
+
+            final float scale = getContext().getResources().getDisplayMetrics().density;
+            if (Build.VERSION.SDK_INT < 14)
+                TAB_INDICATOR_HEIGHT = (int)(6.0 * scale + 0.5f);
+            else
+                TAB_INDICATOR_HEIGHT = (int)(2.5 * scale + 0.5f);
+
             defaultScreen = 0;
             initWorkspace();
         }
@@ -165,10 +176,14 @@ import android.widget.Scroller;
             mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
 
             selectedTabPaint = new Paint();
-            if (Preferences.tabIndicatorColor != 0)
-            	selectedTabPaint.setColor(Preferences.tabIndicatorColor);
-            else
-            	selectedTabPaint.setColor(Color.GRAY);      
+            if (Preferences.tabIndicatorColor != 0) {
+            	if (Preferences.tabIndicatorColor == Color.BLUE && Build.VERSION.SDK_INT >= 14)
+            		selectedTabPaint.setColor(Color.rgb(0x33, 0xb5, 0xe5));
+            	else
+            		selectedTabPaint.setColor(Preferences.tabIndicatorColor);
+            } else {
+            	selectedTabPaint.setColor(Color.GRAY);
+            }
             selectedTabPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
             tabIndicatorBackgroundPaint = new Paint();
@@ -293,9 +308,11 @@ import android.widget.Scroller;
                     }
                 }
             }
-            updateTabIndicator();
-            canvas.drawBitmap(bitmap, getScrollX(), getMeasuredHeight()*(100-TAB_INDICATOR_HEIGHT_PCT)/100, paint);
             
+            if (mTabIndicatorVisibility) {
+	            updateTabIndicator();
+	            canvas.drawBitmap(bitmap, getScrollX(), getMeasuredHeight() - TAB_INDICATOR_HEIGHT, paint);
+            }
             if (load != null)
             	load.onLoad();
         }
@@ -324,7 +341,7 @@ import android.widget.Scroller;
             // The children are given the same width and height as the workspace
             final int count = getChildCount();
             for (int i = 0; i < count; i++) {
-                int adjustedHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height*(100-TAB_INDICATOR_HEIGHT_PCT)/100, heightMode);
+                int adjustedHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height-TAB_INDICATOR_HEIGHT, heightMode);
                 getChildAt(i).measure(widthMeasureSpec,adjustedHeightMeasureSpec);
 
             }
@@ -344,7 +361,7 @@ import android.widget.Scroller;
 
     //      Log.d("workspace","Top is "+getTop()+", bottom is "+getBottom()+", left is "+getLeft()+", right is "+getRight());
 
-            updateTabIndicator();
+          	updateTabIndicator();
             invalidate();
         }
 
@@ -356,16 +373,18 @@ import android.widget.Scroller;
 //        private int lastEvHashCode;
 
         private void updateTabIndicator(){
+        	if (! mTabIndicatorVisibility)
+        		return;
+        	
             int width = getMeasuredWidth();
-            int height = getMeasuredHeight();
 
             //For drawing in its own bitmap:
-            bar = new RectF(0, 0, width, (TAB_INDICATOR_HEIGHT_PCT*height/100));
+            bar = new RectF(0, 0, width, TAB_INDICATOR_HEIGHT);
 
             int startPos = getScrollX()/(getChildCount());
-            selectedTab = new RectF(startPos, 0, startPos+width/getChildCount(), (TAB_INDICATOR_HEIGHT_PCT*height/100));
+            selectedTab = new RectF(startPos, 0, startPos+width/getChildCount(), TAB_INDICATOR_HEIGHT);
 
-            bitmap = Bitmap.createBitmap(width, (TAB_INDICATOR_HEIGHT_PCT*height/100), Bitmap.Config.ARGB_8888);
+            bitmap = Bitmap.createBitmap(width, TAB_INDICATOR_HEIGHT, Bitmap.Config.ARGB_8888);
             canvas = new Canvas(bitmap);
             canvas.drawRoundRect(bar,0,0, tabIndicatorBackgroundPaint);
             canvas.drawRoundRect(selectedTab, 5,5, selectedTabPaint);
@@ -922,14 +941,22 @@ import android.widget.Scroller;
         	currentScreen = defaultScreen;
         }
         
+        public void setTabIndicatorVisibility(boolean visible) {
+        	mTabIndicatorVisibility = visible;
+        }
+        
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     		if (key.equals("tabIndicatorColor")) {
     			String colorname = sharedPreferences.getString(key, "blue");
-    			if (!colorname.equals("none"))
-    				selectedTabPaint.setColor(Color.parseColor(colorname));
-    			else
+    			if (!colorname.equals("none")) {
+    				if (colorname.equals("blue") && Build.VERSION.SDK_INT >= 14)
+        				selectedTabPaint.setColor(Color.rgb(0x33, 0xb5, 0xe5));
+    				else
+    					selectedTabPaint.setColor(Color.parseColor(colorname));
+    			} else {
     				selectedTabPaint.setColor(Color.GRAY);
+    			}
     		}
 		}
     }

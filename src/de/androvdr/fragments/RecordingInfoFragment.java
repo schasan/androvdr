@@ -72,7 +72,7 @@ public class RecordingInfoFragment extends AbstractFragment {
 		View root = inflater.inflate(R.layout.recordinginfo_fragment, container, false);
 		
 		if (((AbstractFragmentActivity) getActivity()).isDualPane()) {
-			View header = root.findViewById(R.id.reci_header);
+			View header = root.findViewById(R.id.header_text);
 			if (header != null)
 				header.setVisibility(View.GONE);
 		}

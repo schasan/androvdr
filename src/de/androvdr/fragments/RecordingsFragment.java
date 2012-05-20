@@ -68,8 +68,9 @@ public class RecordingsFragment extends AbstractListFragment implements
 			lay.setVisibility(View.GONE);
 		}
 
-		TextView tv = (TextView) mActivity.findViewById(R.id.recheader);
+		TextView tv = (TextView) mActivity.findViewById(R.id.header_text);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
+		tv.setText(R.string.rec_recordings);
 		tv = (TextView) mActivity.findViewById(R.id.recdiskstatus_values);
 		if (tv != null)
 			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);

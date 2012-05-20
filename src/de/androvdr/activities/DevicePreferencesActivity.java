@@ -55,6 +55,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
+import de.androvdr.ActionBarHelper;
 import de.androvdr.DevicesTable;
 import de.androvdr.ListPreferenceValueHolder;
 import de.androvdr.Preferences;
@@ -98,6 +99,8 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 			getListView().setCacheColorHint(Color.TRANSPARENT);
 			getWindow().setBackgroundDrawable(getResources().getDrawable(android.R.drawable.screen_background_light));
 		}
+		if (Build.VERSION.SDK_INT >= 14)
+			ActionBarHelper.setHomeButtonEnabled(this, true);
 		
 		mId = getIntent().getExtras().getInt("deviceid", -1);
 		

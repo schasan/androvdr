@@ -23,6 +23,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -87,6 +88,9 @@ public class GesturesBuilder extends ListActivity {
         loadGestures();
 
         registerForContextMenu(getListView());
+
+		if (Build.VERSION.SDK_INT >= 14)
+			ActionBarHelper.setHomeButtonEnabled(this, true);
     }
 
     static GestureLibrary getStore() {

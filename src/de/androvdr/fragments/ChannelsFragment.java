@@ -72,9 +72,13 @@ public class ChannelsFragment extends AbstractListFragment implements
 			lay.setVisibility(View.GONE);
 		}
 
-		TextView tv = (TextView) mActivity.findViewById(R.id.channels_header);
+		TextView tv = (TextView) mActivity.findViewById(R.id.header_text);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
-	    
+		tv.setText(R.string.channels);
+	    tv = (TextView) mActivity.findViewById(R.id.footer_text);
+	    if (tv != null)
+			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
+	    	
 		mListView = (ListView) mActivity.findViewById(android.R.id.list);
 
 		/*
