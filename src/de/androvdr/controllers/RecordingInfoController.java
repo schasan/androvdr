@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
-import android.util.TypedValue;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -46,10 +45,6 @@ import de.androvdr.VdrCommands;
 
 public class RecordingInfoController extends AbstractController implements Runnable {
 	private static transient Logger logger = LoggerFactory.getLogger(RecordingInfoController.class);
-	
-	private static final int reci_titleSize = 20,
-							 reci_shorttextSize = 16,
-							 reci_defaultSize = 15;
 	
 	public static final int RECORDINGINFO_ACTION_PLAY = 1;
 	public static final int RECORDINGINFO_ACTION_PLAY_START = 2;
@@ -94,26 +89,23 @@ public class RecordingInfoController extends AbstractController implements Runna
 	private void showData(RecordingInfo recordingInfo) {
 		if (recordingInfo == null)
 			return;
-		
+
+		setTextSize(mView);
 		TextView tv = (TextView) mView.findViewById(R.id.header_text);
-		if (tv != null){
+		if (tv != null)
 			tv.setText(recordingInfo.title);
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
-		}
+
 		tv = (TextView) mView.findViewById(R.id.reci_channel);
 		if (tv != null){
 			tv.setText(recordingInfo.channelName);
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 		}
 		tv = (TextView) mView.findViewById(R.id.reci_title);
 		if (tv != null){
 			tv.setText(recordingInfo.title);
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_titleSize + Preferences.textSizeOffset);
 		}
 		tv = (TextView) mView.findViewById(R.id.reci_shorttext);
 		if (tv != null){
 			tv.setText(recordingInfo.subtitle);
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_shorttextSize + Preferences.textSizeOffset);
 		}
 		tv = (TextView) mView.findViewById(R.id.reci_start);
 		if (tv != null) {
@@ -124,12 +116,10 @@ public class RecordingInfoController extends AbstractController implements Runna
 			calendar.setTimeInMillis(recordingInfo.date * 1000);
 			sb.append(dateformatter.format(calendar.getTime()));
 			tv.setText(sb.toString());
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 		}
 		tv = (TextView) mView.findViewById(R.id.reci_durationtext);
 		if (tv != null){
 			tv.setText(R.string.duration);
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 		}
 		
 		tv = (TextView) mView.findViewById(R.id.reci_duration);
@@ -138,12 +128,10 @@ public class RecordingInfoController extends AbstractController implements Runna
 			new Formatter(sb).format("%02d:%02d", recordingInfo.duration / 3600,
 					(recordingInfo.duration % 3600) / 60);
 			tv.setText(sb.toString());
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 		}
 		tv = (TextView) mView.findViewById(R.id.reci_description);
 		if (tv != null){
 			tv.setText(recordingInfo.description);
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 		}
 		
 		TableLayout tb = (TableLayout) mView.findViewById(R.id.reci_infotable);
@@ -176,7 +164,6 @@ public class RecordingInfoController extends AbstractController implements Runna
 			tv = (TextView) mView.findViewById(R.id.reci_remark);
 			if (tv != null){
 				tv.setText(recordingInfo.remark);
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 			}
 		}
 	}
@@ -187,22 +174,14 @@ public class RecordingInfoController extends AbstractController implements Runna
 		
 		TextView tc = new TextView(mActivity);
 		tc.setText(title);
-		tc.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 		tr.addView(tc);
 		
 		tc = new TextView(mActivity);
 		tc.setText(value);
-		tc.setTextSize(TypedValue.COMPLEX_UNIT_DIP,reci_defaultSize + Preferences.textSizeOffset);
 		tc.setPadding(px, 0, 0, 0);
 		tr.addView(tc);
-		
-/*
-		tc = new TextView(mActivity);
-		tc.setText(streaminfo.language);
-		tc.setPadding(px, 0, 0, 0);
-		tr.addView(tc);
-*/
-		
+
+		setTextSize(tr);
 		return tr;
 	}
 

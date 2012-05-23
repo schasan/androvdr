@@ -4,12 +4,12 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.LinearLayout;
 import de.androvdr.Preferences;
 import de.androvdr.R;
@@ -71,13 +71,6 @@ public class EpgdataFragment extends AbstractFragment {
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.epgdata_fragment, container, false);
 		registerForContextMenu(root);
-		
-		if (((AbstractFragmentActivity) getActivity()).isDualPane()) {
-			View header = root.findViewById(R.id.header_text);
-			if (header != null)
-				header.setVisibility(View.GONE);
-		}
-
 		return root;
 	}
 	

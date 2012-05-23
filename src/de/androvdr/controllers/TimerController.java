@@ -41,17 +41,17 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
+import de.androvdr.AbstractViewHolder;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Epg;
@@ -82,9 +82,6 @@ public class TimerController extends AbstractController implements Runnable {
 	}
 	
 	private static transient Logger logger = LoggerFactory.getLogger(TimerController.class);
-	
-	private static final int timer_titleSize = 20,
-							 timer_defaultSize = 15;
 	
 	private TimerAdapter mAdapter;
 	private Channels mChannels;
@@ -252,14 +249,14 @@ public class TimerController extends AbstractController implements Runnable {
 	private class TimerAdapter extends ArrayAdapter<Timer> {
 		private final Activity mActivity;
 		
-		private class ViewHolder {
-			private TextView date;
-			private TextView channel;
-			private TextView time;
-			private TextView status;
-			private ImageView folderimage;
-			private TextView foldername;
-			private TextView title;
+		private class ViewHolder extends AbstractViewHolder {
+			public TextView date;
+			public TextView channel;
+			public TextView time;
+			public TextView status;
+			public ImageView folderimage;
+			public TextView foldername;
+			public TextView title;
 		}
 		
 		public TimerAdapter(Activity activity, ArrayList<Timer> timer) {
@@ -281,19 +278,8 @@ public class TimerController extends AbstractController implements Runnable {
 				vh.folderimage = (ImageView) row.findViewById(R.id.timer_folderimage);
 				vh.foldername = (TextView) row.findViewById(R.id.timer_folder);
 				vh.title = (TextView) row.findViewById(R.id.timer_title);
-				
-				vh.date.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						timer_defaultSize + Preferences.textSizeOffset);
-				vh.channel.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						timer_defaultSize + Preferences.textSizeOffset);
-				vh.time.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						timer_defaultSize + Preferences.textSizeOffset);
-				vh.status.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						timer_defaultSize + Preferences.textSizeOffset);
-				vh.foldername.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						timer_defaultSize + Preferences.textSizeOffset);
-				vh.title.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						timer_titleSize + Preferences.textSizeOffset);
+				vh.setTextSize(Preferences.textSizeOffset,
+						mActivity.getResources().getDisplayMetrics().scaledDensity);
 				row.setTag(vh);
 			} else {
 				row = convertView;

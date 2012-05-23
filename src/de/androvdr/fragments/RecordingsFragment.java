@@ -50,7 +50,6 @@ import de.androvdr.controllers.RecordingController;
 public class RecordingsFragment extends AbstractListFragment implements
 		RecordingController.OnRecordingSelectedListener {
 	private static transient Logger logger = LoggerFactory.getLogger(RecordingsFragment.class);
-	private static final int HEADER_TEXT_SIZE = 15;
 	
 	private RecordingController mController;
 	private ListView mListView;
@@ -67,13 +66,6 @@ public class RecordingsFragment extends AbstractListFragment implements
 			LinearLayout lay = (LinearLayout) mActivity.findViewById(R.id.recdiskstatus);
 			lay.setVisibility(View.GONE);
 		}
-
-		TextView tv = (TextView) mActivity.findViewById(R.id.header_text);
-		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
-		tv.setText(R.string.rec_recordings);
-		tv = (TextView) mActivity.findViewById(R.id.recdiskstatus_values);
-		if (tv != null)
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
 
 		mListView = (ListView) mActivity.findViewById(android.R.id.list);
 
@@ -167,6 +159,18 @@ public class RecordingsFragment extends AbstractListFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.recordings_fragment, container, false);
+
+		float sd = getResources().getDisplayMetrics().scaledDensity;
+		TextView tv = (TextView) root.findViewById(R.id.header_text);
+		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	(tv.getTextSize() / sd)
+				+ Preferences.textSizeOffset);
+		tv.setText(R.string.rec_recordings);
+		
+		tv = (TextView) root.findViewById(R.id.recdiskstatus_values);
+		if (tv != null)
+			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	(tv.getTextSize() / sd)
+					+ Preferences.textSizeOffset);
+
 		registerForContextMenu(root.findViewById(android.R.id.list));
 		return root;
 	}

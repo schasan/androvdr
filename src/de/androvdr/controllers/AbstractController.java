@@ -24,7 +24,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.TypedValue;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import de.androvdr.Messages;
+import de.androvdr.Preferences;
 
 public abstract class AbstractController {
 	protected Activity mActivity;
@@ -54,5 +58,21 @@ public abstract class AbstractController {
 				handler.sendMessage(resultMessage);
 			}
 		}
+	}
+
+	protected void setTextSize(ViewGroup v) {
+		if (Preferences.textSizeOffset == 0)
+			return;
+
+		float sd = mActivity.getResources().getDisplayMetrics().scaledDensity;
+		for (int j = 0; j < v.getChildCount(); j++)
+			if (v.getChildAt(j).getClass() == TextView.class) {
+				TextView tv = (TextView) v.getChildAt(j);
+				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
+						(tv.getTextSize() / sd) + Preferences.textSizeOffset);
+			} else {
+				if (v.getChildAt(j) instanceof ViewGroup)
+					setTextSize((ViewGroup) v.getChildAt(j));
+			}
 	}
 }

@@ -45,11 +45,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -59,7 +59,7 @@ import android.widget.RelativeLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
+import de.androvdr.AbstractViewHolder;
 import de.androvdr.Messages;
 import de.androvdr.Preferences;
 import de.androvdr.R;
@@ -411,20 +411,17 @@ public class RecordingController extends AbstractController implements Runnable 
 		private final Activity mActivity;
 		private final ListView mListView;
 		
-		private final static int recordingtitelSize = 20,
-								 recordingdefaultSize = 15;
-		
 		private RecordingViewItemComparer mComparer;
 		private HashMap<String, Integer> mIndexer;
 		private String[] mSections;
 		
-		private class ViewHolder {
-			private LinearLayout folder;
-			private RelativeLayout recording;
-			private TextView foldertitle;
-			private TextView date;
-			private ImageView state;
-			private TextView title;
+		private class ViewHolder extends AbstractViewHolder {
+			public LinearLayout folder;
+			public RelativeLayout recording;
+			public TextView foldertitle;
+			public TextView date;
+			public ImageView state;
+			public TextView title;
 		}
 		
 		public RecordingAdapter(Activity activity, ArrayList<RecordingViewItem> recording, ListView listView) {
@@ -467,11 +464,8 @@ public class RecordingController extends AbstractController implements Runnable 
 				vh.date = (TextView) row.findViewById(R.id.recording_date);
 				vh.state = (ImageView) row.findViewById(R.id.recording_stateimage);
 				vh.title = (TextView) row.findViewById(R.id.recording_title);
-				
-				vh.foldertitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP,recordingtitelSize + Preferences.textSizeOffset);
-				vh.date.setTextSize(TypedValue.COMPLEX_UNIT_DIP,recordingdefaultSize + Preferences.textSizeOffset);
-				vh.title.setTextSize(TypedValue.COMPLEX_UNIT_DIP,recordingtitelSize + Preferences.textSizeOffset);
-				
+				vh.setTextSize(Preferences.textSizeOffset,
+						mActivity.getResources().getDisplayMetrics().scaledDensity);
 				row.setTag(vh);
 			} else {
 				row = convertView;
