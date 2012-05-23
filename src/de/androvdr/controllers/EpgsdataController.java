@@ -35,18 +35,18 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
+import de.androvdr.AbstractViewHolder;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Epg;
@@ -59,9 +59,6 @@ import de.androvdr.activities.EpgdataActivity;
 public class EpgsdataController extends AbstractController implements Runnable {
 	private static transient Logger logger = LoggerFactory.getLogger(EpgsdataController.class);
 	
-	private static final int epgtitelSize = 20,
-							 epgdefaultSize = 15;
-
 	public static final int EPG_ALL = -1;
 	public static final int EPG_NOW = -1;
 	
@@ -110,9 +107,6 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		
 		mMainView = view;
 		mListView = (ListView) view.findViewById(android.R.id.list);
-		
-		TextView tv = (TextView) view.findViewById(R.id.header_text);
-		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	epgdefaultSize + Preferences.textSizeOffset);
 		
 		mChannelNumber = channelNumber;
 		mMaxEpgdata = max;
@@ -233,12 +227,12 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	private class EpgdataAdapter extends ArrayAdapter<Epg> {
 		private final Activity mActivity;
 		
-		private class ViewHolder {
-			private TextView date;
-			private TextView channel;
-			private ProgressBar progress;
-			private TextView title;
-			private TextView shorttext;
+		private class ViewHolder extends AbstractViewHolder {
+			public TextView date;
+			public TextView channel;
+			public ProgressBar progress;
+			public TextView title;
+			public TextView shorttext;
 		}
 		public EpgdataAdapter(Activity activity, ArrayList<Epg> epgdata) {
 			super(activity, R.layout.epgsdata_item, epgdata);
@@ -256,16 +250,8 @@ public class EpgsdataController extends AbstractController implements Runnable {
 				vh.channel = (TextView) row.findViewById(R.id.epgchannel);
 				vh.title = (TextView) row.findViewById(R.id.epgtitle);
 				vh.shorttext = (TextView) row.findViewById(R.id.epgshorttext);
-
-				vh.date.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						epgdefaultSize + Preferences.textSizeOffset);
-				vh.channel.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						epgdefaultSize + Preferences.textSizeOffset);
-	        	vh.title.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-	        			epgtitelSize + Preferences.textSizeOffset);
-	       		vh.shorttext.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-	       				epgdefaultSize + Preferences.textSizeOffset);
-
+				vh.setTextSize(Preferences.textSizeOffset,
+						mActivity.getResources().getDisplayMetrics().scaledDensity);
 				row.setTag(vh);
 			} else {
 				row = convertView;

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,6 +37,7 @@ import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import de.androvdr.Channel;
 import de.androvdr.Preferences;
@@ -109,6 +111,13 @@ public class EpgsdataFragment extends AbstractListFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.epgsdata_fragment, container, false);
+
+		TextView tv = (TextView) root.findViewById(R.id.header_text);
+		tv.setTextSize(
+				TypedValue.COMPLEX_UNIT_DIP,
+				(tv.getTextSize() / getResources().getDisplayMetrics().scaledDensity)
+						+ Preferences.textSizeOffset);
+		
 		registerForContextMenu(root.findViewById(android.R.id.list));
 		return root;
 	}

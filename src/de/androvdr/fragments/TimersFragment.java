@@ -32,15 +32,15 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.util.TypedValue;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import de.androvdr.Channel;
 import de.androvdr.EpgSearch;
 import de.androvdr.Preferences;
@@ -50,7 +50,6 @@ import de.androvdr.controllers.TimerController;
 public class TimersFragment extends AbstractListFragment 
 		implements TimerController.OnTimerSelectedListener {
 	private static transient Logger logger = LoggerFactory.getLogger(TimersFragment.class);
-	private static final int HEADER_TEXT_SIZE = 15;
 	
 	private TimerController mController;
 	private boolean mIsSearch = false;
@@ -59,10 +58,6 @@ public class TimersFragment extends AbstractListFragment
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		TextView tv = (TextView) mActivity.findViewById(R.id.header_text);
-		tv.setText(R.string.timers);
-		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
 		
 	    mListView = (ListView) mActivity.findViewById(android.R.id.list);
 
@@ -84,6 +79,7 @@ public class TimersFragment extends AbstractListFragment
 	      epgSearch.inTitle = Preferences.epgsearch_title;
 	      epgSearch.inSubtitle = Preferences.epgsearch_subtitle;
 	      epgSearch.inDescription = Preferences.epgsearch_description;
+	      TextView tv = (TextView) mActivity.findViewById(R.id.header_text);
 	      tv.setText(epgSearch.search);
 	      mIsSearch = true;
 	    }
@@ -163,6 +159,14 @@ public class TimersFragment extends AbstractListFragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.timers_fragment, container, false);
+		
+		TextView tv = (TextView) root.findViewById(R.id.header_text);
+		tv.setText(R.string.timers);
+		tv.setTextSize(
+				TypedValue.COMPLEX_UNIT_DIP,
+				(tv.getTextSize() / getResources().getDisplayMetrics().scaledDensity)
+						+ Preferences.textSizeOffset);
+
 		registerForContextMenu(root.findViewById(android.R.id.list));
 		return root;
 	}

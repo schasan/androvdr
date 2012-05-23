@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.util.TypedValue;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -50,10 +49,6 @@ import de.androvdr.VdrCommands;
 
 public class EpgdataController extends AbstractController {
 	private static transient Logger logger = LoggerFactory.getLogger(EpgdataController.class);
-	
-	private static final int pgi_titelSize = 20,
-							 pgi_shorttextSize = 16,
-							 pgi_defaultSize = 15;
 	
 	public static final int EPGDATA_ACTION_RECORD = 1;
 	
@@ -107,91 +102,82 @@ public class EpgdataController extends AbstractController {
 	private void showData() {
 		Epg epg = mChannel.viewEpg;
 		
-		if (epg != null) {
-			TextView tv = (TextView) mView.findViewById(R.id.header_text);
-			if (tv != null){
-				tv.setText(epg.titel);
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
-			}
-			tv = (TextView) mView.findViewById(R.id.pgi_title);
-			if (tv != null){
-				tv.setText(epg.titel);
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_titelSize + Preferences.textSizeOffset);
-			}
-			tv = (TextView) mView.findViewById(R.id.pgi_shorttext);
-			if (tv != null){
-				tv.setText(epg.kurztext);
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_shorttextSize + Preferences.textSizeOffset);
-			}
-			tv = (TextView) mView.findViewById(R.id.pgi_channel);
-			if (tv != null){
-				tv.setText(mChannel.name);
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
-			}
-			tv = (TextView) mView.findViewById(R.id.pgi_start);
-			if (tv != null) {
-				SimpleDateFormat dateformatter = new SimpleDateFormat(
-						Preferences.dateformat);
-				SimpleDateFormat timeformatter = new SimpleDateFormat(
-						Preferences.timeformat);
-				String[] weekdays = mActivity.getResources().getStringArray(
-						R.array.weekday);
-				GregorianCalendar calendar = new GregorianCalendar();
-				StringBuilder sb = new StringBuilder();
+		if (epg == null)
+			return;
 
-				calendar.setTimeInMillis(epg.startzeit * 1000);
-				sb.append(weekdays[calendar.get(Calendar.DAY_OF_WEEK) - 1]
-						+ " " + dateformatter.format(calendar.getTime()) + " ");
-				sb.append(timeformatter.format(calendar.getTime()));
-				sb.append(" - ");
-				calendar.setTimeInMillis(epg.startzeit * 1000 + epg.dauer
-						* 1000);
-				sb.append(timeformatter.format(calendar.getTime()));
-				tv.setText(sb.toString());
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
-			}
-			tv = (TextView) mView.findViewById(R.id.pgi_durationtext);
-			if (tv != null) {
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
-			}
-			tv = (TextView) mView.findViewById(R.id.pgi_duration);
-			if (tv != null) {
-				StringBuilder sb = new StringBuilder();
-				new Formatter(sb).format("%02d:%02d", epg.dauer / 3600,
-						(epg.dauer % 3600) / 60);
-				tv.setText(sb.toString());
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
-			}
-			tv = (TextView) mView.findViewById(R.id.pgi_description);
-			if (tv != null){
-				tv.setText(epg.beschreibung);
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
-			}
+		setTextSize(mView);
+		TextView tv = (TextView) mView.findViewById(R.id.header_text);
+		if (tv != null){
+			tv.setText(epg.titel);
+		}
+		tv = (TextView) mView.findViewById(R.id.pgi_title);
+		if (tv != null){
+			tv.setText(epg.titel);
+		}
+		tv = (TextView) mView.findViewById(R.id.pgi_shorttext);
+		if (tv != null){
+			tv.setText(epg.kurztext);
+		}
+		tv = (TextView) mView.findViewById(R.id.pgi_channel);
+		if (tv != null){
+			tv.setText(mChannel.name);
+		}
+		tv = (TextView) mView.findViewById(R.id.pgi_start);
+		if (tv != null) {
+			SimpleDateFormat dateformatter = new SimpleDateFormat(
+					Preferences.dateformat);
+			SimpleDateFormat timeformatter = new SimpleDateFormat(
+					Preferences.timeformat);
+			String[] weekdays = mActivity.getResources().getStringArray(
+					R.array.weekday);
+			GregorianCalendar calendar = new GregorianCalendar();
+			StringBuilder sb = new StringBuilder();
 
-			TableLayout tb = (TableLayout) mView
-					.findViewById(R.id.pgi_infotable);
-			if (tb != null) {
-				StreamInfo si = epg.getVideoStream();
-				if (si != null)
-					tb.addView(tableRow(mActivity.getString(R.string.videoformat), si));
+			calendar.setTimeInMillis(epg.startzeit * 1000);
+			sb.append(weekdays[calendar.get(Calendar.DAY_OF_WEEK) - 1]
+					+ " " + dateformatter.format(calendar.getTime()) + " ");
+			sb.append(timeformatter.format(calendar.getTime()));
+			sb.append(" - ");
+			calendar.setTimeInMillis(epg.startzeit * 1000 + epg.dauer
+					* 1000);
+			sb.append(timeformatter.format(calendar.getTime()));
+			tv.setText(sb.toString());
+		}
+		tv = (TextView) mView.findViewById(R.id.pgi_duration);
+		if (tv != null) {
+			StringBuilder sb = new StringBuilder();
+			new Formatter(sb).format("%02d:%02d", epg.dauer / 3600,
+					(epg.dauer % 3600) / 60);
+			tv.setText(sb.toString());
+		}
+		tv = (TextView) mView.findViewById(R.id.pgi_description);
+		if (tv != null){
+			tv.setText(epg.beschreibung);
+		}
 
-				ArrayList<StreamInfo> asi = epg.getAudioStreams();
-				if (asi != null)
-					for (int i = 0; i < asi.size(); i++) {
-						if (i == 0)
-							tb.addView(tableRow(mActivity.getString(R.string.audiostreams), asi.get(i)));
-						else
-							tb.addView(tableRow("", asi.get(i)));
-					}
+		TableLayout tb = (TableLayout) mView
+				.findViewById(R.id.pgi_infotable);
+		if (tb != null) {
+			StreamInfo si = epg.getVideoStream();
+			if (si != null)
+				tb.addView(tableRow(mActivity.getString(R.string.videoformat), si));
 
-				si = epg.getVideoType();
-				if (si != null)
-					tb.addView(tableRow(mActivity.getString(R.string.videoformat), si));
+			ArrayList<StreamInfo> asi = epg.getAudioStreams();
+			if (asi != null)
+				for (int i = 0; i < asi.size(); i++) {
+					if (i == 0)
+						tb.addView(tableRow(mActivity.getString(R.string.audiostreams), asi.get(i)));
+					else
+						tb.addView(tableRow("", asi.get(i)));
+				}
 
-				si = epg.getAudioType();
-				if (si != null)
-					tb.addView(tableRow(mActivity.getString(R.string.audioformat), si));
-			}
+			si = epg.getVideoType();
+			if (si != null)
+				tb.addView(tableRow(mActivity.getString(R.string.videoformat), si));
+
+			si = epg.getAudioType();
+			if (si != null)
+				tb.addView(tableRow(mActivity.getString(R.string.audioformat), si));
 		}
 	}
 
@@ -201,22 +187,14 @@ public class EpgdataController extends AbstractController {
 		
 		TextView tc = new TextView(mActivity);
 		tc.setText(title);
-		tc.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
 		tr.addView(tc);
 		
 		tc = new TextView(mActivity);
 		tc.setText(streaminfo.description);
-		tc.setTextSize(TypedValue.COMPLEX_UNIT_DIP,pgi_defaultSize + Preferences.textSizeOffset);
 		tc.setPadding(px, 0, 0, 0);
 		tr.addView(tc);
 		
-/*
-		tc = new TextView(mActivity);
-		tc.setText(streaminfo.language);
-		tc.setPadding(px, 0, 0, 0);
-		tr.addView(tc);
-*/
-		
+		setTextSize(tr);
 		return tr;
 	}
 }

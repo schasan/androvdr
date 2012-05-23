@@ -38,11 +38,11 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -52,7 +52,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
+import de.androvdr.AbstractViewHolder;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Messages;
@@ -290,23 +290,19 @@ public class ChannelController extends AbstractController implements Runnable {
 	
 	private class ChannelAdapter extends ArrayAdapter<Channel> {
 		private final Activity mActivity;
-		
-		private final static int channelnumberSize = 20,
-								 channeltextSize = 20,
-								 channelnowplayingSize = 15;
-		
-		private class ViewHolder {
-			private LinearLayout logoHolder;
-			private ImageView logo;
-			private TextView number;
-			private TextView text;
-			private ProgressBar progress;
-			private TableLayout program;
-			private TextView nowPlaying;
-			private TextView nowPlayingTime;
-			private TextView nextPlaying;
-			private TableRow nextPlayingRow;
-			private TextView nextPlayingTime;
+			
+		private class ViewHolder extends AbstractViewHolder {
+			public LinearLayout logoHolder;
+			public ImageView logo;
+			public TextView number;
+			public TextView text;
+			public ProgressBar progress;
+			public TableLayout program;
+			public TextView nowPlaying;
+			public TextView nowPlayingTime;
+			public TextView nextPlaying;
+			public TableRow nextPlayingRow;
+			public TextView nextPlayingTime;
 		}
 		
 		public ChannelAdapter(Activity activity, ArrayList<Channel> channels) {
@@ -332,20 +328,8 @@ public class ChannelController extends AbstractController implements Runnable {
 				vh.nextPlaying = (TextView) row.findViewById(R.id.channelnextplaying);
 				vh.nextPlayingRow = (TableRow) row.findViewById(R.id.channelnextplayingrow);
 				vh.nextPlayingTime = (TextView) row.findViewById(R.id.channelnextplayingtime);
-
-				vh.number.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channelnumberSize + Preferences.textSizeOffset);
-				vh.text.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channeltextSize + Preferences.textSizeOffset);
-				vh.nowPlayingTime.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channelnowplayingSize + Preferences.textSizeOffset);
-				vh.nowPlaying.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channelnowplayingSize + Preferences.textSizeOffset);
-				vh.nextPlayingTime.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channelnowplayingSize + Preferences.textSizeOffset);
-				vh.nextPlaying.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channelnowplayingSize + Preferences.textSizeOffset);
-			
+				vh.setTextSize(Preferences.textSizeOffset, mActivity
+						.getResources().getDisplayMetrics().scaledDensity);
 				row.setTag(vh);				
 			} else {
 				row = convertView;
@@ -415,16 +399,8 @@ public class ChannelController extends AbstractController implements Runnable {
 				vh.text = (TextView) row.findViewById(R.id.csr_channeltext);
 				vh.nowPlaying = (TextView) row.findViewById(R.id.csr_title);
 				vh.nowPlayingTime = (TextView) row.findViewById(R.id.csr_time);
-
-				vh.number.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channelnumberSize + Preferences.textSizeOffset);
-				vh.text.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channelnowplayingSize + Preferences.textSizeOffset);
-				vh.nowPlayingTime.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channelnowplayingSize + Preferences.textSizeOffset);
-				vh.nowPlaying.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-						channelnumberSize + Preferences.textSizeOffset);
-			
+				vh.setTextSize(Preferences.textSizeOffset,
+						mActivity.getResources().getDisplayMetrics().scaledDensity);
 				row.setTag(vh);				
 			} else {
 				row = convertView;

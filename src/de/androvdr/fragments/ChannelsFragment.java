@@ -50,7 +50,6 @@ import de.androvdr.controllers.ChannelController;
 public class ChannelsFragment extends AbstractListFragment implements 
 		ChannelController.OnChannelSelectedListener, Channel.OnCurrentEpgChangedListener {
 	private static transient Logger logger = LoggerFactory.getLogger(ChannelsFragment.class);
-	private static final int HEADER_TEXT_SIZE = 15;
 	
 	public static final String SEARCHTIME = "searchtime";
 	
@@ -72,13 +71,6 @@ public class ChannelsFragment extends AbstractListFragment implements
 			lay.setVisibility(View.GONE);
 		}
 
-		TextView tv = (TextView) mActivity.findViewById(R.id.header_text);
-		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
-		tv.setText(R.string.channels);
-	    tv = (TextView) mActivity.findViewById(R.id.footer_text);
-	    if (tv != null)
-			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	HEADER_TEXT_SIZE + Preferences.textSizeOffset);
-	    	
 		mListView = (ListView) mActivity.findViewById(android.R.id.list);
 
 		/*
@@ -139,7 +131,19 @@ public class ChannelsFragment extends AbstractListFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.extendedchannels_fragment, container, false);
-		registerForContextMenu(root.findViewById(android.R.id.list));
+
+		float sd = getResources().getDisplayMetrics().scaledDensity;
+		TextView tv = (TextView) root.findViewById(R.id.header_text);
+		tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (tv.getTextSize() / sd)
+				+ Preferences.textSizeOffset);
+		tv.setText(R.string.channels);
+	    
+		tv = (TextView) root.findViewById(R.id.footer_text);
+	    if (tv != null)
+			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	(tv.getTextSize() / sd) 
+					+ Preferences.textSizeOffset);
+	    	
+	    registerForContextMenu(root.findViewById(android.R.id.list));
 		return root;
 	}
 
