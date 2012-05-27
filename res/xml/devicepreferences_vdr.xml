@@ -17,12 +17,14 @@
       android:inputType="number"
       android:title="@string/settings_port"
       android:summary="@string/settings_port_summary"
-      android:defaultValue="2001" />
+      android:defaultValue="2001"
+      android:maxLength="7" />
     <EditTextPreference
       android:key="timeout"
       android:inputType="number"
       android:title="@string/settings_timeout"
-      android:defaultValue="7500" />
+      android:defaultValue="7500"
+      android:maxLength="7" />
     <EditTextPreference
       android:key="macaddress"
       android:title="@string/settings_macaddress"
@@ -38,7 +40,8 @@
       android:inputType="number"
       android:title="@string/settings_livetv_port"
       android:summary="@string/settings_livetv_port_summary"
-      android:defaultValue="3000" />
+      android:defaultValue="3000"
+      android:maxLength="7" />
   </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/settings_miscellaneous">
@@ -52,7 +55,8 @@
       android:inputType="number"
       android:title="@string/settings_epgmax"
       android:summary="@string/settings_epgmax_summary"
-      android:defaultValue="30" />
+      android:defaultValue="30"
+      android:maxLength="7" />
     <ListPreference
       android:key="characterset"
       android:title="@string/settings_characterset"
@@ -70,12 +74,14 @@
       android:key="margin_start"
       android:inputType="number"
       android:title="@string/settings_margin_start"
-      android:defaultValue="5" />
+      android:defaultValue="5"
+      android:maxLength="7" />
     <EditTextPreference
       android:key="margin_stop"
       android:inputType="number"
       android:title="@string/settings_margin_stop"
-      android:defaultValue="10" />
+      android:defaultValue="10"
+      android:maxLength="7" />
   </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/livetv">
@@ -120,7 +126,8 @@
       android:title="@string/settings_vdradmin_port"
       android:summary="@string/settings_vdradmin_port_summary"
       android:dependency="vdradmin"
-      android:defaultValue="8001" />
+      android:defaultValue="8001"
+      android:maxLength="7" />
   </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/settings_remote">
@@ -134,7 +141,8 @@
       android:inputType="number"
       android:title="@string/settings_remote_port"
       android:summary="@string/settings_remote_port_summary"
-      android:defaultValue="22" />
+      android:defaultValue="22"
+      android:maxLength="7" />
     <EditTextPreference
       android:key="remote_user"
       android:title="@string/settings_user"
@@ -147,7 +155,8 @@
       android:key="remote_timeout"
       android:inputType="number"
       android:title="@string/settings_timeout"
-      android:defaultValue="25000" />
+      android:defaultValue="25000"
+      android:maxLength="7" />
   </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/settings_remote_local_forwarding_ports">
@@ -156,20 +165,23 @@
       android:inputType="number"
       android:title="@string/settings_remote_local_port"
       android:summary="@string/settings_remote_local_port_summary"
-      android:defaultValue="35550" />
+      android:defaultValue="35550"
+      android:maxLength="7" />
     <EditTextPreference
       android:key="remote_streaming_port"
       android:inputType="number"
       android:title="@string/settings_remote_local_streaming_port"
       android:summary="@string/settings_remote_local_streaming_port_summary"
       android:dependency="extremux"
-      android:defaultValue="35551" />
+      android:defaultValue="35551"
+      android:maxLength="7" />
     <EditTextPreference
       android:key="remote_vdradmin_port"
       android:inputType="number"
       android:title="@string/settings_remote_local_vdradmin_port"
       android:summary="@string/settings_remote_local_vdradmin_port_summary"
       android:dependency="vdradmin"
-      android:defaultValue="35552" />
+      android:defaultValue="35552"
+      android:maxLength="7" />
   </PreferenceCategory>
 </PreferenceScreen>

@@ -125,7 +125,8 @@
       android:inputType="number"
       android:title="@string/settings_epgsearch_max"
       android:summary="@string/settings_epgsearch_max_summary"
-      android:defaultValue="30" />
+      android:defaultValue="30"
+      android:maxLength="7" />
   </PreferenceCategory>
   <PreferenceCategory
     android:title="@string/livetv">
