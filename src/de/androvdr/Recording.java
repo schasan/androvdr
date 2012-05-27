@@ -90,9 +90,11 @@ public class Recording implements Parcelable, Comparable<Recording> {
 		
 		String result = null;
 		Cursor cursor = null;
+		SQLiteDatabase db = null;
 		synchronized (sDBHelper) {
 			try {
-				cursor = sDBHelper.getReadableDatabase().query(
+				db = sDBHelper.getReadableDatabase();
+				cursor = db.query(
 						RecordingIdsTable.TABLE_NAME,
 						new String[] { RecordingIdsTable.INFO_ID },
 						RecordingIdsTable.ID + " = ? AND " + RecordingIdsTable.VDR_ID + " = ?",
@@ -105,6 +107,8 @@ public class Recording implements Parcelable, Comparable<Recording> {
 			} finally {
 				if (cursor != null)
 					cursor.close();
+				if (db != null)
+					db.close();
 			}		
 		}
 		mInfoId = result;
@@ -174,6 +178,7 @@ public class Recording implements Parcelable, Comparable<Recording> {
 							RecordingIdsTable.ID + " = ? AND " + RecordingIdsTable.VDR_ID + " = ?",
 							new String[] { this.id, Long.toString(Preferences.getVdr().getId()) });
 				}
+				database.close();
 			}
 		}
 		mInfoId = id;

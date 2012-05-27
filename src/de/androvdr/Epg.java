@@ -40,7 +40,6 @@ public class Epg {
 	public long eventId;
 	public long vps;
 	public String channelName;
-	public String id;
 	
 	public Epg() {}
 	
@@ -48,7 +47,6 @@ public class Epg {
 		if (empty) {
 			kanal = channel;
 			isEmpty = true;
-			id = "empty";
 			startzeit = new Date().getTime() / 1000;
 			dauer = 5 * 60;
 		}
@@ -69,7 +67,7 @@ public class Epg {
 
 	@Override
 	public boolean equals(Object o) {
-		return id.equals(((Epg)o).id);
+		return (eventId == ((Epg)o).eventId);
 	}
 	
 	public int getActualPercentDone() {

@@ -64,6 +64,7 @@ import de.androvdr.Timers;
 import de.androvdr.VdrCommands;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.activities.EpgsdataActivity;
+import de.androvdr.devices.Devices;
 import de.androvdr.devices.VdrDevice;
 import de.androvdr.svdrp.ConnectionProblem;
 import de.androvdr.svdrp.VDRConnection;
@@ -131,6 +132,9 @@ public class TimerController extends AbstractController implements Runnable {
 	}
 	
 	public void action(int action, int position) {
+		if (position >= mAdapter.getCount())
+			return;
+		
 		final Timer item = mAdapter.getItem(position);
 
 		switch (action) {
@@ -154,7 +158,7 @@ public class TimerController extends AbstractController implements Runnable {
 			new GetEpgTask().execute(item);
 			break;
 		case TIMER_ACTION_SWITCH_CAHNNEL:
-		    VDRConnection.send(new CHAN(item.channel));
+			new SwitchChannelTask().execute(item);
 			break;
 		case TIMER_ACTION_TOGGLE:
 			new TimerToggleTask().execute(item);
@@ -246,6 +250,29 @@ public class TimerController extends AbstractController implements Runnable {
 		
 	}
 	
+	private class SwitchChannelTask extends AsyncTask<Timer, Void, Response> {
+
+		@Override
+		protected Response doInBackground(Timer... params) {
+			return VDRConnection.send(new CHAN(Integer.toString(params[0].channel)));
+		}
+		
+		@Override
+		protected void onPostExecute(Response result) {
+		    if(result.getCode() == 250) {
+		    	Devices devices = Devices.getInstance();
+		    	devices.updateChannelSensor();
+		    	mActivity.finish();
+		    } else {
+		        logger.error("Couldn't switch channel: {}", result.getCode() + " - " + result.getMessage());
+		        
+		        if (! mActivity.isFinishing())
+			        Toast.makeText(mActivity, result.getCode() + " - " + result.getMessage().replaceAll("\n$", ""), 
+			        		Toast.LENGTH_LONG).show();
+		    }
+		}
+	}
+
 	private class TimerAdapter extends ArrayAdapter<Timer> {
 		private final Activity mActivity;
 		

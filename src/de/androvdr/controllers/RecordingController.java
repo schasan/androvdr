@@ -233,6 +233,9 @@ public class RecordingController extends AbstractController implements Runnable 
 			return;
 		}
 		
+		if (position >= mRecordingAdapter.getCount())
+			return;
+		
 		final RecordingViewItem item = mRecordingAdapter.getItem(position);
 		
 		switch (action) {
@@ -507,7 +510,8 @@ public class RecordingController extends AbstractController implements Runnable 
 					RecordingViewItem item = getItem(i);
 					if (! item.isFolder) {
 						if (item.recording.title.length() > 0)
-							mIndexer.put(item.recording.title.substring(0, 1), i);
+							mIndexer.put(item.recording.title.substring(0, 1)
+									.toUpperCase(), i);
 						else
 							mIndexer.put(" ", i);
 					} else {

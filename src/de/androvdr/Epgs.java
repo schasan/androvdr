@@ -110,7 +110,7 @@ public class Epgs {
 		    int entryCount = 0;
 		    for (EPGEntry entry : epgList) {
 		        Epg epg = new Epg();
-		        epg.id = MD5.calculate(response.getMessage());
+		        epg.eventId = entry.getEventID();
                 epg.startzeit = entry.getStartTime().getTimeInMillis() / 1000;
                 long end = entry.getEndTime().getTimeInMillis() / 1000;
                 epg.dauer = (int) (end - epg.startzeit);
