@@ -9,10 +9,9 @@ package de.androvdr;
      * License.
      */
 
-    import org.slf4j.Logger;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.androvdr.activities.AndroVDR;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -25,7 +24,6 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -34,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
+import de.androvdr.activities.AndroVDR;
 
     /**
      * The workspace is a wide area with a infinite number of screens. Each screen contains a view. A workspace is meant to
@@ -675,6 +674,8 @@ import android.widget.Scroller;
 				    awakenScrollBars();
 				}
 			} catch (ArrayIndexOutOfBoundsException e) {
+				logger.error("handleScrollMove", e);
+			} catch (IllegalArgumentException e) {
 				logger.error("handleScrollMove", e);
 			}
         }

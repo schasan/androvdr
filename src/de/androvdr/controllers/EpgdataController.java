@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -80,14 +81,10 @@ public class EpgdataController extends AbstractController {
 	public void action(int action) {
 		if (mChannel.viewEpg == null)
 			return;
-		
+
 		switch (action) {
 		case EPGDATA_ACTION_RECORD:
-			Response response = VdrCommands.setTimer(mChannel.viewEpg);
-			if (response.getCode() != 250)
-				logger.error("Couldn't set timer: {}", response.getMessage());
-			Toast.makeText(mActivity, response.getCode() + " - " + response.getMessage().replaceAll("\n$", ""), 
-					Toast.LENGTH_LONG).show();
+			new SetTimerTask().execute(mChannel.viewEpg);
 			break;
 		}
 	}
@@ -196,5 +193,25 @@ public class EpgdataController extends AbstractController {
 		
 		setTextSize(tr);
 		return tr;
+	}
+
+	private class SetTimerTask extends AsyncTask<Epg, Void, Response> {
+
+		@Override
+		protected Response doInBackground(Epg... params) {
+			Response response = VdrCommands.setTimer(params[0]);
+			return response;
+		}
+
+		@Override
+		protected void onPostExecute(Response result) {
+			if (result.getCode() != 250)
+				logger.error("Couldn't set timer: {}", result.getCode());
+
+			if (!mActivity.isFinishing())
+				Toast.makeText(mActivity, result.getCode() + " - "
+						+ result.getMessage().replaceAll("\n$", ""),
+						Toast.LENGTH_LONG).show();
+		}
 	}
 }
