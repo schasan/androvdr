@@ -87,12 +87,6 @@
       android:defaultValue="0"
       android:entries="@array/textsizeoffset"
       android:entryValues="@array/textsizeoffset_values" />
-    <ListPreference
-      android:key="tabIndicatorColor"
-      android:title="@string/settings_tabindicatorcolor"
-      android:defaultValue="blue"
-      android:entries="@array/colors"
-      android:entryValues="@array/color_values" />
     <CheckBoxPreference
       android:key="showDiskStatus"
       android:title="@string/settings_diskstatus"

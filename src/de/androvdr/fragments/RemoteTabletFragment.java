@@ -110,6 +110,7 @@ public class RemoteTabletFragment extends RemoteFragment {
 			}
 			
 			mListenerInitialized = true;
+			mDevices.startSensorUpdater(0);
 		} else {
 			if (mLastChannelInfo != null)
 				updateChannelInfo(mLastChannelInfo);
