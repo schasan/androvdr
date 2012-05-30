@@ -65,7 +65,6 @@ public class Preferences {
 	public static boolean useLogos;
 	public static int textSizeOffset;
 	public static boolean deleteRecordingIds = false;
-	public static int tabIndicatorColor;
 	public static int logoBackgroundColor;
 	public static boolean alternateLayout;
 	public static boolean epgsearch_title;
@@ -216,12 +215,7 @@ public class Preferences {
 	    	editor.commit();
 	    }
 	    
-	    String colorname = sp.getString("tabIndicatorColor", "blue");
-	    if (!colorname.equals("none"))
-	    	tabIndicatorColor = Color.parseColor(colorname);
-	    else
-	    	tabIndicatorColor = 0;
-	    colorname = sp.getString("logoBackgroundColor", "none");
+	    String colorname = sp.getString("logoBackgroundColor", "none");
 	    if (!colorname.equals("none"))
 	    	logoBackgroundColor = Color.parseColor(colorname);
 	    else

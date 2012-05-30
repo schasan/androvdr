@@ -150,10 +150,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 				pref.setSummary(pref.getEntry());
 			}
 		}
-		ListPreference pref = (ListPreference) findPreference("tabIndicatorColor");
-		pref.setSummary(pref.getEntry());
-		
-		pref = (ListPreference) findPreference("logoBackgroundColor");
+		ListPreference pref = (ListPreference) findPreference("logoBackgroundColor");
 		pref.setSummary(pref.getEntry());
 		
 		pref = (ListPreference) findPreference("livetv_streamformat");

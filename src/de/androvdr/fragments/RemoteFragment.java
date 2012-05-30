@@ -3,17 +3,12 @@ package de.androvdr.fragments;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,18 +23,27 @@ import de.androvdr.Dialogs;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.UsertabParser;
-import de.androvdr.WorkspaceView;
 import de.androvdr.devices.Devices;
 
 public class RemoteFragment extends AbstractFragment {
-	private static transient Logger logger = LoggerFactory.getLogger(RemoteFragment.class);
 
 	protected final File mUsertabFile = new File(Preferences.getUsertabFileName());
 	
 	protected Activity mActivity;
 	protected ConfigurationManager mConfigurationManager;
 	protected Devices mDevices;
+	protected int mLayoutId;
 
+	public static RemoteFragment newInstance(int layoutId) {
+		RemoteFragment f = new RemoteFragment();
+		
+		Bundle args = new Bundle();
+		args.putInt("layoutid", layoutId);
+		f.setArguments(args);
+		
+		return f;
+	}
+	
 	protected void addClickListeners(View view) {
 		if (view instanceof ViewGroup) {
 			ViewGroup v = (ViewGroup) view;
@@ -152,52 +156,21 @@ public class RemoteFragment extends AbstractFragment {
 		mActivity = getActivity();
 		mConfigurationManager = ConfigurationManager.getInstance(mActivity);
 		mDevices = Devices.getInstance();
+		if (getArguments() != null)
+			mLayoutId = getArguments().getInt("layoutid");
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		WorkspaceView mWorkspace = new WorkspaceView(mActivity, null);
-		mWorkspace.setTouchSlop(32);
-		mWorkspace.setId(R.id.workspaceview);
+		View root = null;
 		
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity);
-		prefs.registerOnSharedPreferenceChangeListener(mWorkspace);
-
-		int[] screens;
-		if (Preferences.alternateLayout) {
-			switch (Preferences.screenSize) {
-			case Preferences.SCREENSIZE_SMALL:
-				screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics, 
-						R.layout.remote_vdr_play };
-				break;
-			case Preferences.SCREENSIZE_NORMAL:
-			case Preferences.SCREENSIZE_LONG:
-				screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics };
-				break;
-			default:
-				screens = new int[] { R.layout.remote_vdr_main,	R.layout.remote_vdr_numerics };
-			}
-
-			mWorkspace.setDefaultScreen(0);
-		} else {
-			screens = new int[] { R.layout.tab1, R.layout.tab2,	R.layout.tab3 };
-			mWorkspace.setDefaultScreen(0);
-		}
-
-		for (int screen : screens) {
-			View view = inflater.inflate(screen, null, false);
-			addClickListeners(view);
-			mWorkspace.addView(view);
-		}
-
-		if (mUsertabFile.exists()) {
-			logger.trace("Add user defined screen");
-			View view = getUserScreen();
-			addClickListeners(view);
-			mWorkspace.addView(view);
-		}
+		if (mLayoutId == -99)
+			root = getUserScreen();
+		else
+			root = inflater.inflate(mLayoutId, container, false);
 		
-		return mWorkspace;
+		addClickListeners(root);
+		return root;
 	}
 }

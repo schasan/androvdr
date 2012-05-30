@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -49,6 +50,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -56,26 +61,28 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-import de.androvdr.ActionBarHelper;
+
+import com.viewpagerindicator.LinePageIndicator;
+
 import de.androvdr.Channel;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Dialogs;
 import de.androvdr.GesturesFind;
 import de.androvdr.IFileLogger;
-import de.androvdr.OnLoadListener;
 import de.androvdr.PortForwarding;
 import de.androvdr.Preferences;
 import de.androvdr.R;
-import de.androvdr.WorkspaceView;
 import de.androvdr.devices.Devices;
 import de.androvdr.devices.IActuator;
 import de.androvdr.devices.OnChangeListener;
 import de.androvdr.devices.OnSensorChangeListener;
 import de.androvdr.devices.VdrDevice;
+import de.androvdr.fragments.RemoteFragment;
+import de.androvdr.fragments.RemoteTabletFragment;
 import de.androvdr.svdrp.VDRConnection;
 import de.androvdr.widget.TextResizeButton;
 
-public class AndroVDR extends AbstractFragmentActivity implements OnChangeListener, OnLoadListener, 
+public class AndroVDR extends AbstractFragmentActivity implements OnChangeListener, 
 		OnSharedPreferenceChangeListener {
     
 	private static final int PREFERENCEACTIVITY_ID = 1;
@@ -96,8 +103,10 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 	private String mTitle;
 	private String mTitleChannelName;
 	private WatchPortForwadingThread mWatchPortForwardingThread;
-	private WorkspaceView mWorkspace;
 	private boolean mLayoutChanged = false;
+	
+	private PagerAdapter mPagerAdapter;
+	private ViewPager mPager;
 	
 	public static int VDR = 4;
 	public static int VDR_NUMERICS = 5;
@@ -132,10 +141,7 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 	private Handler mUpdateTitleHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			if (mWorkspace != null)
-				updateTitle(mWorkspace.getCurrentView());
-			else
-				updateTitle(null);
+			updateTitle();
 		};
 	};
 	
@@ -206,21 +212,23 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 	    	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 	    }
 	    
-	    File usertabFile = new File(Preferences.getUsertabFileName());
-	    if (conf.orientation == Configuration.ORIENTATION_LANDSCAPE
-	    		&& Preferences.screenSize >= Preferences.SCREENSIZE_LARGE
-	    		&& Build.VERSION.SDK_INT >= 11
-	    		&& usertabFile.exists()) {
-	    	ActionBarHelper.initActionBar(this);
-	    } else {
-	    	setContentView(R.layout.remote);
-	    }
-
-	    // --- show tag of current remote view in statusbar ---
-	    mWorkspace = (WorkspaceView) findViewById(R.id.workspaceview);
-	    if (mWorkspace != null)
-	    	mWorkspace.setOnLoadListener(this);
+	    setContentView(R.layout.remote_pager);
+	    mPagerAdapter = new PagerAdapter(getSupportFragmentManager());
+	    mPager = (ViewPager) findViewById(R.id.pager);
+	    mPager.setAdapter(mPagerAdapter);
 	    
+	    LinePageIndicator indicator = (LinePageIndicator) findViewById(R.id.titles);
+	    if (mPagerAdapter.getCount() > 1) {
+		    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		    int last = sp.getInt("remote_last_page", 0);
+		    if (last < mPagerAdapter.getCount())
+		    	indicator.setViewPager(mPager, last);
+		    else
+		    	indicator.setViewPager(mPager);
+	    } else { 
+	    	indicator.setVisibility(View.GONE);
+	    }
+	        
 	    // --- show current channel in status bar ---
 	    if (Preferences.screenSize < Preferences.SCREENSIZE_XLARGE)
 			mDevices.addOnSensorChangeListener("VDR.channel", 1,
@@ -374,11 +382,6 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 		new CloseConnectionTask().execute(CLOSE_CONNECTION_PORTFORWARDING);
 	}
 	
-    @Override
-    public void onLoad() {
-    	updateTitle(mWorkspace.getCurrentView());
-    }
-    
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		VdrDevice vdr;
@@ -433,6 +436,11 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 	protected void onPause() {
 		super.onPause();
 		mDevices.stopSensorUpdater();
+		
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		Editor editor = sp.edit();
+		editor.putInt("remote_last_page", mPager.getCurrentItem());
+		editor.commit();
 	}
 	
 	@Override
@@ -515,17 +523,18 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 		}
 	}
 
-	public void updateTitle(View view) {
+	public void updateTitle() {
 		String title;
 		
-    	if ((view != null) && (view.getTag() instanceof CharSequence))
-    		if (Build.VERSION.SDK_INT < 14)
-    			title = mTitle + " (" + view.getTag() + ")";
-    		else
-    			title = mTitle + view.getTag();
-    	else
-    		title = mTitle + mTitleChannelName;
-    	
+		if (Build.VERSION.SDK_INT < 11) {
+			if (mTitleChannelName.length() == 0 )
+				title = mTitle;
+			else 
+				title = mTitle + " - " + mTitleChannelName;
+		} else {
+			title = mTitleChannelName;
+		}
+		
     	if (! isFinishing())
     		setTitle(title);
     }
@@ -558,13 +567,8 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 			if (channel == null)
 				mTitleChannelName = "";
 			else {
-				if (Build.VERSION.SDK_INT >= 14
-						&& Preferences.screenSize < Preferences.SCREENSIZE_LARGE)
-					mTitleChannelName = channel.name;
-				else
-					mTitleChannelName = " - " + channel.name;
+				mTitleChannelName = channel.name;
 			}
-
 			mUpdateTitleHandler.sendEmptyMessage(0);
 		}
 	}
@@ -590,6 +594,60 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 			return null;
 		}
 		
+	}
+	
+	public static class PagerAdapter extends FragmentPagerAdapter {
+		private ArrayList<Integer> mLayouts = new ArrayList<Integer>();
+		
+		public PagerAdapter(FragmentManager fm) {
+			super(fm);
+			
+			if (Preferences.alternateLayout) {
+				switch (Preferences.screenSize) {
+				case Preferences.SCREENSIZE_SMALL:
+					mLayouts.add(R.layout.remote_vdr_main);
+					mLayouts.add(R.layout.remote_vdr_numerics);
+					mLayouts.add(R.layout.remote_vdr_play);
+					break;
+				case Preferences.SCREENSIZE_NORMAL:
+				case Preferences.SCREENSIZE_LONG:
+					mLayouts.add(R.layout.remote_vdr_main);
+					mLayouts.add(R.layout.remote_vdr_numerics);
+					break;
+				case Preferences.SCREENSIZE_LARGE:
+				case Preferences.SCREENSIZE_XLARGE:
+					mLayouts.add(R.layout.remote_vdr_main);
+					break;
+				default:
+					mLayouts.add(R.layout.remote_vdr_main);
+					mLayouts.add(R.layout.remote_vdr_numerics);
+					break;
+				}
+			} else {
+				mLayouts.add(R.layout.tab1);
+				mLayouts.add(R.layout.tab2);
+				mLayouts.add(R.layout.tab3);
+			}
+
+			File usertabFile = new File(Preferences.getUsertabFileName());
+			if (usertabFile.exists())
+				mLayouts.add(-99);
+				
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			if (position == 0 && Preferences.screenSize == Preferences.SCREENSIZE_XLARGE)
+				return new RemoteTabletFragment();
+			else
+				return RemoteFragment.newInstance(mLayouts.get(position));
+		}
+
+		@Override
+		public int getCount() {
+			return mLayouts.size();
+		}
+
 	}
 	
     public class WatchPortForwadingThread extends Thread {
