@@ -32,4 +32,11 @@ public class AbstractFragment extends Fragment {
 		// --- on Honeycomb progress in ActionBar starts visible ---
 		getActivity().setProgressBarIndeterminateVisibility(false);
 	}
+
+	// --- Workaround a bug in android-support-v4 ---
+	@Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        setUserVisibleHint(true);
+    }
 }
