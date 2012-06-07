@@ -433,6 +433,9 @@ public class ChannelController extends AbstractController implements Runnable {
 				calendar.setTimeInMillis(item.getSearchResult().startzeit * 1000);
 				vh.nowPlayingTime.setText(timeformatter.format(calendar.getTime()));
 				vh.nowPlaying.setText(item.getSearchResult().titel);
+			} else {
+				vh.nowPlayingTime.setText("");
+				vh.nowPlaying.setText("");
 			}
 				
 			return row;
