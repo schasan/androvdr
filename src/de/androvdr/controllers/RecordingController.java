@@ -114,6 +114,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				// --- set adapter ---
 				mRecordingAdapter = new RecordingAdapter(mActivity,	mRecordingViewItems, mListView);
 				setRecordingAdapter(mRecordingAdapter, mListView);
+				new DiskStatusTask().execute();
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_PROGRESS_DISMISS));
 				mHandler.sendMessage(Messages.obtain(Messages.MSG_CONTROLLER_READY));
 				break;
@@ -170,6 +171,7 @@ public class RecordingController extends AbstractController implements Runnable 
 			
 			mRecordingAdapter = new RecordingAdapter(mActivity, mRecordingViewItems, mListView);
 			setRecordingAdapter(mRecordingAdapter, mListView);
+			showDiskStatus();
 			sendMsg(mHandler, Messages.MSG_CONTROLLER_READY, null);
 		}
 		else {
@@ -354,10 +356,6 @@ public class RecordingController extends AbstractController implements Runnable 
 			logger.error("Couldn't read recordings", e);
 			sendMsg(mThreadHandler, Messages.MSG_ERROR, e.getMessage());
 		}
-		
-		synchronized (mDiskStatusResponseSync) {
-			mDiskStatusResponse = Preferences.getVdr().read("disk");
-		}
 	}
 	
 	public void setOnRecordingSelectedListener(OnRecordingSelectedListener listener) {
@@ -375,9 +373,11 @@ public class RecordingController extends AbstractController implements Runnable 
 		listView.setSelected(true);
 		listView.setSelection(0);
 		mUpdateThread = new RecordingIdUpdateThread(mThreadHandler);
-		
+	}
+
+	private void showDiskStatus() {
 		// --- disk status ---
-		LinearLayout lay = (LinearLayout) listView.getParent();
+		LinearLayout lay = (LinearLayout) mListView.getParent();
 		if (lay != null && lay.findViewById(R.id.recdiskstatus) != null) {
 			TextView tv = (TextView) lay.findViewById(R.id.recdiskstatus_values);
 			synchronized (mDiskStatusResponseSync) {
@@ -408,6 +408,22 @@ public class RecordingController extends AbstractController implements Runnable 
 		mListView.setItemChecked(mCurrentSelectedItemIndex, false);
 		mCurrentSelectedItemIndex = -1;
 		mSelectedListener.OnItemSelected(-1, null);
+	}
+	
+	private class DiskStatusTask extends AsyncTask<Void, Void, String> {
+		
+		@Override
+		protected String doInBackground(Void... params) {
+			return Preferences.getVdr().read("disk");
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+			synchronized (mDiskStatusResponseSync) {
+				mDiskStatusResponse = result;
+			}
+			showDiskStatus();
+		}
 	}
 	
 	private class RecordingAdapter extends ArrayAdapter<RecordingViewItem> implements SectionIndexer {
@@ -607,6 +623,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				if (mDoUnselectItem)
 					unselectItem();
 			}
+			new DiskStatusTask().execute();
 			super.onPostExecute(result);
 		}
 	}
