@@ -15,8 +15,9 @@ public abstract class AbstractViewHolder {
 			if (field.getType() == TextView.class) {
 				try {
 					TextView tv = (TextView) field.get(this);
-					tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-							(tv.getTextSize() / scaledDensity) + textSizeOffset);
+					if (tv != null)
+						tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
+								(tv.getTextSize() / scaledDensity) + textSizeOffset);
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
