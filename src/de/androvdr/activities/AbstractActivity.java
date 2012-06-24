@@ -28,7 +28,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -110,9 +109,7 @@ public class AbstractActivity extends Activity {
 			setTheme(R.style.Theme_Light);
 		
 		mConfigurationManager = ConfigurationManager.getInstance(this);
-
-		if (Build.VERSION.SDK_INT >= 14)
-			ActionBarHelper.setHomeButtonEnabled(this, true);
+		ActionBarHelper.setHomeButtonEnabled(this, true);
 	}
 	
 	protected void onCreate(Bundle savedInstanceState, boolean initConfigurationManager) {

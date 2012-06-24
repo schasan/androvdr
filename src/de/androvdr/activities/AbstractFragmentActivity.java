@@ -175,9 +175,7 @@ public class AbstractFragmentActivity extends FragmentActivity implements Simple
 		mDetector = new SimpleGestureFilter(this, this);
 		mDetector.setMode(SimpleGestureFilter.MODE_TRANSPARENT);
 		mConfigurationManager = ConfigurationManager.getInstance(this);
-		
-		if (Build.VERSION.SDK_INT >= 14)
-			ActionBarHelper.setHomeButtonEnabled(this, true);
+		ActionBarHelper.setHomeButtonEnabled(this, true);
 	}
 
 	@Override
