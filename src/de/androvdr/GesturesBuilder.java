@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import de.androvdr.activities.AndroVDR;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -23,7 +21,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -37,6 +34,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import de.androvdr.activities.AndroVDR;
 
 public class GesturesBuilder extends ListActivity {
     private static final int STATUS_SUCCESS = 0;
@@ -88,9 +86,7 @@ public class GesturesBuilder extends ListActivity {
         loadGestures();
 
         registerForContextMenu(getListView());
-
-		if (Build.VERSION.SDK_INT >= 14)
-			ActionBarHelper.setHomeButtonEnabled(this, true);
+		ActionBarHelper.setHomeButtonEnabled(this, true);
     }
 
     static GestureLibrary getStore() {
