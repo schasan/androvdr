@@ -62,6 +62,7 @@ import de.androvdr.R;
 import de.androvdr.Timer;
 import de.androvdr.Timers;
 import de.androvdr.VdrCommands;
+import de.androvdr.activities.AbstractFragmentActivity;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.activities.EpgsdataActivity;
 import de.androvdr.devices.Devices;
@@ -115,7 +116,7 @@ public class TimerController extends AbstractController implements Runnable {
 		}
 	};
 
-	public TimerController(Activity activity, Handler handler, ListView listView, EpgSearch epgSearch) {
+	public TimerController(AbstractFragmentActivity activity, Handler handler, ListView listView, EpgSearch epgSearch) {
 		super.onCreate(activity, handler);
 		mListView = listView;
 		mSearchFor = epgSearch;

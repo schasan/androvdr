@@ -59,6 +59,7 @@ import de.androvdr.Messages;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.VdrCommands;
+import de.androvdr.activities.AbstractFragmentActivity;
 import de.androvdr.activities.ChannelsActivity;
 import de.androvdr.activities.EpgdataActivity;
 import de.androvdr.activities.EpgsdataActivity;
@@ -132,7 +133,7 @@ public class ChannelController extends AbstractController implements Runnable {
 		}
 	};
 
-	public ChannelController(Activity activity, Handler handler,
+	public ChannelController(AbstractFragmentActivity activity, Handler handler,
 			ListView listView, long time) {
 		super.onCreate(activity, handler);
 		

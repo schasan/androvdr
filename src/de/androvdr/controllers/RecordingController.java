@@ -39,17 +39,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -68,6 +76,7 @@ import de.androvdr.RecordingInfo;
 import de.androvdr.RecordingViewItem;
 import de.androvdr.Recordings;
 import de.androvdr.VdrCommands;
+import de.androvdr.activities.AbstractFragmentActivity;
 import de.androvdr.activities.RecordingInfoActivity;
 import de.androvdr.svdrp.VDRConnection;
 
@@ -87,6 +96,7 @@ public class RecordingController extends AbstractController implements Runnable 
 	
 	private static transient Logger logger = LoggerFactory.getLogger(RecordingController.class);
 	
+	private ActionMode mActionMode;
 	private RecordingViewItemComparer mComparer;
 	private int mCurrentSelectedItemIndex = -1;
 	private String mDiskStatusResponse;
@@ -126,7 +136,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 	};
 
-	public RecordingController(Activity activity, Handler handler, ListView listView, Bundle bundle) {
+	public RecordingController(AbstractFragmentActivity activity, Handler handler, ListView listView, Bundle bundle) {
 		super.onCreate(activity, handler);
 		mListView = listView;
 		datetimeformatter = new SimpleDateFormat(Preferences.dateformatLong);
@@ -292,6 +302,31 @@ public class RecordingController extends AbstractController implements Runnable 
 		};
 	}
 
+	private OnItemLongClickListener getOnItemLongClickListener() {
+		return new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> listView, View v,
+					int position, long ID) {
+				if (position >= mRecordingAdapter.getCount())
+					return false;
+				
+				RecordingViewItem rv = mRecordingAdapter.getItem(position);
+				if (rv.isFolder)
+					return false;
+				
+				mCurrentSelectedItemIndex = position;
+				mListView.setItemChecked(position, true);
+				if (mActivity.isDualPane())
+					action(RECORDING_ACTION_INFO, position);
+				
+				if (mActionMode == null)
+					mActionMode = mActivity.startActionMode(new ModeCallback());
+				return true;
+			}
+		};
+	}
+
 	public RecordingViewItem[] getRecordingViewItems() {
 		RecordingViewItem[] items = new RecordingViewItem[mRecordingViewItems.size()];
 		int count = 0;
@@ -370,6 +405,8 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(getOnItemClickListener());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+			listView.setOnItemLongClickListener(getOnItemLongClickListener());
 		listView.setSelected(true);
 		listView.setSelection(0);
 		mUpdateThread = new RecordingIdUpdateThread(mThreadHandler);
@@ -409,7 +446,65 @@ public class RecordingController extends AbstractController implements Runnable 
 		mCurrentSelectedItemIndex = -1;
 		mSelectedListener.OnItemSelected(-1, null);
 	}
-	
+
+	private final class ModeCallback implements ActionMode.Callback {
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			mode.finish();
+
+			switch (item.getItemId()) {
+			case R.id.rec_play:
+				action(RecordingController.RECORDING_ACTION_PLAY, mCurrentSelectedItemIndex);
+				return true;
+			case R.id.rec_play_start:
+				action(RecordingController.RECORDING_ACTION_PLAY_START, mCurrentSelectedItemIndex);
+				return true;
+			case R.id.rec_delete:
+				AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+				builder.setMessage(R.string.rec_delete_recording)
+				       .setCancelable(false)
+				       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				        	   dialog.dismiss();
+				        	   action(RecordingController.RECORDING_ACTION_DELETE, mCurrentSelectedItemIndex);
+				           }
+				       })
+				       .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				                dialog.cancel();
+				           }
+				       });
+				AlertDialog alert = builder.create();
+				alert.show();
+				return true;
+			default:
+				return false;
+			}
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			MenuInflater inflater = mActivity.getMenuInflater();
+			if (Preferences.blackOnWhite)
+				inflater.inflate(R.menu.recordings_menu_light, menu);
+			else
+				inflater.inflate(R.menu.recordings_menu, menu);
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mActionMode = null;
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
+		
+	}
+
 	private class DiskStatusTask extends AsyncTask<Void, Void, String> {
 		
 		@Override

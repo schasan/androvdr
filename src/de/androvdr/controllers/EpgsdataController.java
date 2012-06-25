@@ -54,6 +54,7 @@ import de.androvdr.Messages;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.VdrCommands;
+import de.androvdr.activities.AbstractFragmentActivity;
 import de.androvdr.activities.EpgdataActivity;
 
 public class EpgsdataController extends AbstractController implements Runnable {
@@ -101,7 +102,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		}
 	};
 	
-	public EpgsdataController(Activity activity, Handler handler,
+	public EpgsdataController(AbstractFragmentActivity activity, Handler handler,
 			LinearLayout view, int channelNumber, int max) {
 		super.onCreate(activity, handler);
 		

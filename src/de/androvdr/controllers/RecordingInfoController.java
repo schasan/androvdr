@@ -29,7 +29,6 @@ import java.util.GregorianCalendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.LinearLayout;
@@ -42,6 +41,7 @@ import de.androvdr.R;
 import de.androvdr.RecordingInfo;
 import de.androvdr.StreamInfo;
 import de.androvdr.VdrCommands;
+import de.androvdr.activities.AbstractFragmentActivity;
 
 public class RecordingInfoController extends AbstractController implements Runnable {
 	private static transient Logger logger = LoggerFactory.getLogger(RecordingInfoController.class);
@@ -68,7 +68,7 @@ public class RecordingInfoController extends AbstractController implements Runna
 		}
 	};
 
-	public RecordingInfoController(Activity activity, Handler handler,
+	public RecordingInfoController(AbstractFragmentActivity activity, Handler handler,
 			LinearLayout view, int recordingNumber) {
 		super.onCreate(activity, handler);
 		mView = view;
