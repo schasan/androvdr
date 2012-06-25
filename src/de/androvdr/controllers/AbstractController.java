@@ -20,7 +20,6 @@
 
 package de.androvdr.controllers;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -29,12 +28,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import de.androvdr.Messages;
 import de.androvdr.Preferences;
+import de.androvdr.activities.AbstractFragmentActivity;
 
 public abstract class AbstractController {
-	protected Activity mActivity;
+	protected AbstractFragmentActivity mActivity;
 	protected Handler mHandler;
 
-	public void onCreate(Activity activity, Handler handler) {
+	public void onCreate(AbstractFragmentActivity activity, Handler handler) {
 		mActivity = activity;
 		mHandler = handler;
 	}

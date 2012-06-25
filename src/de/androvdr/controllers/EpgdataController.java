@@ -31,7 +31,6 @@ import org.hampelratte.svdrp.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.widget.LinearLayout;
@@ -47,6 +46,7 @@ import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.StreamInfo;
 import de.androvdr.VdrCommands;
+import de.androvdr.activities.AbstractFragmentActivity;
 
 public class EpgdataController extends AbstractController {
 	private static transient Logger logger = LoggerFactory.getLogger(EpgdataController.class);
@@ -59,7 +59,7 @@ public class EpgdataController extends AbstractController {
 	private final int mChannelNumber;
 	private Channel mChannel;
 	
-	public EpgdataController(Activity activity, Handler handler,
+	public EpgdataController(AbstractFragmentActivity activity, Handler handler,
 			LinearLayout view, int channelNumber) {
 		super.onCreate(activity, handler);
 		mView = view;
