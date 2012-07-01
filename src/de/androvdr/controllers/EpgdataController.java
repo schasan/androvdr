@@ -32,8 +32,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
-import android.widget.LinearLayout;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -55,17 +64,17 @@ public class EpgdataController extends AbstractController {
 	
 	public String lastError;
 	
-	private final LinearLayout mView;
+	private ActionMode mActionMode;
+	private final ScrollView mView;
 	private final int mChannelNumber;
 	private Channel mChannel;
 	
 	public EpgdataController(AbstractFragmentActivity activity, Handler handler,
-			LinearLayout view, int channelNumber) {
+			ScrollView view, int channelNumber) {
 		super.onCreate(activity, handler);
 		mView = view;
 		
 		mChannelNumber = channelNumber;
-		mActivity.registerForContextMenu(mView.findViewById(R.id.pgi_layout_content));
 		try {
 			mChannel = new Channels(Preferences.getVdr().channellist).getChannel(mChannelNumber);
 			if (mChannel == null)
@@ -75,6 +84,12 @@ public class EpgdataController extends AbstractController {
 		} catch (IOException e) {
 			logger.error("Couldn't load channels", e);
 			sendMsg(mHandler, Messages.MSG_ERROR, e.getMessage());
+		}
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			RelativeLayout rl = (RelativeLayout) mView.findViewById(R.id.pgi_layout_content);
+			rl.setOnClickListener(getOnClickListener());
+			rl.setOnLongClickListener(getOnLongClickListener());
 		}
 	}
 
@@ -89,6 +104,28 @@ public class EpgdataController extends AbstractController {
 		}
 	}
 	
+	private OnClickListener getOnClickListener() {
+		return new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (mActionMode != null) 
+					mActionMode.finish();
+			}
+		};
+	}
+	private OnLongClickListener getOnLongClickListener() {
+		return new OnLongClickListener() {
+			
+			@Override
+			public boolean onLongClick(View v) {
+				if (mActionMode == null)
+				mActionMode = mActivity.startActionMode(new ModeCallback());
+				return true;
+			}
+		};
+	}
+
 	public String getTitle() {
 		if (mChannel.viewEpg != null)
 			return mChannel.viewEpg.titel;
@@ -193,6 +230,42 @@ public class EpgdataController extends AbstractController {
 		
 		setTextSize(tr);
 		return tr;
+	}
+
+	private final class ModeCallback implements ActionMode.Callback {
+		
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			boolean result = false;
+			
+			switch (item.getItemId()) {
+			case R.id.epg_record:
+				action(EPGDATA_ACTION_RECORD);
+				result = true;
+			}
+			mode.finish();
+			return result;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			MenuInflater inflater = mActivity.getMenuInflater();
+			if (Preferences.blackOnWhite)
+				inflater.inflate(R.menu.epg_menu_light, menu);
+			else
+				inflater.inflate(R.menu.epg_menu, menu);
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mActionMode = null;
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
 	}
 
 	private class SetTimerTask extends AsyncTask<Epg, Void, Response> {

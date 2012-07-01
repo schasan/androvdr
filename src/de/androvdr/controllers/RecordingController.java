@@ -296,8 +296,16 @@ public class RecordingController extends AbstractController implements Runnable 
 		return new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> listView, View v,
 					int position, long ID) {
-				mCurrentSelectedItemIndex = position;
-				action(RECORDING_ACTION_INFO, position);
+				if (!mActivity.isDualPane())
+					mListView.setItemChecked(position, false);
+				if (mActionMode != null) {
+					if (mActivity.isDualPane())
+						action(RECORDING_ACTION_INFO, position);
+					mActionMode.finish();
+				} else {
+					mCurrentSelectedItemIndex = position;
+					action(RECORDING_ACTION_INFO, position);
+				}
 			}
 		};
 	}
@@ -405,7 +413,7 @@ public class RecordingController extends AbstractController implements Runnable 
 		}
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(getOnItemClickListener());
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 			listView.setOnItemLongClickListener(getOnItemLongClickListener());
 		listView.setSelected(true);
 		listView.setSelection(0);
@@ -451,15 +459,17 @@ public class RecordingController extends AbstractController implements Runnable 
 
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-			mode.finish();
-
+			boolean result = false;
+			
 			switch (item.getItemId()) {
 			case R.id.rec_play:
-				action(RecordingController.RECORDING_ACTION_PLAY, mCurrentSelectedItemIndex);
-				return true;
+				action(RECORDING_ACTION_PLAY, mCurrentSelectedItemIndex);
+				result = true;
+				break;
 			case R.id.rec_play_start:
-				action(RecordingController.RECORDING_ACTION_PLAY_START, mCurrentSelectedItemIndex);
-				return true;
+				action(RECORDING_ACTION_PLAY_START, mCurrentSelectedItemIndex);
+				result = true;
+				break;
 			case R.id.rec_delete:
 				AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 				builder.setMessage(R.string.rec_delete_recording)
@@ -467,7 +477,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 				           public void onClick(DialogInterface dialog, int id) {
 				        	   dialog.dismiss();
-				        	   action(RecordingController.RECORDING_ACTION_DELETE, mCurrentSelectedItemIndex);
+				        	   action(RECORDING_ACTION_DELETE, mCurrentSelectedItemIndex);
 				           }
 				       })
 				       .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -477,10 +487,11 @@ public class RecordingController extends AbstractController implements Runnable 
 				       });
 				AlertDialog alert = builder.create();
 				alert.show();
-				return true;
-			default:
-				return false;
+				result = true;
+				break;
 			}
+			mode.finish();
+			return result;
 		}
 
 		@Override
@@ -495,6 +506,11 @@ public class RecordingController extends AbstractController implements Runnable 
 
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
+			if (!mActivity.isDualPane()) {
+				int position = mListView.getCheckedItemPosition();
+				if (position != AdapterView.INVALID_POSITION)
+					mListView.setItemChecked(position, false);
+			}
 			mActionMode = null;
 		}
 

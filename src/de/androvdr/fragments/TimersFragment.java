@@ -28,6 +28,7 @@ import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.util.TypedValue;
@@ -86,9 +87,10 @@ public class TimersFragment extends AbstractListFragment
 
 		mController = new TimerController(mActivity, mHandler, mListView, epgSearch);
 		mController.setOnTimerSelectedListener(this);
-
+		mController.isSearch = mIsSearch;
+		
+		getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		if (mActivity.isDualPane()) {
-			getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 			mUpdateSelectedItemThread = new UpdateSelectedItemThread() {
 				@Override
 				public int getPosition() {
@@ -167,7 +169,8 @@ public class TimersFragment extends AbstractListFragment
 				(tv.getTextSize() / getResources().getDisplayMetrics().scaledDensity)
 						+ Preferences.textSizeOffset);
 
-		registerForContextMenu(root.findViewById(android.R.id.list));
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			registerForContextMenu(root.findViewById(android.R.id.list));
 		return root;
 	}
 	

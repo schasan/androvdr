@@ -35,14 +35,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -85,6 +91,7 @@ public class ChannelController extends AbstractController implements Runnable {
 		public boolean OnItemSelected(int position, Channel channel);
 	}
 	
+	private ActionMode mActionMode;
 	private Channels mChannels = null;
 	private final ListView mListView;
 	private ChannelAdapter mChannelAdapter;
@@ -158,6 +165,7 @@ public class ChannelController extends AbstractController implements Runnable {
 
 	public void action(int action, int position) {
 		Intent intent;
+
 		Channel channel = mChannelAdapter.getItem(position);
 		switch (action) {
 		case CHANNEL_ACTION_PROGRAMINFO:
@@ -229,7 +237,34 @@ public class ChannelController extends AbstractController implements Runnable {
 		return new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> listView, View v,
 					int position, long ID) {
-				action(CHANNEL_ACTION_PROGRAMINFO, position);
+				if (!mActivity.isDualPane())
+					mListView.setItemChecked(position, false);
+				if (mActionMode != null) {
+					if (mActivity.isDualPane())
+						action(CHANNEL_ACTION_PROGRAMINFO, position);
+					mActionMode.finish();
+				} else
+					action(CHANNEL_ACTION_PROGRAMINFO, position);
+			}
+		};
+	}
+
+	private OnItemLongClickListener getOnItemLongClickListener() {
+		return new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> listView, View v,
+					int position, long ID) {
+				if (position >= mChannelAdapter.getCount())
+					return false;
+				
+				mListView.setItemChecked(position, true);
+				if (mActivity.isDualPane())
+					action(CHANNEL_ACTION_PROGRAMINFO, position);
+				
+				if (mActionMode == null)
+					mActionMode = mActivity.startActionMode(new ModeCallback());
+				return true;
 			}
 		};
 	}
@@ -273,6 +308,8 @@ public class ChannelController extends AbstractController implements Runnable {
 		mChannelAdapter = adapter;
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(getOnItemClickListener());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			listView.setOnItemLongClickListener(getOnItemLongClickListener());
 		listView.setSelected(true);
 		listView.setSelection(0);
 		if (! Preferences.useInternet && (mChannelAdapter.getCount() > 0) && (mSearchTime == 0))
@@ -447,6 +484,65 @@ public class ChannelController extends AbstractController implements Runnable {
 				return getNormalView(position, convertView, parent);
 			else
 				return getSearchResultView(position, convertView, parent);
+		}
+	}
+	
+	private final class ModeCallback implements ActionMode.Callback {
+		
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			boolean result = false;
+			int position = mListView.getCheckedItemPosition();
+			
+			switch (item.getItemId()) {
+			case R.id.cm_switch:
+				action(CHANNEL_ACTION_SWITCH, position);
+				result = true;
+				break;
+			case R.id.cm_overview:
+				action(CHANNEL_ACTION_PROGRAMINFOS, position);
+				result = true;
+				break;
+			case R.id.cm_overviewfull:
+				action(CHANNEL_ACTION_PROGRAMINFOS_ALL, position);
+				result = true;
+				break;
+			case R.id.cm_record:
+				action(CHANNEL_ACTION_RECORD, position);
+				result = true;
+				break;
+			case R.id.cm_livetv:
+				action(CHANNEL_ACTION_LIVETV, position);
+				result = true;
+				break;
+			}
+			mode.finish();
+			return result;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			MenuInflater inflater = mActivity.getMenuInflater();
+			if (Preferences.blackOnWhite)
+				inflater.inflate(R.menu.channels_menu_light, menu);
+			else
+				inflater.inflate(R.menu.channels_menu, menu);
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			if (!mActivity.isDualPane()) {
+				int position = mListView.getCheckedItemPosition();
+				if (position != AdapterView.INVALID_POSITION)
+					mListView.setItemChecked(position, false);
+			}
+			mActionMode = null;
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
 		}
 	}
 	
