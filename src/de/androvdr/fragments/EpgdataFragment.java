@@ -2,6 +2,7 @@ package de.androvdr.fragments;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -10,7 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.activities.AbstractFragmentActivity;
@@ -42,7 +43,7 @@ public class EpgdataFragment extends AbstractFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		LinearLayout view = (LinearLayout) mActivity.findViewById(R.id.pgi);
+		ScrollView view = (ScrollView) mActivity.findViewById(R.id.pgi);
 		
 		if (view == null)
 			return;
@@ -70,7 +71,8 @@ public class EpgdataFragment extends AbstractFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.epgdata_fragment, container, false);
-		registerForContextMenu(root);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			registerForContextMenu(root.findViewById(R.id.pgi_layout_content));
 		return root;
 	}
 	

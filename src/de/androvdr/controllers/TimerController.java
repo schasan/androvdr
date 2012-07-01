@@ -37,15 +37,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -84,7 +92,8 @@ public class TimerController extends AbstractController implements Runnable {
 	}
 	
 	private static transient Logger logger = LoggerFactory.getLogger(TimerController.class);
-	
+
+	private ActionMode mActionMode;
 	private TimerAdapter mAdapter;
 	private Channels mChannels;
 	private final ListView mListView;
@@ -97,6 +106,8 @@ public class TimerController extends AbstractController implements Runnable {
 	private final SimpleDateFormat timeformatter;
 	private final String[] weekdays;
 	private final GregorianCalendar calendar;
+	
+	public boolean isSearch = false;
 	
 	private Handler mThreadHandler = new Handler() {
 		@Override
@@ -171,7 +182,34 @@ public class TimerController extends AbstractController implements Runnable {
 		return new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> listView, View v,
 					int position, long ID) {
-				action(TIMER_ACTION_SHOW_EPG, position);
+				if (!mActivity.isDualPane())
+					mListView.setItemChecked(position, false);
+				if (mActionMode != null) {
+					if (mActivity.isDualPane())
+						action(TIMER_ACTION_SHOW_EPG, position);
+					mActionMode.finish();
+			} else
+					action(TIMER_ACTION_SHOW_EPG, position);
+			}
+		};
+	}
+
+	private OnItemLongClickListener getOnItemLongClickListener() {
+		return new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> listView, View v,
+					int position, long ID) {
+				if (position >= mAdapter.getCount())
+					return false;
+				
+				mListView.setItemChecked(position, true);
+				if (mActivity.isDualPane())
+					action(TIMER_ACTION_SHOW_EPG, position);
+				
+				if (mActionMode == null)
+					mActionMode = mActivity.startActionMode(new ModeCallback());
+				return true;
 			}
 		};
 	}
@@ -206,6 +244,8 @@ public class TimerController extends AbstractController implements Runnable {
 	private void setTimerAdapter(TimerAdapter adapter, ListView listView) {
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(getOnItemClickListener());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			listView.setOnItemLongClickListener(getOnItemLongClickListener());
 		listView.setSelected(true);
 		listView.setSelection(0);
 	}
@@ -249,6 +289,91 @@ public class TimerController extends AbstractController implements Runnable {
 			sendMsg(mHandler, Messages.MSG_PROGRESS_SHOW, R.string.searching);
 		}
 		
+	}
+	
+	private final class ModeCallback implements ActionMode.Callback {
+		
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			boolean result = false;
+			final int position = mListView.getCheckedItemPosition();
+			
+			switch (item.getItemId()) {
+			case R.id.timer_overview:
+				action(TIMER_ACTION_PROGRAMINFOS, position);
+				result = true;
+				break;
+			case R.id.timer_overviewfull:
+				action(TIMER_ACTION_PROGRAMINFOS_ALL, position);
+				result = true;
+				break;
+			case R.id.timer_delete:
+				AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+				builder.setMessage(R.string.timer_delete_timer)
+				       .setCancelable(false)
+				       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				        	   dialog.dismiss();
+				        	   action(TIMER_ACTION_DELETE, position);
+				           }
+				       })
+				       .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				                dialog.cancel();
+				           }
+				       });
+				AlertDialog alert = builder.create();
+				alert.show();
+				result = true;
+				break;
+			case R.id.timer_toggle:
+				action(TIMER_ACTION_TOGGLE, position);
+				result = true;
+				break;
+			case R.id.timer_record:
+				action(TIMER_ACTION_RECORD, position);
+				result = true;
+				break;
+			case R.id.timer_switch:
+				action(TIMER_ACTION_SWITCH_CAHNNEL, position);
+				result = true;
+				break;
+			}
+			mode.finish();
+			return result;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			MenuInflater inflater = mActivity.getMenuInflater();
+			if (Preferences.blackOnWhite) {
+				if (isSearch)
+					inflater.inflate(R.menu.timers_menu_search_light, menu);
+				else
+					inflater.inflate(R.menu.timers_menu_light, menu);
+			} else {
+				if (isSearch)
+					inflater.inflate(R.menu.timers_menu_search, menu);
+				else
+					inflater.inflate(R.menu.timers_menu, menu);
+			}
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			if (!mActivity.isDualPane()) {
+				int position = mListView.getCheckedItemPosition();
+				if (position != AdapterView.INVALID_POSITION)
+					mListView.setItemChecked(position, false);
+			}
+			mActionMode = null;
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
 	}
 	
 	private class SwitchChannelTask extends AsyncTask<Timer, Void, Response> {

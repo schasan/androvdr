@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.util.TypedValue;
@@ -77,8 +78,8 @@ public class EpgsdataFragment extends AbstractListFragment implements
 				mView, mChannelNumber, mMaxItems);
 		mController.setOnEpgdataSelectedListener(this);
 		
+		getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		if (mActivity.isDualPane()) {
-			getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 			mUpdateSelectedItemThread = new UpdateSelectedItemThread() {
 				@Override
 				public int getPosition() {
@@ -118,7 +119,8 @@ public class EpgsdataFragment extends AbstractListFragment implements
 				(tv.getTextSize() / getResources().getDisplayMetrics().scaledDensity)
 						+ Preferences.textSizeOffset);
 		
-		registerForContextMenu(root.findViewById(android.R.id.list));
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			registerForContextMenu(root.findViewById(android.R.id.list));
 		return root;
 	}
 	

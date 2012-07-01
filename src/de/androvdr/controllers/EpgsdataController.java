@@ -33,13 +33,19 @@ import org.slf4j.LoggerFactory;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -70,6 +76,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 		public boolean OnItemSelected(int position, Channel channel);
 	}
 
+	private ActionMode mActionMode;
 	private int mChannelNumber;
 	private EpgdataAdapter mEpgdataAdapter;
 	private ArrayList<Epg> mEpgdata;
@@ -153,7 +160,34 @@ public class EpgsdataController extends AbstractController implements Runnable {
 	private OnItemClickListener getOnItemClickListener() {
 		return new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> listView, View v, int position, long ID) {
-				action(EPGSDATA_ACTION_PROGRAMINFO, position);
+				if (!mActivity.isDualPane())
+					mListView.setItemChecked(position, false);
+				if (mActionMode != null) {
+					mActionMode.finish();
+					if (mActivity.isDualPane())
+						action(EPGSDATA_ACTION_PROGRAMINFO, position);
+				} else
+					action(EPGSDATA_ACTION_PROGRAMINFO, position);
+			}
+		};
+	}
+
+	private OnItemLongClickListener getOnItemLongClickListener() {
+		return new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> listView, View v,
+					int position, long ID) {
+				if (position >= mEpgdataAdapter.getCount())
+					return false;
+				
+				mListView.setItemChecked(position, true);
+				if (mActivity.isDualPane())
+					action(EPGSDATA_ACTION_PROGRAMINFO, position);
+				
+				if (mActionMode == null)
+					mActionMode = mActivity.startActionMode(new ModeCallback());
+				return true;
 			}
 		};
 	}
@@ -217,6 +251,8 @@ public class EpgsdataController extends AbstractController implements Runnable {
 
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(getOnItemClickListener());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			listView.setOnItemLongClickListener(getOnItemLongClickListener());
 		listView.setSelected(true);
 		listView.setSelection(0);
 	}
@@ -291,6 +327,48 @@ public class EpgsdataController extends AbstractController implements Runnable {
        		}
 
 			return row;
+		}
+	}
+
+	private final class ModeCallback implements ActionMode.Callback {
+		
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			boolean result = false;
+			int position = mListView.getCheckedItemPosition();
+			
+			switch (item.getItemId()) {
+			case R.id.epgs_record:
+				action(EPGSDATA_ACTION_RECORD, position);
+				result = true;
+			}
+			mode.finish();
+			return result;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			MenuInflater inflater = mActivity.getMenuInflater();
+			if (Preferences.blackOnWhite)
+				inflater.inflate(R.menu.epgs_menu_light, menu);
+			else
+				inflater.inflate(R.menu.epgs_menu, menu);
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			if (!mActivity.isDualPane()) {
+				int position = mListView.getCheckedItemPosition();
+				if (position != AdapterView.INVALID_POSITION)
+					mListView.setItemChecked(position, false);
+			}
+			mActionMode = null;
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
 		}
 	}
 	

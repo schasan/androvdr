@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
@@ -83,6 +84,7 @@ public class ChannelsFragment extends AbstractListFragment implements
 	    mController = new ChannelController(mActivity, mHandler, mListView, mSearchTime);
 	    mController.setOnChannelSelectedListener(this);
 		
+		getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 	    if (mActivity.isDualPane()) {
 			getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 			mUpdateSelectedItemThread = new UpdateSelectedItemThread() {
@@ -142,8 +144,9 @@ public class ChannelsFragment extends AbstractListFragment implements
 	    if (tv != null)
 			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,	(tv.getTextSize() / sd) 
 					+ Preferences.textSizeOffset);
-	    	
-	    registerForContextMenu(root.findViewById(android.R.id.list));
+	    
+	    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+	    	registerForContextMenu(root.findViewById(android.R.id.list));
 		return root;
 	}
 
