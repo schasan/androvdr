@@ -30,7 +30,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Recording implements Parcelable, Comparable<Recording> {
-	private static final DBHelper sDBHelper = new DBHelper(AndroApplication.getAppContext());
 
 	private static final SimpleDateFormat dateformatter = new SimpleDateFormat("dd.MM.yy HH:mm");
 	private static final StringBuilder sb = new StringBuilder();
@@ -84,33 +83,27 @@ public class Recording implements Parcelable, Comparable<Recording> {
 		return 0;
 	}
 
-	public String getInfoId() {
+	public String getInfoId(SQLiteDatabase database) {
 		if (mInfoId != null)
 			return mInfoId;
 		
 		String result = null;
 		Cursor cursor = null;
-		SQLiteDatabase db = null;
-		synchronized (sDBHelper) {
-			try {
-				db = sDBHelper.getReadableDatabase();
-				cursor = db.query(
-						RecordingIdsTable.TABLE_NAME,
-						new String[] { RecordingIdsTable.INFO_ID },
-						RecordingIdsTable.ID + " = ? AND " + RecordingIdsTable.VDR_ID + " = ?",
-						new String[] { id, Long.toString(Preferences.getVdr().getId()) },
-						null, null, null);
-				if (cursor.getCount() == 1) {
-					cursor.moveToFirst();
-					result = cursor.getString(0);
-				}
-			} finally {
-				if (cursor != null)
-					cursor.close();
-				if (db != null)
-					db.close();
-			}		
-		}
+		try {
+			cursor = database.query(
+					RecordingIdsTable.TABLE_NAME,
+					new String[] { RecordingIdsTable.INFO_ID },
+					RecordingIdsTable.ID + " = ? AND " + RecordingIdsTable.VDR_ID + " = ?",
+					new String[] { id, Long.toString(Preferences.getVdr().getId()) },
+					null, null, null);
+			if (cursor.getCount() == 1) {
+				cursor.moveToFirst();
+				result = cursor.getString(0);
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}		
 		mInfoId = result;
 		return result;
 	}
@@ -158,27 +151,23 @@ public class Recording implements Parcelable, Comparable<Recording> {
 		  title = sa[0].trim();
 	}
 
-	public void setInfoId(String id) {
+	public void setInfoId(String id, SQLiteDatabase database) {
 		if (id != null) {
-			synchronized (sDBHelper) {
-				long sysTime = System.currentTimeMillis();
-				String storedId = getInfoId();
-				SQLiteDatabase database = sDBHelper.getWritableDatabase();
+			long sysTime = System.currentTimeMillis();
+			String storedId = getInfoId(database);
 
-				ContentValues values = new ContentValues();
-				values.put(RecordingIdsTable.INFO_ID, id);
-				values.put(RecordingIdsTable.UPDATED, sysTime);
+			ContentValues values = new ContentValues();
+			values.put(RecordingIdsTable.INFO_ID, id);
+			values.put(RecordingIdsTable.UPDATED, sysTime);
 
-				if (storedId == null) {
-					values.put(RecordingIdsTable.ID, this.id);
-					values.put(RecordingIdsTable.VDR_ID, Long.toString(Preferences.getVdr().getId()));
-					database.insert(RecordingIdsTable.TABLE_NAME, null, values);
-				} else if (id.compareTo(storedId) != 0) {
-					database.update(RecordingIdsTable.TABLE_NAME, values,
-							RecordingIdsTable.ID + " = ? AND " + RecordingIdsTable.VDR_ID + " = ?",
-							new String[] { this.id, Long.toString(Preferences.getVdr().getId()) });
-				}
-				database.close();
+			if (storedId == null) {
+				values.put(RecordingIdsTable.ID, this.id);
+				values.put(RecordingIdsTable.VDR_ID, Long.toString(Preferences.getVdr().getId()));
+				database.insert(RecordingIdsTable.TABLE_NAME, null, values);
+			} else if (id.compareTo(storedId) != 0) {
+				database.update(RecordingIdsTable.TABLE_NAME, values,
+						RecordingIdsTable.ID + " = ? AND " + RecordingIdsTable.VDR_ID + " = ?",
+						new String[] { this.id, Long.toString(Preferences.getVdr().getId()) });
 			}
 		}
 		mInfoId = id;
