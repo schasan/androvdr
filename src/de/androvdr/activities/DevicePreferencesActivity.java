@@ -177,7 +177,19 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 										sb.append(s + "\n");
 									}
 								} catch (IOException e) {
-									Toast.makeText(DevicePreferencesActivity.this, e.toString(), Toast.LENGTH_LONG);
+									Toast.makeText(
+											DevicePreferencesActivity.this,
+											e.toString(),
+											Toast.LENGTH_LONG).show();
+								} catch (OutOfMemoryError e) {
+									logger.error(
+											"Out of Memory on import SSH-Key: {}",
+											items[item]);
+									Toast.makeText(
+											DevicePreferencesActivity.this,
+											"Out of Memory",
+											Toast.LENGTH_LONG).show();
+									return;
 								} finally {
 									if (in != null)
 										try {
@@ -185,6 +197,14 @@ public class DevicePreferencesActivity extends PreferenceActivity implements OnS
 										} catch (IOException e) { }
 								}
 								
+						    	if (sb.length() > 1024 * 10) {
+						    		Toast.makeText(
+						    				DevicePreferencesActivity.this,
+						    				"SSH-Key too large",
+						    				Toast.LENGTH_LONG).show();
+						    		return;
+						    	}
+
 						    	Editor editor = pref.edit();
 						    	editor.putString("sshkey", sb.toString());
 						    	editor.commit();
