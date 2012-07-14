@@ -59,6 +59,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import de.androvdr.AbstractViewHolder;
+import de.androvdr.ActionModeHelper;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Messages;
@@ -242,7 +243,7 @@ public class ChannelController extends AbstractController implements Runnable {
 				if (mActionMode != null) {
 					if (mActivity.isDualPane())
 						action(CHANNEL_ACTION_PROGRAMINFO, position);
-					mActionMode.finish();
+					ActionModeHelper.finish(mActionMode);
 				} else
 					action(CHANNEL_ACTION_PROGRAMINFO, position);
 			}

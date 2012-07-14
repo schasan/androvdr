@@ -69,6 +69,7 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 import de.androvdr.AbstractViewHolder;
+import de.androvdr.ActionModeHelper;
 import de.androvdr.DBHelper;
 import de.androvdr.Messages;
 import de.androvdr.Preferences;
@@ -303,7 +304,7 @@ public class RecordingController extends AbstractController implements Runnable 
 				if (mActionMode != null) {
 					if (mActivity.isDualPane())
 						action(RECORDING_ACTION_INFO, position);
-					mActionMode.finish();
+					ActionModeHelper.finish(mActionMode);
 				} else {
 					mCurrentSelectedItemIndex = position;
 					action(RECORDING_ACTION_INFO, position);
