@@ -53,6 +53,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import de.androvdr.AbstractViewHolder;
+import de.androvdr.ActionModeHelper;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Epg;
@@ -163,7 +164,7 @@ public class EpgsdataController extends AbstractController implements Runnable {
 				if (!mActivity.isDualPane())
 					mListView.setItemChecked(position, false);
 				if (mActionMode != null) {
-					mActionMode.finish();
+					ActionModeHelper.finish(mActionMode);
 					if (mActivity.isDualPane())
 						action(EPGSDATA_ACTION_PROGRAMINFO, position);
 				} else

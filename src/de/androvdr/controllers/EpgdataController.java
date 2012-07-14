@@ -47,6 +47,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+import de.androvdr.ActionModeHelper;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Epg;
@@ -110,7 +111,7 @@ public class EpgdataController extends AbstractController {
 			@Override
 			public void onClick(View v) {
 				if (mActionMode != null) 
-					mActionMode.finish();
+					ActionModeHelper.finish(mActionMode);
 			}
 		};
 	}

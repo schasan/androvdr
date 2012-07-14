@@ -60,6 +60,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import de.androvdr.AbstractViewHolder;
+import de.androvdr.ActionModeHelper;
 import de.androvdr.Channel;
 import de.androvdr.Channels;
 import de.androvdr.Epg;
@@ -187,7 +188,7 @@ public class TimerController extends AbstractController implements Runnable {
 				if (mActionMode != null) {
 					if (mActivity.isDualPane())
 						action(TIMER_ACTION_SHOW_EPG, position);
-					mActionMode.finish();
+					ActionModeHelper.finish(mActionMode);
 			} else
 					action(TIMER_ACTION_SHOW_EPG, position);
 			}
