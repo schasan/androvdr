@@ -42,6 +42,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -68,6 +69,7 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 import de.androvdr.AbstractViewHolder;
+import de.androvdr.DBHelper;
 import de.androvdr.Messages;
 import de.androvdr.Preferences;
 import de.androvdr.R;
@@ -741,6 +743,7 @@ public class RecordingController extends AbstractController implements Runnable 
 	
 	private class RecordingIdUpdateThread extends Thread {
 		private final Handler mHandler;
+		private final DBHelper mDbHelper = new DBHelper(mActivity);
 		
 		public RecordingIdUpdateThread(Handler handler) {
 			mHandler = handler;
@@ -756,45 +759,50 @@ public class RecordingController extends AbstractController implements Runnable 
 			
 			logger.trace("UpdateThread started");
 			sendMsg(mHandler, Messages.MSG_TITLEBAR_PROGRESS_SHOW, null);
-			
-			if (Preferences.deleteRecordingIds && ! Preferences.useInternet) {
-				Recordings.clearIds();
-				for(Recording recording: mRecordingViewItems.getAllRecordings()) {
-					recording.setInfoId(null);
-				}
-				Preferences.deleteRecordingIds = false;
-				Preferences.store();
-			}
-			
+
+			SQLiteDatabase database = mDbHelper.getWritableDatabase();
 			try {
-				for (Recording recording: mRecordingViewItems.getAllRecordings()) {
-					if (isInterrupted()) {
-						logger.trace("UpdateThread interrupted");
-						return;
+				if (Preferences.deleteRecordingIds && ! Preferences.useInternet) {
+					Recordings.clearIds();
+					for(Recording recording: mRecordingViewItems.getAllRecordings()) {
+						recording.setInfoId(null, database);
 					}
-					if (recording.getInfoId() == null) {
-						RecordingInfo info = VdrCommands.getRecordingInfo(recording.number);
+					Preferences.deleteRecordingIds = false;
+					Preferences.store();
+				}
+				
+				try {
+					for (Recording recording: mRecordingViewItems.getAllRecordings()) {
 						if (isInterrupted()) {
 							logger.trace("UpdateThread interrupted");
 							return;
 						}
-						recording.setInfoId(info.id);
-						logger.trace("Set id {} --> infoId {}", recording.id, info.id);
+						if (recording.getInfoId(database) == null) {
+							RecordingInfo info = VdrCommands.getRecordingInfo(recording.number);
+							if (isInterrupted()) {
+								logger.trace("UpdateThread interrupted");
+								return;
+							}
+							recording.setInfoId(info.id, database);
+							logger.trace("Set id {} --> infoId {}", recording.id, info.id);
+						}
 					}
+					
+					if (Preferences.doRecordingIdCleanUp) {
+						Recordings.deleteUnusedIds(mRecordingViewItems.getAllRecordings());
+						Preferences.doRecordingIdCleanUp = false;
+					}
+					
+					synchronized (mUpdateThreadFinished) {
+						mUpdateThreadFinished.getAndSet(true);
+					}
+				} catch (IOException e) {
+					logger.error("Couldn't update recording ids", e);
+				} finally {
+					sendMsg(mHandler, Messages.MSG_TITLEBAR_PROGRESS_DISMISS, null);
 				}
-				
-				if (Preferences.doRecordingIdCleanUp) {
-					Recordings.deleteUnusedIds(mRecordingViewItems.getAllRecordings());
-					Preferences.doRecordingIdCleanUp = false;
-				}
-				
-				synchronized (mUpdateThreadFinished) {
-					mUpdateThreadFinished.getAndSet(true);
-				}
-			} catch (IOException e) {
-				logger.error("Couldn't update recording ids", e);
 			} finally {
-				sendMsg(mHandler, Messages.MSG_TITLEBAR_PROGRESS_DISMISS, null);
+				database.close();
 			}
 			logger.trace("UpdateThread finished");
 		}
@@ -811,13 +819,16 @@ public class RecordingController extends AbstractController implements Runnable 
 
 		@Override
 		protected String doInBackground(RecordingViewItem... params) {
+			final SQLiteDatabase database = new DBHelper(mActivity).getWritableDatabase();
+			
 			mRecordingViewItem = params[0];
 			mRecording = mRecordingViewItem.recording;
 			try {
 				mInfo = VdrCommands.getRecordingInfo(mRecording.number);
-				logger.trace("MD5: " + mRecording.getInfoId() + " --- " + mInfo.id);
+				logger.trace("MD5: " + mRecording.getInfoId(database) + " --- " + mInfo.id);
 				
-				if (mRecording.getInfoId() != null && mRecording.getInfoId().compareTo(mInfo.id) == 0) {
+				if (mRecording.getInfoId(database) != null
+						&& mRecording.getInfoId(database).compareTo(mInfo.id) == 0) {
 					if (mRecording.number < 0)
 						return mActivity.getString(R.string.rec_not_found);
 					else
@@ -832,7 +843,7 @@ public class RecordingController extends AbstractController implements Runnable 
 						if (foundRecording.number < 0)
 							return mActivity.getString(R.string.rec_not_found);
 						else
-							return doIt(foundRecording);
+							return doIt(foundRecording, database);
 					} else {
 						return mActivity.getString(R.string.rec_not_found);
 					}
@@ -840,7 +851,9 @@ public class RecordingController extends AbstractController implements Runnable 
 			} catch (IOException e) {
 				logger.error("Couldn't get recording info", e);
 				return e.getMessage();
-			} 
+			} finally {
+				database.close();
+			}
 		}
 		
 		protected String doIt() {
@@ -856,9 +869,9 @@ public class RecordingController extends AbstractController implements Runnable 
 			return "";
 		}
 
-		protected String doIt(Recording recording) throws IOException {
+		protected String doIt(Recording recording, SQLiteDatabase database) throws IOException {
 			mInfo = VdrCommands.getRecordingInfo(recording.number);
-			recording.setInfoId(mInfo.id);
+			recording.setInfoId(mInfo.id, database);
 			mRecording = recording;
 			return doIt();
 		}
