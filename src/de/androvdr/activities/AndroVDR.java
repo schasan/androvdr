@@ -21,6 +21,7 @@
 package de.androvdr.activities;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -65,6 +66,7 @@ import android.widget.Toast;
 import com.viewpagerindicator.LinePageIndicator;
 
 import de.androvdr.Channel;
+import de.androvdr.Channels;
 import de.androvdr.ConfigurationManager;
 import de.androvdr.Dialogs;
 import de.androvdr.GesturesFind;
@@ -482,6 +484,8 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 		}
 		if (key.equals("logLevel"))
 			initLogging(sharedPreferences);
+		if (key.equals("useLogos"))
+			Channels.clear();
 	}
 
 	@Override
@@ -559,7 +563,12 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 				return null;
 			}
 
-			return new Channel(channelNumber, channelName.toString().trim(), "");
+			Channel channel = null;
+			try {
+				channel = new Channel(channelNumber, channelName.toString().trim(), "");
+			} catch (IOException e) {
+			}
+			return channel;
 		}
 		
 		@Override

@@ -24,13 +24,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import de.androvdr.Epgs.NoScheduleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import de.androvdr.Epgs.NoScheduleException;
 
 public class Channel implements Comparable<Channel> {
+	public static transient Logger logger = LoggerFactory.getLogger(Channel.class);
+
 	public static final String TAG = "Channel";
 	
 	private static final long EPG_UPDATE_PERIOD = 1;
@@ -55,7 +59,7 @@ public class Channel implements Comparable<Channel> {
 
 	public Epg viewEpg = null;		// used by EpdataController
 	
-	public Channel(int number, String name, String zusatz) {
+	public Channel(int number, String name, String zusatz) throws IOException {
 		this.nr = number;
 		this.name = name;
 		this.zusatz = zusatz;
@@ -126,15 +130,21 @@ public class Channel implements Comparable<Channel> {
 		return (logo != null);
 	}
 	
-	private Bitmap initLogo() {
+	private Bitmap initLogo() throws IOException {
 		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
 			return null;
 		
 		String filename = logoDir + "/" + name + ".png";
 		Bitmap image = null;
 		File imagefile = new File(filename);
-		if (imagefile.exists()) {
-			image = BitmapFactory.decodeFile(filename);
+		try {
+			if (imagefile.exists()) {
+				image = BitmapFactory.decodeFile(filename);
+			}
+		} catch (OutOfMemoryError e) {
+			image = null;
+			logger.error("initLogo {} out of memory", name);
+			throw new IOException("Logo " + name + " too large");
 		}
 		return image;
 	}
