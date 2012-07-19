@@ -83,12 +83,10 @@ public class TextResizeButton extends Button {
 
 	public TextResizeButton(Context context, AttributeSet attrs) {
 		super(context, attrs);
-        mTextSize = (sTextSize > 0) ? sTextSize : getTextSize();
 	}
 
 	public TextResizeButton(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-        mTextSize = (sTextSize > 0) ? sTextSize : getTextSize();
 	}
 
     /**
@@ -99,6 +97,7 @@ public class TextResizeButton extends Button {
     protected void onTextChanged(final CharSequence text, final int start,
             final int before, final int after) {
         mNeedsResize = true;
+        mTextSize = (sTextSize > 0) ? sTextSize : getTextSize();
         // Since this view may be reused, it is good to reset the text size
         resetTextSize();
     }

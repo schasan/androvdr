@@ -71,12 +71,10 @@ public class TextResizeView extends TextView {
 
 	public TextResizeView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-        mTextSize = getTextSize();
 	}
 
 	public TextResizeView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-        mTextSize = getTextSize();
 	}
 
     /**
@@ -87,6 +85,7 @@ public class TextResizeView extends TextView {
     protected void onTextChanged(final CharSequence text, final int start,
             final int before, final int after) {
         mNeedsResize = true;
+        mTextSize = getTextSize();
         // Since this view may be reused, it is good to reset the text size
         resetTextSize();
     }
