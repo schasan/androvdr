@@ -255,7 +255,8 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
     	switch (requestCode) {
     	case PREFERENCEACTIVITY_ID:
     		if (mLayoutChanged) {
-    			initWorkspaceView(null);
+    			finish();
+    			startActivity(getIntent());
     		}
     		break;
     	case DEVICEPREFERENCEACTIVITY_ID:
