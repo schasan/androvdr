@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Theme / Layout FvK -->
     <style name="header">
@@ -30,7 +30,7 @@
     <style name="body_light" parent="body">
         <item name="android:background">@drawable/keyboard_background_light</item>
     </style>
-    
+
     <style name="detailsElementBackground_dark">
         <item name="android:background">@drawable/panel_background_dark</item>
     </style>
@@ -42,7 +42,7 @@
     <style name="infoarea">
         <item name="android:background">@drawable/btn_keyboard_key_normal</item>
         <item name="android:textColor">@android:color/white</item>
-        </style>
+    </style>
 
     <style name="infoarea_light" parent="infoarea">
         <item name="android:background">@drawable/btn_keyboard_key_normal_light</item>
@@ -58,14 +58,11 @@
         <item name="android:textStyle">bold</item>
         <item name="android:scaleType">center</item>
         <item name="android:longClickable">true</item>
+        <item name="android:lines">1</item>
     </style>
 
-    <style name="button_light" parent="@android:style/Widget.Button">
+    <style name="button_light" parent="button">
         <item name="android:background">@drawable/btn_remote_light</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:scaleType">center</item>
-        <item name="android:longClickable">true</item>
     </style>
 
     <style name="buttonUp" parent="@style/button">

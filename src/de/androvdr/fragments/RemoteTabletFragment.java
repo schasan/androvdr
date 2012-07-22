@@ -68,6 +68,9 @@ public class RemoteTabletFragment extends RemoteFragment {
 			view.setOnClickListener(getOnClickListener());
 		}
 
+		if (mButtonTextSize > 0)
+			setButtonsTextSize(root, mButtonTextSize);
+
 		return root;
 	}
 
