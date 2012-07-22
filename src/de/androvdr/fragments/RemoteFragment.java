@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,12 +25,14 @@ import de.androvdr.Preferences;
 import de.androvdr.R;
 import de.androvdr.UsertabParser;
 import de.androvdr.devices.Devices;
+import de.androvdr.widget.TextResizeButton;
 
 public class RemoteFragment extends AbstractFragment {
 
 	protected final File mUsertabFile = new File(Preferences.getUsertabFileName());
 	
 	protected Activity mActivity;
+	protected int mButtonTextSize = 0;
 	protected ConfigurationManager mConfigurationManager;
 	protected Devices mDevices;
 	protected int mLayoutId;
@@ -177,6 +180,44 @@ public class RemoteFragment extends AbstractFragment {
 			root = inflater.inflate(mLayoutId, container, false);
 		
 		addClickListeners(root);
+		
+		if (mButtonTextSize > 0 )
+			setButtonsTextSize(root, mButtonTextSize);
+		
 		return root;
+	}
+	
+	/**
+	 * @param size in sp
+	 * 
+	 * Set the text size of all TextResizeButtons
+	 */
+	public void setButtonsTextSize(int size) {
+		if (getView() != null)
+			setButtonsTextSize(getView(), size);
+		else
+			mButtonTextSize = size;
+	}
+	
+	
+	/**
+	 * @param view
+	 * @param size in sp
+	 * 
+	 * Set the textsize of all TextResizeButtons, starting with view
+	 */
+	protected void setButtonsTextSize(View view, int size) {
+		if (view instanceof ViewGroup) {
+			ViewGroup v = (ViewGroup) view;
+			for (int j = 0; j < v.getChildCount(); j++)
+				if (v.getChildAt(j) instanceof TextResizeButton) {
+					((TextResizeButton) v.getChildAt(j)).setTextSize(
+							TypedValue.COMPLEX_UNIT_SP, size);
+				} else {
+					if (v.getChildAt(j) instanceof ViewGroup)
+						setButtonsTextSize((ViewGroup) v.getChildAt(j), size);
+				}
+		}
+		
 	}
 }
