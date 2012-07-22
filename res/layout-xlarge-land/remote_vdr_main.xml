@@ -24,6 +24,7 @@
         android:orientation="horizontal" >
 
         <!-- User -->
+
         <TableLayout
             android:layout_width="0dip"
             android:layout_height="match_parent"
@@ -107,6 +108,7 @@
         </TableLayout>
 
         <!-- Numpad / Cursor ... -->
+
         <include
             android:layout_width="0dip"
             android:layout_height="match_parent"
@@ -126,6 +128,7 @@
         android:orientation="horizontal" >
 
         <!-- Misc Buttons -->
+
         <include
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -133,6 +136,7 @@
             layout="@layout/remote_part_commands" />
 
         <!-- Color Buttons -->
+
         <include
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -152,16 +156,18 @@
         android:orientation="horizontal" >
 
         <!-- Info Area -->
+
         <LinearLayout
             android:id="@+id/remote_infoarea"
+            style="?infoarea"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/btn_keyboard_key_normal"
             android:orientation="vertical"
             android:tag="Activity.de.androvdr.activities.EpgsdataActivity" >
 
             <!-- Sensors -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dip"
@@ -179,6 +185,7 @@
 
                     <TextView
                         android:id="@+id/channelnumber"
+                        style="?infoarea_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingRight="18dip"
@@ -206,6 +213,7 @@
 
                         <de.androvdr.widget.TextResizeView
                             android:id="@+id/channeltext"
+                            style="?infoarea_text"
                             android:layout_width="match_parent"
                             android:layout_height="0dip"
                             android:layout_weight="46"
@@ -232,6 +240,7 @@
 
                                 <TextView
                                     android:id="@+id/channelnowplayingtime"
+                                    style="?infoarea_text"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textSize="14dip"
@@ -239,6 +248,7 @@
 
                                 <TextView
                                     android:id="@+id/channelnowplaying"
+                                    style="?infoarea_text"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:paddingLeft="6dip"
@@ -250,6 +260,7 @@
 
                                 <TextView
                                     android:id="@+id/channelnextplayingtime"
+                                    style="?infoarea_text"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textSize="14dip"
@@ -257,6 +268,7 @@
 
                                 <TextView
                                     android:id="@+id/channelnextplaying"
+                                    style="?infoarea_text"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:paddingLeft="6dip"
@@ -269,6 +281,7 @@
             </LinearLayout>
 
             <!-- Disk Status -->
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dip"
@@ -286,6 +299,7 @@
 
                 <TextView
                     android:id="@+id/remote_diskstatus_values"
+                    style="?infoarea_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_above="@id/remote_diskstatus_progressbar"
@@ -297,12 +311,12 @@
         </LinearLayout>
 
         <!-- Play -->
+
         <include
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             layout="@layout/remote_part_play_skip_rec" />
-
     </LinearLayout>
 
 </LinearLayout>
