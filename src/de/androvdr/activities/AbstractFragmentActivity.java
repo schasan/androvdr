@@ -166,8 +166,7 @@ public class AbstractFragmentActivity extends FragmentActivity implements Simple
 		logger.trace("onCreate");
 		
 		Preferences.init(false);
-		if (Preferences.blackOnWhite
-				&& !(Build.VERSION.SDK_INT >= 11 && (this instanceof AndroVDR)))
+		if (Preferences.blackOnWhite)
 			setTheme(R.style.Theme_Light);
 		
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);

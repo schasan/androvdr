@@ -125,7 +125,10 @@ public class RemoteFragment extends AbstractFragment {
 			if(userButton.art == 1){ // normaler Button
 				b = new Button(mActivity.getApplicationContext());
 				if (Preferences.alternateLayout) {
-					b.setBackgroundResource(R.drawable.btn_remote);
+					if (Preferences.blackOnWhite)
+						b.setBackgroundResource(R.drawable.btn_remote_light);
+					else
+						b.setBackgroundResource(R.drawable.btn_remote);
 					b.setTextColor(Color.WHITE);
 					b.setTypeface(null, Typeface.BOLD);
 				}
@@ -138,7 +141,10 @@ public class RemoteFragment extends AbstractFragment {
 			if(userButton.art == 2){ // ImageButton
 				ib = new ImageButton(mActivity.getApplicationContext());
 				if (Preferences.alternateLayout) {
-					ib.setBackgroundResource(R.drawable.btn_remote);
+					if (Preferences.blackOnWhite)
+						ib.setBackgroundResource(R.drawable.btn_remote_light);
+					else
+						ib.setBackgroundResource(R.drawable.btn_remote);
 				}
 				ib.setLayoutParams(l);
 				ib.setImageURI(Uri.parse(userButton.beschriftung));

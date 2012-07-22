@@ -63,6 +63,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.LinePageIndicator;
 
 import de.androvdr.Channel;
@@ -159,9 +160,7 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 	}
 
 	public void initWorkspaceView(Bundle savedInstanceState) {
-		if (Preferences.alternateLayout)
-			setTheme(R.style.Theme);
-		else
+		if (! Preferences.alternateLayout)
 			setTheme(R.style.Theme_Original);
 		
 		logger.debug("Model: {}", Build.MODEL);
@@ -478,7 +477,7 @@ public class AndroVDR extends AbstractFragmentActivity implements OnChangeListen
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
-		if (key.equals("alternateLayout"))
+		if (key.equals("alternateLayout") || key.equals("blackOnWhite"))
 			mLayoutChanged = true;
 		if (key.equals("currentVdrId")) {
 			new CloseConnectionTask().execute(CLOSE_CONNECTION_PORTFORWARDING);

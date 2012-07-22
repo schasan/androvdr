@@ -20,6 +20,8 @@
   <attr name="buttonPowerOn" format="reference" />
   <attr name="buttonPowerOff" format="reference" />
   <attr name="spacer" format="reference" />
+  <attr name="infoarea" format="reference" />
+  <attr name="infoarea_text" format="reference" />
   
   <attr name="buttonCursor" format="reference" />
   <attr name="buttonSmall" format="reference" />
